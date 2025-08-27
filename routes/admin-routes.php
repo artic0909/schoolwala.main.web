@@ -30,3 +30,9 @@ Route::get('/admin-chapters', [AdminController::class, 'adminChaptersView'])->na
 Route::get('/admin-videos', [AdminController::class, 'adminVideosView'])->name('admin.admin-videos');
 Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
 // Course Related Routes End ==========================================================================================================================>
+
+// Students Related Route Start =========================================================================================================================>
+Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->name('admin.admin-students');
+Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
+Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
+// Students Related Route End ==========================================================================================================================>

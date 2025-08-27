@@ -147,5 +147,31 @@
             </a>
         </li>
 
+        <!-- Students -->
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Students</span></li>
+        <li class="menu-item {{ request()->routeIs('admin.admin-students','admin.admin-tuition-fees','admin.admin-fees-report') ? 'open active' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-detail"></i>
+                <div>Students</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('admin.admin-students') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-students') }}" class="menu-link">
+                        <div>All Students</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.admin-tuition-fees') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-tuition-fees') }}" class="menu-link">
+                        <div>Tuition Fees</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.admin-fees-report') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-fees-report') }}" class="menu-link">
+                        <div>Fees Report</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
+
     </ul>
 </aside>

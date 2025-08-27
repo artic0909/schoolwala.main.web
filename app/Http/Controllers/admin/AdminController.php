@@ -123,4 +123,24 @@ class AdminController extends Controller
     }
     // Course Related End ==========================================================================================================================>
 
+    // Students Related Start =========================================================================================================================>
+    public function adminStudentsView()
+    {
+
+        return view('admin.admin-students');
+    }
+
+    public function adminTuitionFeesView()
+    {
+
+        return view('admin.admin-tuition-fees');
+    }
+
+    public function adminFeesReportView()
+    {
+
+        return view('admin.admin-fees-report');
+    }
+    // Students Related End ==========================================================================================================================>
+
 }
