@@ -21,3 +21,12 @@ Route::get('/admin-story-tags', [AdminController::class, 'adminStoryTagsView'])-
 Route::get('/admin-stories', [AdminController::class, 'adminStoriesView'])->name('admin.admin-stories');
 Route::get('/admin-faq', [AdminController::class, 'adminFaqView'])->name('admin.admin-faq');
 // Front Page Routes End ==========================================================================================================================>
+
+// Course Related Routes Start =========================================================================================================================>
+Route::get('/admin-classes', [AdminController::class, 'adminClassesView'])->name('admin.admin-classes');
+Route::get('/admin-class-faqs', [AdminController::class, 'adminClassFaqsView'])->name('admin.admin-class-faqs');
+Route::get('/admin-subjects', [AdminController::class, 'adminSubjectsView'])->name('admin.admin-subjects');
+Route::get('/admin-chapters', [AdminController::class, 'adminChaptersView'])->name('admin.admin-chapters');
+Route::get('/admin-videos', [AdminController::class, 'adminVideosView'])->name('admin.admin-videos');
+Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
+// Course Related Routes End ==========================================================================================================================>

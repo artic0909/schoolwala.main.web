@@ -14,7 +14,7 @@ class AdminController extends Controller
     }
 
 
-    // SEO Routes Start =========================================================================================================================>
+    // SEO Start =========================================================================================================================>
     public function adminSeoHomePageView()
     {
 
@@ -51,9 +51,9 @@ class AdminController extends Controller
         return view('admin.admin-seo-privacy-policy');
     }
 
-    // SEO Routes End ==========================================================================================================================>
+    // SEO End ==========================================================================================================================>
 
-    // Front Page Routes Start =========================================================================================================================>
+    // Front Page Start =========================================================================================================================>
     public function adminUploadFacultyView()
     {
 
@@ -83,14 +83,44 @@ class AdminController extends Controller
 
         return view('admin.admin-faq');
     }
-    // Front Page Routes End ==========================================================================================================================>
+    // Front Page End ==========================================================================================================================>
 
-    // Course Related Routes Start =========================================================================================================================>
+    // Course Related Start =========================================================================================================================>
     public function adminClassesView()
     {
 
         return view('admin.admin-classes');
     }
-    // Course Related Routes End ==========================================================================================================================>
+
+    public function adminClassFaqsView()
+    {
+
+        return view('admin.admin-class-faqs');
+    }
+
+    public function adminSubjectsView()
+    {
+
+        return view('admin.admin-subjects');
+    }
+
+    public function adminChaptersView()
+    {
+
+        return view('admin.admin-chapters');
+    }
+
+    public function adminVideosView()
+    {
+
+        return view('admin.admin-videos');
+    }
+
+    public function adminVideoFeedbacksView()
+    {
+
+        return view('admin.admin-video-feedbacks');
+    }
+    // Course Related End ==========================================================================================================================>
 
 }
