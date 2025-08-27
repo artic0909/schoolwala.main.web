@@ -37,7 +37,6 @@ Route::get('/privacy-policy', function () {
     return view('privacy-policy');
 })->name('privacy-policy');
 
-
 // Route::view('/', 'home');
 
 Route::view('dashboard', 'dashboard')
