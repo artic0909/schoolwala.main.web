@@ -1,0 +1,356 @@
+:root {
+  --pink: #ff7aa2;
+  --sun: #ffc857;
+  --sky: #60c2ff;
+  --mint: #7ef6b5;
+  --accent: #ff8a00;
+  --accent-dark: #e67300;
+  --text: #1f2937;
+  --text-light: #6b7280;
+  --light: #f9fafb;
+  --white: #ffffff;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 30px rgba(18, 38, 63, 0.08);
+  --shadow-hover: 0 18px 40px rgba(18, 38, 63, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(180deg, #fffbf6 0%, #ffffff 100%);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  padding: 25px 0 15px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.breadcrumb a {
+  color: var(--text-light);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb a:hover {
+  color: var(--accent);
+}
+
+.breadcrumb span {
+  margin: 0 8px;
+  color: var(--text-light);
+}
+
+.breadcrumb .current {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Edit Profile Header */
+.edit-header {
+  text-align: center;
+  margin: 40px 0;
+}
+
+.edit-header h1 {
+  font-family: "Baloo 2", cursive;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  position: relative;
+  display: inline-block;
+}
+
+.edit-header h1::after {
+  content: "";
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 138, 0, 0.2);
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.edit-header p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Avatar Upload */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.avatar-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--sun), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: var(--white);
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-hover);
+  overflow: hidden;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-edit {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.avatar-edit:hover {
+  transform: scale(1.1);
+  background: var(--light);
+}
+
+.upload-text {
+  color: var(--text-light);
+  margin-bottom: 15px;
+}
+
+.avatar-options {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.avatar-option {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.avatar-option:hover {
+  transform: scale(1.1);
+}
+
+.avatar-option.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.2);
+}
+
+/* Form Section */
+.form-section {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 40px;
+  box-shadow: var(--shadow);
+  margin-bottom: 50px;
+}
+
+.form-group {
+  margin-bottom: 30px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-label i {
+  color: var(--accent);
+}
+
+.form-control {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e5e7eb;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: "Inter", sans-serif;
+}
+
+
+.form-control:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 138, 0, 0.2);
+}
+
+.form-hint {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+/* Interests */
+.interests-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.interest-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 138, 0, 0.1);
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.interest-item:hover {
+  background: rgba(255, 138, 0, 0.2);
+}
+
+.interest-item.selected {
+  background: var(--accent);
+  color: var(--white);
+}
+
+.interest-item.selected .check-icon {
+  display: block;
+}
+
+.check-icon {
+  display: none;
+  font-size: 0.8rem;
+}
+
+/* Submit Button */
+.submit-section {
+  text-align: center;
+  margin: 30px 0 50px;
+}
+
+.btn-submit {
+  display: inline-block;
+  background: var(--accent);
+  color: var(--white);
+  padding: 16px 50px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 6px 18px rgba(255, 138, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit:hover {
+  background: var(--accent-dark);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(255, 138, 0, 0.3);
+}
+
+.btn-submit:active {
+  transform: translateY(1px);
+}
+
+.btn-submit::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20px;
+  height: 200%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(30deg);
+  transition: all 0.5s ease;
+}
+
+.btn-submit:hover::after {
+  left: 120%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-header h1 {
+    font-size: 2rem;
+  }
+
+  .form-section {
+    padding: 30px 20px;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+}
+
+@media (max-width: 576px) {
+  .edit-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .avatar-preview {
+    width: 120px;
+    height: 120px;
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+  }
+}
