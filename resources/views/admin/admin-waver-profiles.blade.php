@@ -1,9 +1,8 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Tuition Fees - Schoolwala')
+@section('title', 'Waver Student Profiles - Schoolwala')
 
 @section('content')
-
 
 <style>
   .fab {
@@ -47,6 +46,7 @@
   }
 </style>
 
+
 <div class="row">
   <div class="col-lg-12 mb-4 order-0">
     <div class="card">
@@ -54,11 +54,11 @@
         <div class="col-sm-7">
           <div class="card-body">
             <h5 class="card-title text-primary">
-              List of Tuition Fees !
+              List of Waver Student Profiles !
             </h5>
             <p class="mb-4">
-              You can <strong>add/ edit/ delete</strong> tuitions
-              fees
+              You can <strong>see/ edit/ delete</strong> waver
+              student profiles
             </p>
           </div>
         </div>
@@ -72,9 +72,24 @@
         </div>
 
         <!-- Student Search Filter -->
-        <div
-          class="col-lg-12 mb-4 d-flex px-5 justify-content-end">
-          <button class="btn btn-info">Export</button>
+        <div class="col-lg-12 mb-4">
+          <form action="">
+            <div class="input-group">
+              <label for="" class="input-group-text">
+                Choose Class</label>
+              <select name="" class="form-select" id="">
+                <option value="1">Class 1</option>
+                <option value="2">Class 2</option>
+                <option value="3">Class 3</option>
+                <option value="4">Class 4</option>
+                <option value="5">Class 5</option>
+              </select>
+
+              <button class="btn btn-primary">Search</button>
+              &nbsp;&nbsp;
+              <button class="btn btn-info">Export</button>
+            </div>
+          </form>
         </div>
 
         <div class="col-lg-12">
@@ -83,8 +98,14 @@
               <thead>
                 <tr>
                   <th>SL</th>
+                  <th>Profile</th>
+                  <th>STU ID</th>
+                  <th>STU Type</th>
+                  <th>Student Name</th>
+                  <th>Student Age</th>
                   <th>Class Name</th>
-                  <th>Fees Amount</th>
+                  <th>Parent's Name</th>
+                  <th>Email/ Mobile</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -93,28 +114,45 @@
                   <td>
                     <strong>1</strong>
                   </td>
-
                   <td>
-                    <span class="badge bg-label-primary">Class 8</span>
+                    <img
+                      src="{{ asset('./admin/assets/img/avatars/1.png') }}"
+                      class="w-px-40 h-auto rounded-circle" />
                   </td>
-                  <td>89.00</td>
+                  <td>
+                    <span class="badge bg-label-danger">25-SW-CLASS8-01</span>
+                  </td>
+                  <td>Waver</td>
+                  <td>Xyz Mnp</td>
+                  <td>
+                    <span class="badge bg-label-primary">Age: 8</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-label-warning">Class 8</span>
+                  </td>
+                  <td>MNP</td>
+                  <td>
+                    <p class="m-0 p-0">xyz@gmail.com</p>
+                    <p class="m-0 p-0">+91 123456789</p>
+                  </td>
 
                   <td>
-                    <button
-                      type="button"
-                      class="btn btn-warning"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
-                      Edit
-                    </button>
-                    &nbsp;
-                    <button
-                      class="btn btn-danger"
-                      type="button"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
-                      Delete
-                    </button>
+                    <div class="row g-2">
+                      <button
+                        type="button"
+                        class="btn btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalEditClass">
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-danger"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalDeleteClass">
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -126,60 +164,7 @@
   </div>
 </div>
 
-<!-- Add Tuition Fees Modal -->
-<div
-  class="modal fade"
-  id="backDropModalAddClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Add Tuition Fees
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Tuition Fees Modal -->
+<!-- Edit Student Modal -->
 <div
   class="modal fade"
   id="backDropModalEditClass"
@@ -189,7 +174,7 @@
     <form class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Edit Tuition Fees
+          Edit Student
         </h5>
         <button
           type="button"
@@ -199,6 +184,49 @@
       </div>
       <div class="modal-body">
         <div class="row">
+          <div class="col mb-3">
+            <img
+              src="./assets/img/avatars/1.png"
+              class="w-px-100 h-auto rounded-circle"
+              alt="" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Profile Image</label>
+            <input type="file" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Parent's Name</label>
+            <input type="text" class="form-control" />
+          </div>
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Student's Name</label>
+            <input type="text" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Email ID</label>
+            <input type="text" class="form-control" />
+          </div>
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Mobile</label>
+            <input type="text" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Student's Age</label>
+            <input type="text" class="form-control" />
+          </div>
+
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Choose Class</label>
             <select name="" id="" class="form-select">
@@ -213,7 +241,12 @@
 
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
+            <label for="nameBackdrop" class="form-label">Password</label>
+            <input type="text" class="form-control" />
+          </div>
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Confirm Password</label>
             <input type="text" class="form-control" />
           </div>
         </div>
@@ -231,7 +264,7 @@
   </div>
 </div>
 
-<!-- Delete Tuition Fees Modal -->
+<!-- Delete Student Modal -->
 <div
   class="modal fade"
   id="backDropModalDeleteClass"
@@ -241,7 +274,7 @@
     <form class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Delete Tuition Fees
+          Delete Student
         </h5>
         <button
           type="button"
@@ -253,8 +286,8 @@
         <div class="row">
           <div class="col mb-3">
             <p>
-              Are you sure you want to delete this tuition fees
-              <span class="text-danger">Class 8 Fees: 89.00</span>?
+              Are you sure you want to delete this student
+              <span class="text-danger">25-SW-CLASS8-01</span>?
             </p>
           </div>
         </div>
@@ -271,16 +304,5 @@
     </form>
   </div>
 </div>
-
-<!-- Add Button -->
-<a
-  type="button"
-  data-bs-toggle="modal"
-  data-bs-target="#backDropModalAddClass"
-  class="fab"
-  aria-label="Add new item"
-  title="Add">
-  Add
-</a>
 
 @endsection

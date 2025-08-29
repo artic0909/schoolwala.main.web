@@ -34,13 +34,13 @@
                     <div
                         class="card-footer text-end">
                         <a
-                            href="wavers-request.html"
+                            href="{{ route('admin.admin-wavers-request') }}"
                             class="btn btn-primary">
                             Waver Request
                         </a>
                         &nbsp;
                         <a
-                            href="admin-waver-profiles.html"
+                            href="{{ route('admin.admin-waver-profiles') }}"
                             class="btn btn-info">
                             Waver Profiles
                         </a>

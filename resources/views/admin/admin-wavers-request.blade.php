@@ -1,9 +1,8 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Tuition Fees - Schoolwala')
+@section('title', 'Waver Requests - Schoolwala')
 
 @section('content')
-
 
 <style>
   .fab {
@@ -47,6 +46,7 @@
   }
 </style>
 
+
 <div class="row">
   <div class="col-lg-12 mb-4 order-0">
     <div class="card">
@@ -54,11 +54,10 @@
         <div class="col-sm-7">
           <div class="card-body">
             <h5 class="card-title text-primary">
-              List of Tuition Fees !
+              List of Waver Requests !
             </h5>
             <p class="mb-4">
-              You can <strong>add/ edit/ delete</strong> tuitions
-              fees
+              You can <strong>see/ delete</strong> waver requests
             </p>
           </div>
         </div>
@@ -72,19 +71,18 @@
         </div>
 
         <!-- Student Search Filter -->
-        <div
-          class="col-lg-12 mb-4 d-flex px-5 justify-content-end">
-          <button class="btn btn-info">Export</button>
-        </div>
-
         <div class="col-lg-12">
           <div class="table-responsive text-nowrap">
             <table class="table table-hover table-bordered">
               <thead>
                 <tr>
                   <th>SL</th>
-                  <th>Class Name</th>
-                  <th>Fees Amount</th>
+                  <th>Request Date</th>
+                  <th>Student's/ Parent's Name</th>
+                  <th>Student Age</th>
+                  <th>Class</th>
+                  <th>Email/ Mobile</th>
+                  <th>Address</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -95,17 +93,47 @@
                   </td>
 
                   <td>
+                    <p class="m-0 p-0 badge bg-label-info">
+                      01-01-2025
+                    </p>
+                  </td>
+
+                  <td>
+                    <p class="m-0 p-0">
+                      <strong>STU Name:</strong> Xyx Mnp
+                    </p>
+                    <p class="m-0 p-0">
+                      <strong>PRNT Name:</strong> Xyx Mnp
+                    </p>
+                  </td>
+
+                  <td>Age: 7</td>
+
+                  <td>
                     <span class="badge bg-label-primary">Class 8</span>
                   </td>
-                  <td>89.00</td>
+                  <td>
+                    <p class="m-0 p-0">
+                      <strong>Email:</strong> xyz@gmail.com
+                    </p>
+                    <p class="m-0 p-0">
+                      <strong>Mobile:</strong> +91 1234567890
+                    </p>
+                  </td>
 
                   <td>
                     <button
+                      class="btn btn-primary"
                       type="button"
-                      class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
-                      Edit
+                      data-bs-target="#backDropModalAddress">
+                      Address
+                    </button>
+                  </td>
+
+                  <td>
+                    <button class="btn btn-info" type="button">
+                      Mail Back
                     </button>
                     &nbsp;
                     <button
@@ -126,122 +154,17 @@
   </div>
 </div>
 
-<!-- Add Tuition Fees Modal -->
+<!-- Address View Modal -->
 <div
   class="modal fade"
-  id="backDropModalAddClass"
+  id="backDropModalAddress"
   data-bs-backdrop="static"
   tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog">
     <form class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Add Tuition Fees
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Tuition Fees Modal -->
-<div
-  class="modal fade"
-  id="backDropModalEditClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Edit Tuition Fees
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Delete Tuition Fees Modal -->
-<div
-  class="modal fade"
-  id="backDropModalDeleteClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Delete Tuition Fees
+          Address
         </h5>
         <button
           type="button"
@@ -253,8 +176,50 @@
         <div class="row">
           <div class="col mb-3">
             <p>
-              Are you sure you want to delete this tuition fees
-              <span class="text-danger">Class 8 Fees: 89.00</span>?
+              <strong><i class="bx bx-mail-send"></i> Email: xyz@gmail.com</strong>
+              <br />
+              <i class="bx bx-map"></i> <strong>Address:</strong> Lorem ipsum dolor sit amet consectetur adipisicing
+              elit. Quisquam, quae?
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Waver Request Modal -->
+<div
+  class="modal fade"
+  id="backDropModalDeleteClass"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Delete Request
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <p>
+              Are you sure you want to delete this request
+              <span class="text-danger">Email ID | Mobile</span>?
             </p>
           </div>
         </div>
@@ -271,16 +236,5 @@
     </form>
   </div>
 </div>
-
-<!-- Add Button -->
-<a
-  type="button"
-  data-bs-toggle="modal"
-  data-bs-target="#backDropModalAddClass"
-  class="fab"
-  aria-label="Add new item"
-  title="Add">
-  Add
-</a>
 
 @endsection

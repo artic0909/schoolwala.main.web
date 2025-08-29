@@ -41,7 +41,7 @@
                     </li>
                     <li><div class="dropdown-divider"></div></li>
                     <li>
-                        <a class="dropdown-item" href="{{ url('admin-profile') }}">
+                        <a class="dropdown-item" href="{{route('admin.admin-profile')}}">
                             <i class="bx bx-user me-2"></i>
                             <span class="align-middle">My Profile</span>
                         </a>

@@ -36,3 +36,16 @@ Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->na
 Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
 Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
 // Students Related Route End ==========================================================================================================================>
+
+// Enquiry Routes Start =========================================================================================================================>
+Route::get('/admin-enquiry', [AdminController::class, 'adminEnquiryView'])->name('admin.admin-enquiry');
+// Enquiry Routes End ==========================================================================================================================>
+
+// Waver Routes Start =========================================================================================================================>
+Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
+Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
+// Waver Routes End ==========================================================================================================================>
+
+// Admin Profile Routes Start =========================================================================================================================>
+Route::get('/admin-profile', [AdminController::class, 'adminProfileView'])->name('admin.admin-profile');
+// Admin Profile Routes End ==========================================================================================================================>

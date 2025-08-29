@@ -1,9 +1,8 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Tuition Fees - Schoolwala')
+@section('title', 'Dashboard - Schoolwala')
 
 @section('content')
-
 
 <style>
   .fab {
@@ -54,11 +53,10 @@
         <div class="col-sm-7">
           <div class="card-body">
             <h5 class="card-title text-primary">
-              List of Tuition Fees !
+              List of Enquiries !
             </h5>
             <p class="mb-4">
-              You can <strong>add/ edit/ delete</strong> tuitions
-              fees
+              You can <strong>reply/ delete</strong> enquiries
             </p>
           </div>
         </div>
@@ -83,9 +81,14 @@
               <thead>
                 <tr>
                   <th>SL</th>
-                  <th>Class Name</th>
-                  <th>Fees Amount</th>
-                  <th>Actions</th>
+                  <th>Enquiry Date</th>
+                  <th>Reply Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th>Enquiry/ Reply</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
@@ -95,19 +98,39 @@
                   </td>
 
                   <td>
-                    <span class="badge bg-label-primary">Class 8</span>
+                    <span class="badge bg-label-warning">01-01-2025</span>
                   </td>
-                  <td>89.00</td>
+                  <td>
+                    <span class="badge bg-label-primary">01-01-2025</span>
+                  </td>
+                  <td>Xyz Mnp</td>
+                  <td>xyz@gmail.com</td>
+                  <td>Subject 1</td>
+                  <td>
+                    <span class="badge bg-label-danger">Not Replied</span>
+                    /
+                    <span class="badge bg-label-success">Replied</span>
+                  </td>
 
                   <td>
                     <button
                       type="button"
-                      class="btn btn-warning"
+                      class="btn btn-primary"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
-                      Edit
+                      data-bs-target="#backDropModalEnquiry">
+                      Enquiry
                     </button>
                     &nbsp;
+                    <button
+                      class="btn btn-info"
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#backDropModalReply">
+                      Reply
+                    </button>
+                  </td>
+
+                  <td>
                     <button
                       class="btn btn-danger"
                       type="button"
@@ -126,71 +149,16 @@
   </div>
 </div>
 
-<!-- Add Tuition Fees Modal -->
+<!-- Enquiry Modal -->
 <div
   class="modal fade"
-  id="backDropModalAddClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Add Tuition Fees
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Tuition Fees Modal -->
-<div
-  class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEnquiry"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <form class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Edit Tuition Fees
-        </h5>
+        <h5 class="modal-title" id="backDropModalTitle">Enquiry</h5>
         <button
           type="button"
           class="btn-close"
@@ -199,22 +167,55 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
+          <div class="col d-flex justify-content-between mb-3">
+            <p class="m-0 p-0 mb-2">
+              <strong>Enquiry Date:
+                <span class="badge bg-label-primary">01-01-2025</span></strong>
+            </p>
+            <p class="m-0 p-0">
+              <strong>Name:
+                <span
+                  class="badge bg-label-info"
+                  style="text-transform: capitalize">Xyz Mnp</span></strong>
+            </p>
+
+            <p class="m-0 p-0">
+              <strong>Email:
+                <span
+                  class="badge bg-label-success"
+                  style="text-transform: lowercase">xyz@gmail.com</span></strong>
+            </p>
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
+            <p class="m-0 p-0 mb-2">
+              <strong>Subject:
+                <span
+                  class="badge bg-label-warning"
+                  style="text-transform: capitalize">Lorem ipsum dolor sit amet consectetur
+                  adipisicing elit. Mollitia?</span></strong>
+            </p>
+
+            <p class="m-0 p-0">
+              <strong>Enquiry:</strong><br />
+              Lorem ipsum dolor sit amet consectetur adipisicing
+              elit. Exercitationem velit, veritatis quia
+              reprehenderit vel saepe totam modi adipisci provident
+              pariatur!
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <p class="m-0 p-0 mb-2"><strong>Reply:</strong></p>
+            <textarea
+              name=""
+              class="form-control"
+              id=""
+              rows="10"></textarea>
           </div>
         </div>
       </div>
@@ -225,13 +226,80 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-primary">
+          Send Reply
+        </button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Delete Tuition Fees Modal -->
+<!-- Reply Modal -->
+<div
+  class="modal fade"
+  id="backDropModalReply"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <form class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Reply</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col d-flex justify-content-between mb-3">
+            <p class="m-0 p-0 mb-2">
+              <strong>Enquiry Date:
+                <span class="badge bg-label-warning">01-01-2025</span></strong>
+            </p>
+
+            <p class="m-0 p-0 mb-2">
+              <strong>Reply Date:
+                <span class="badge bg-label-success">01-01-2025</span></strong>
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col mb-3">
+            <p>
+              <strong>Subject:</strong>
+              <br />
+              Lorem ipsum dolor sit ame?
+            </p>
+            <p>
+              <strong>Enquiry:</strong>
+              <br />
+              Lorem ipsum dolor sit amet consectetur adipisicing
+              elit. Quisquam, quae?
+            </p>
+
+            <p>
+              <strong>Reply:</strong>
+              <br />
+              Lorem ipsum dolor sit amet consectetur adipisicing
+              elit. Quisquam, quae?
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Enquiry Modal -->
 <div
   class="modal fade"
   id="backDropModalDeleteClass"
@@ -241,7 +309,7 @@
     <form class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Delete Tuition Fees
+          Delete Enquiry
         </h5>
         <button
           type="button"
@@ -253,8 +321,8 @@
         <div class="row">
           <div class="col mb-3">
             <p>
-              Are you sure you want to delete this tuition fees
-              <span class="text-danger">Class 8 Fees: 89.00</span>?
+              Are you sure you want to delete this enquiry
+              <span class="text-danger">Subject 1</span>?
             </p>
           </div>
         </div>
@@ -271,16 +339,5 @@
     </form>
   </div>
 </div>
-
-<!-- Add Button -->
-<a
-  type="button"
-  data-bs-toggle="modal"
-  data-bs-target="#backDropModalAddClass"
-  class="fab"
-  aria-label="Add new item"
-  title="Add">
-  Add
-</a>
 
 @endsection

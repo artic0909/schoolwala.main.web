@@ -173,5 +173,14 @@
             </ul>
         </li>
 
+
+        <!-- Enquiry -->
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Enquiry</span></li>
+        <li class="menu-item {{ request()->routeIs('admin.admin-enquiry') ? 'active' : '' }}">
+            <a href="{{ route('admin.admin-enquiry') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-support"></i>
+                <div>Enquiry</div>
+            </a>
+        </li>
     </ul>
 </aside>
