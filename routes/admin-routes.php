@@ -3,7 +3,23 @@
 use App\Http\Controllers\admin\AdminController;
 use Illuminate\Support\Facades\Route;
 
+
+// Page Not Found
+Route::get('/admin-page-not-found', [AdminController::class, 'adminPageErrorView'])->name('admin.page-error');
+
+
+
+// Auth Routes Start =========================================================================================================================>
+Route::get('/admin-register', [AdminController::class, 'adminRegisterView'])->name('admin.admin-register');
+Route::get('/admin-login', [AdminController::class, 'adminLoginView'])->name('admin.admin-login');
+Route::get('/admin-forget-password', [AdminController::class, 'adminForgetPassView'])->name('admin.admin-forget-password');
+Route::get('/admin-forget-verify-otp', [AdminController::class, 'adminForgetOtpVerifyView'])->name('admin.admin-forget-verify-otp');
+// Auth Routes End ==========================================================================================================================>
+
+
+// Dashboard Start =========================================================================================================================>
 Route::get('/admin-dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.admin-dashboard');
+// Dashboard End ==========================================================================================================================>
 
 // SEO Routes Start =========================================================================================================================>
 Route::get('/admin-seo-home-page', [AdminController::class, 'adminSeoHomePageView'])->name('admin.admin-seo-home-page');

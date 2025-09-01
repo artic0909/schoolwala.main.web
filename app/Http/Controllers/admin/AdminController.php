@@ -7,11 +7,43 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+
+    // Auth Start =========================================================================================================================>
+    public function adminRegisterView()
+    {
+
+        return view('admin.admin-register');
+    }
+    public function adminLoginView()
+    {
+
+        return view('admin.admin-login');
+    }
+    public function adminForgetPassView()
+    {
+
+        return view('admin.admin-forget-password');
+    }
+    public function adminForgetOtpVerifyView()
+    {
+
+        return view('admin.admin-forget-verify-otp');
+    }
+
+    public function adminPageErrorView(){
+
+        return view('admin.page-error');
+    }
+    // Auth End ===========================================================================================================================>
+
+
+    // Dashboard Start =========================================================================================================================>
     public function adminDashboardView()
     {
 
         return view('admin.admin-dashboard');
     }
+    // Dashboard End ==========================================================================================================================>
 
 
     // SEO Start =========================================================================================================================>

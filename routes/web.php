@@ -5,6 +5,11 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
+// Page Not Found
+Route::get('/page-not-found', function () {
+    return view('page-error');
+})->name('page-error');
+
 Route::get('/', function () {
     return view('home');
 })->name('home');
