@@ -41,22 +41,22 @@ return [
             'provider' => 'users',
         ],
 
-        'students' => [
+        'student' => [
             'driver' => 'session',
             'provider' => 'students',
         ],
 
-        'admins' => [
+        'admin' => [
             'driver' => 'session',
             'provider' => 'admins',
         ],
 
-        'wavers' => [
+        'waver' => [
             'driver' => 'session',
             'provider' => 'wavers',
         ],
 
-        'subscribers' => [
+        'subscriber' => [
             'driver' => 'session',
             'provider' => 'subscribers',
         ],
@@ -92,7 +92,7 @@ return [
 
         'admins' => [
             'driver' => 'eloquent',
-            'model' =>  App\Models\Admins::class,
+            'model' =>  App\Models\Admin::class,
         ],
 
         // 'wavers' => [
@@ -133,6 +133,13 @@ return [
             'throttle' => 60,
         ],
 
+        'students' => [
+            'provider' => 'students',
+            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
         'admins' => [
             'provider' => 'admins',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
@@ -154,12 +161,6 @@ return [
             'throttle' => 60,
         ],
 
-        'students' => [
-            'provider' => 'students',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
     ],
 
     /*

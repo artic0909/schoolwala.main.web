@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\AdminController;
+use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 
 
@@ -11,15 +12,39 @@ Route::get('/admin-page-not-found', [AdminController::class, 'adminPageErrorView
 
 // Auth Routes Start =========================================================================================================================>
 Route::get('/admin-register', [AdminController::class, 'adminRegisterView'])->name('admin.admin-register');
+Route::post('/admin-register', [AdminController::class, 'adminRegister'])->name('admin.admin-register.store');
+
 Route::get('/admin-login', [AdminController::class, 'adminLoginView'])->name('admin.admin-login');
+Route::post('/admin-login', [AdminController::class, 'adminLogin'])->name('admin.admin-login.verify');
+
 Route::get('/admin-forget-password', [AdminController::class, 'adminForgetPassView'])->name('admin.admin-forget-password');
 Route::get('/admin-forget-verify-otp', [AdminController::class, 'adminForgetOtpVerifyView'])->name('admin.admin-forget-verify-otp');
 // Auth Routes End ==========================================================================================================================>
 
 
-// Dashboard Start =========================================================================================================================>
-Route::get('/admin-dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.admin-dashboard');
-// Dashboard End ==========================================================================================================================>
+// Admins Guard Routes Start =========================================================================================================================>
+Route::prefix('admin')->group(function () {
+    Route::middleware('auth:admin')->group(function () {
+
+        // Dashboard Start =============================>
+        Route::get('/admin-dashboard', [AdminController::class, 'adminDashboardView'])->name('admin.admin-dashboard');
+        // Dashboard End ==============================>
+
+        // Logout Start =============================>
+        Route::get('/admin-logout', [AdminController::class, 'adminLogout'])->name('admin.admin-logout');
+        // Logout End ==============================>
+
+        // Admin Profile Routes Start =============================>
+        Route::get('/admin-profile', [AdminController::class, 'adminProfileView'])->name('admin.admin-profile');
+        Route::put('/admin-profile', [AdminController::class, 'adminProfileUpdate'])->name('admin.admin-profile-update');
+        // Admin Profile Routes End ==============================>
+
+    });
+});
+// Admins Guard Routes End ==========================================================================================================================>
+
+
+
 
 // SEO Routes Start =========================================================================================================================>
 Route::get('/admin-seo-home-page', [AdminController::class, 'adminSeoHomePageView'])->name('admin.admin-seo-home-page');
@@ -61,7 +86,3 @@ Route::get('/admin-enquiry', [AdminController::class, 'adminEnquiryView'])->name
 Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
 Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
 // Waver Routes End ==========================================================================================================================>
-
-// Admin Profile Routes Start =========================================================================================================================>
-Route::get('/admin-profile', [AdminController::class, 'adminProfileView'])->name('admin.admin-profile');
-// Admin Profile Routes End ==========================================================================================================================>

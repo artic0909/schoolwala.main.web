@@ -25,51 +25,71 @@
       </div>
       <hr class="my-0" />
       <div class="card-body">
-        <form
-          id="formAccountSettings"
-          method="POST"
-          onsubmit="return false">
+        <form id="formAccountSettings" method="POST" action="{{ route('admin.admin-profile-update') }}">
+          @csrf
+          @method('PUT')
+
           <div class="row">
+            {{-- Name --}}
             <div class="mb-3 col-md-6">
-              <label for="firstName" class="form-label">Admin Name</label>
+              <label for="name" class="form-label">Admin Name</label>
               <input
-                class="form-control"
+                class="form-control @error('name') is-invalid @enderror"
                 type="text"
-                value="Saklin" />
+                id="name"
+                name="name"
+                value="{{ old('name', Auth::guard('admin')->user()->name) }}" />
+              @error('name')
+              <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
             </div>
+
+            {{-- Email --}}
             <div class="mb-3 col-md-6">
-              <label for="lastName" class="form-label">Admin Email Address</label>
+              <label for="email" class="form-label">Admin Email Address</label>
               <input
-                class="form-control"
-                type="text"
-                value="saklin@example.com" />
+                class="form-control @error('email') is-invalid @enderror"
+                type="email"
+                id="email"
+                name="email"
+                value="{{ old('email', Auth::guard('admin')->user()->email) }}" />
+              @error('email')
+              <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
             </div>
+
+            {{-- New Password --}}
             <div class="mb-3 col-md-6">
-              <label for="email" class="form-label">Admin Password</label>
+              <label for="password" class="form-label">New Password</label>
               <input
-                class="form-control"
-                type="text"
-                value="Password" />
+                class="form-control @error('password') is-invalid @enderror"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter new password (optional)" />
+              @error('password')
+              <div class="invalid-feedback">{{ $message }}</div>
+              @enderror
             </div>
+
+            {{-- Confirm Password --}}
             <div class="mb-3 col-md-6">
-              <label for="organization" class="form-label">Admin Confirm Password</label>
+              <label for="password_confirmation" class="form-label">Confirm Password</label>
               <input
-                type="text"
+                type="password"
                 class="form-control"
-                value="Password" />
+                id="password_confirmation"
+                name="password_confirmation"
+                placeholder="Confirm new password" />
             </div>
           </div>
+
           <div class="mt-2">
-            <button type="submit" class="btn btn-primary me-2">
-              Save changes
-            </button>
-            <button
-              type="reset"
-              class="btn btn-outline-secondary">
-              Cancel
-            </button>
+            <button type="submit" class="btn btn-primary me-2">Save changes</button>
+            <button type="reset" class="btn btn-outline-secondary">Cancel</button>
           </div>
         </form>
+
       </div>
       <!-- /Account -->
     </div>

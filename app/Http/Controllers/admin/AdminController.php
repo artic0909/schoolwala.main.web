@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -14,11 +17,104 @@ class AdminController extends Controller
 
         return view('admin.admin-register');
     }
+
+    public function adminRegister(Request $request)
+    {
+        $validate = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:admins,email',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+
+            'name.required' => 'Name is required.',
+            'email.required' => 'Email is required.',
+            'email.email' => 'Please enter a valid email.',
+            'email.unique' => 'This email is already registered.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 6 characters.',
+            'password.confirmed' => 'Password and confirm password do not match.',
+        ]);
+
+        Admin::create([
+            'name' => $validate['name'],
+            'email' => $validate['email'],
+            'password' => Hash::make($validate['password']),
+        ]);
+
+        return redirect()->route('admin.admin-login')->with('success', 'Registration successful, please login.');
+    }
+
     public function adminLoginView()
     {
 
         return view('admin.admin-login');
     }
+
+    public function adminLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string|min:6',
+        ], [
+            'email.required' => 'Email or Username is required.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 6 characters.',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+        $remember = $request->filled('remember');
+
+        // Try login with email
+        if (Auth::guard('admin')->attempt(['email' => $credentials['email'], 'password' => $credentials['password']], $remember)) {
+            $request->session()->regenerate();
+            return redirect()->route('admin.admin-dashboard')->with('success', 'Login successful!');
+        }
+
+
+        return back()->withErrors([
+            'email' => 'Invalid email or password.',
+        ])->withInput();
+    }
+
+    public function adminLogout(Request $request)
+    {
+
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('admin.admin-login')->with('success', 'Logout successful!');
+    }
+
+    public function adminProfileView()
+    {
+
+        return view('admin.admin-profile');
+    }
+
+    public function adminProfileUpdate(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:admins,email,' . $admin->id,
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        $updateData = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
+        if (!empty($request->password)) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $admin->update($updateData);
+
+        return redirect()->route('admin.admin-profile')->with('success', 'Profile updated successfully!');
+    }
+
     public function adminForgetPassView()
     {
 
@@ -30,7 +126,8 @@ class AdminController extends Controller
         return view('admin.admin-forget-verify-otp');
     }
 
-    public function adminPageErrorView(){
+    public function adminPageErrorView()
+    {
 
         return view('admin.page-error');
     }
@@ -196,13 +293,5 @@ class AdminController extends Controller
         return view('admin.admin-wavers-request');
     }
     // Waver End ==========================================================================================================================>
-
-    // Admin Profile Start =========================================================================================================================>
-    public function adminProfileView()
-    {
-
-        return view('admin.admin-profile');
-    }
-    // Admin Profile End ==========================================================================================================================>
 
 }

@@ -57,6 +57,50 @@
   <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
   <script src="./admin/assets/js/config.js"></script>
+
+  <style>
+    .custom-success-popup,
+    .custom-error-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      z-index: 9999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      animation: fadeInOut 4s ease-in-out forwards;
+    }
+
+    .custom-success-popup {
+      background-color: #4CAF50;
+    }
+
+    .custom-error-popup {
+      background-color: #f44336;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -85,21 +129,26 @@
               Please sign-in to your account and start the adventure
             </p>
 
-            <form
-              id="formAuthentication"
-              class="mb-3"
-              action="index.html"
-              method="POST">
+            <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('admin.admin-login.verify') }}" enctype="multipart/form-data">
+              @csrf
+
+              {{-- Email/Username --}}
               <div class="mb-3">
-                <label for="email" class="form-label">Admin Email</label>
+                <label for="email" class="form-label">Admin Email / Username</label>
                 <input
                   type="text"
-                  class="form-control"
+                  class="form-control @error('email') is-invalid @enderror"
                   id="email"
-                  name="email-username"
+                  name="email"
+                  value="{{ old('email') }}"
                   placeholder="Enter your email or username"
                   autofocus />
+                @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
+
+              {{-- Password --}}
               <div class="mb-3 form-password-toggle">
                 <div class="d-flex justify-content-between">
                   <label class="form-label" for="password">Admin Password</label>
@@ -111,30 +160,31 @@
                   <input
                     type="password"
                     id="password"
-                    class="form-control"
+                    class="form-control @error('password') is-invalid @enderror"
                     name="password"
-                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                    aria-describedby="password" />
+                    placeholder="********" />
                   <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                  @error('password')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
+
+              {{-- Remember Me --}}
               <div class="mb-3">
                 <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="remember-me" />
+                  <input class="form-check-input" type="checkbox" id="remember-me" name="remember" />
                   <label class="form-check-label" for="remember-me">
                     Remember Me
                   </label>
                 </div>
               </div>
+
               <div class="mb-3">
-                <button class="btn btn-primary d-grid w-100" type="submit">
-                  Sign in
-                </button>
+                <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
               </div>
             </form>
+
 
             <p class="text-center">
               <span>New on our platform?</span>
@@ -148,6 +198,29 @@
       </div>
     </div>
   </div>
+
+  @if (session('success'))
+  <div id="successPopup" class="custom-success-popup">
+    {{ session('success') }}
+  </div>
+  @endif
+
+  @if (session('error'))
+  <div id="errorPopup" class="custom-error-popup">
+    {{ session('error') }}
+  </div>
+  @endif
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const successPopup = document.getElementById('successPopup');
+      const errorPopup = document.getElementById('errorPopup');
+
+      if (successPopup) setTimeout(() => successPopup.remove(), 4000);
+      if (errorPopup) setTimeout(() => errorPopup.remove(), 4000);
+    });
+  </script>
 
   <!-- Core JS -->
   <!-- build:js assets/vendor/js/core.js -->

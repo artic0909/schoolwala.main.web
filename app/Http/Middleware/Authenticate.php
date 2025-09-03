@@ -53,7 +53,7 @@ class Authenticate
         }
         #admin
         if (Route::is('admin.*')) {
-            return route('admin.login');
+            return route('admin.admin-login');
         }
 
         return route('home');

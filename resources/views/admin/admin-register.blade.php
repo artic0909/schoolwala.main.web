@@ -57,6 +57,50 @@
   <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
   <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
   <script src="./admin/assets/js/config.js"></script>
+
+  <style>
+    .custom-success-popup,
+    .custom-error-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      color: white;
+      z-index: 9999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      animation: fadeInOut 4s ease-in-out forwards;
+    }
+
+    .custom-success-popup {
+      background-color: #4CAF50;
+    }
+
+    .custom-error-popup {
+      background-color: #f44336;
+    }
+
+    @keyframes fadeInOut {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      90% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -83,59 +127,91 @@
             <h4 class="mb-2">Adventure starts here 🚀</h4>
             <p class="mb-4">Make your app management easy and fun!</p>
 
-            <form
-              id="formAuthentication"
-              class="mb-3"
-              action="index.html"
-              method="POST">
+            <form id="formAuthentication" class="mb-3" method="POST" action="{{ route('admin.admin-register.store') }}" enctype="multipart/form-data">
+              @csrf
+
+              {{-- Name --}}
               <div class="mb-3">
-                <label for="username" class="form-label">Admin Username</label>
+                <label for="name" class="form-label">Admin Username</label>
                 <input
                   type="text"
-                  class="form-control"
-                  id="username"
-                  name="username"
+                  class="form-control @error('name') is-invalid @enderror"
+                  id="name"
+                  name="name"
+                  value="{{ old('name') }}"
                   placeholder="Enter your Admin Username"
                   autofocus />
+                @error('name')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
+
+              {{-- Email --}}
               <div class="mb-3">
                 <label for="email" class="form-label">Admin Email</label>
                 <input
                   type="text"
-                  class="form-control"
+                  class="form-control @error('email') is-invalid @enderror"
                   id="email"
                   name="email"
+                  value="{{ old('email') }}"
                   placeholder="Enter your Admin Email" />
+                @error('email')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
               </div>
+
+              {{-- Password --}}
               <div class="mb-3 form-password-toggle">
                 <label class="form-label" for="password">Admin Password</label>
                 <div class="input-group input-group-merge">
                   <input
                     type="password"
                     id="password"
-                    class="form-control"
+                    class="form-control @error('password') is-invalid @enderror"
                     name="password"
-                    placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                    aria-describedby="password" />
+                    placeholder="********" />
+                  <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                  @error('password')
+                  <div class="invalid-feedback d-block">{{ $message }}</div>
+                  @enderror
+                </div>
+              </div>
+
+              {{-- Confirm Password --}}
+              <div class="mb-3 form-password-toggle">
+                <label class="form-label" for="password_confirmation">Confirm Password</label>
+                <div class="input-group input-group-merge">
+                  <input
+                    type="password"
+                    id="password_confirmation"
+                    class="form-control"
+                    name="password_confirmation"
+                    placeholder="********" />
                   <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                 </div>
               </div>
 
+              {{-- Terms --}}
               <div class="mb-3">
                 <div class="form-check">
                   <input
-                    class="form-check-input"
+                    class="form-check-input @error('terms') is-invalid @enderror"
                     type="checkbox"
                     id="terms-conditions"
                     name="terms" />
                   <label class="form-check-label" for="terms-conditions">
-                    I agree to
-                    <a href="javascript:void(0);">privacy policy & terms</a>
+                    I agree to <a href="#">privacy policy & terms</a>
                   </label>
+                  @error('terms')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                  @enderror
                 </div>
               </div>
-              <button class="btn btn-primary d-grid w-100">Sign up</button>
+
+              <button type="submit" class="btn btn-primary d-grid w-100">Sign up</button>
             </form>
+
 
             <p class="text-center">
               <span>Already have an account?</span>
@@ -149,6 +225,29 @@
       </div>
     </div>
   </div>
+
+  @if (session('success'))
+  <div id="successPopup" class="custom-success-popup">
+    {{ session('success') }}
+  </div>
+  @endif
+
+  @if (session('error'))
+  <div id="errorPopup" class="custom-error-popup">
+    {{ session('error') }}
+  </div>
+  @endif
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const successPopup = document.getElementById('successPopup');
+      const errorPopup = document.getElementById('errorPopup');
+
+      if (successPopup) setTimeout(() => successPopup.remove(), 4000);
+      if (errorPopup) setTimeout(() => errorPopup.remove(), 4000);
+    });
+  </script>
 
   <!-- Core JS -->
   <!-- build:js assets/vendor/js/core.js -->
