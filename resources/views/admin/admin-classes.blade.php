@@ -80,18 +80,19 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($classes as $class)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
-                  <td>Class 5</td>
+                  <td>{{ $class->name }}</td>
                   <td>
                     <button
                       class="btn btn-primary"
                       type="button"
                       class="btn btn-primary"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDesc">
+                      data-bs-target="#backDropModalDesc{{ $class->id }}">
                       Description
                     </button>
                   </td>
@@ -100,7 +101,7 @@
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $class->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -108,11 +109,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $class->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -123,16 +125,17 @@
 </div>
 
 <!-- Desc Modal -->
+@foreach ($classes as $class)
 <div
   class="modal fade"
-  id="backDropModalDesc"
+  id="backDropModalDesc{{ $class->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
     <form class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Class 5 Description
+          {{ $class->name }} Description
         </h5>
         <button
           type="button"
@@ -146,8 +149,7 @@
             <p>
               <strong>Description:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{ $class->description }}
             </p>
           </div>
         </div>
@@ -163,6 +165,7 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Class Modal -->
 <div
@@ -171,7 +174,8 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-classes.store') }}" method="POST">
+      @csrf
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Class
@@ -190,14 +194,14 @@
               type="text"
               id="nameBackdrop"
               class="form-control"
-              placeholder="Ex:- Class 5" />
+              value="Class " name="name" />
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Class Description</label>
-            <textarea class="form-control" name="" id="" rows="5">
+            <textarea class="form-control" name="description" id="description" rows="5">
                         </textarea>
           </div>
         </div>
@@ -209,20 +213,23 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit Class Modal -->
+@foreach ($classes as $class)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $class->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-class.update', $class->id) }}" method="POST">
+      @csrf
+      @method('PUT')
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Class
@@ -241,15 +248,15 @@
               type="text"
               id="nameBackdrop"
               class="form-control"
-              placeholder="Ex:- Class 5" />
+              value="{{ $class->name }}" name="name"/>
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Class Description</label>
-            <textarea class="form-control" name="" id="" rows="5">
-                        </textarea>
+            <textarea class="form-control" name="description" id="description" rows="5">
+                        {{ $class->description }}</textarea>
           </div>
         </div>
       </div>
@@ -260,20 +267,24 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Class Modal -->
+@foreach ($classes as $class)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $class->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-class.delete', $class->id) }}" method="POST">
+      @csrf
+      @method('DELETE')
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Class
@@ -287,7 +298,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <p>Are you sure you want to delete this class?</p>
+            <p>Are you sure you want to delete this {{ $class->name }}?</p>
           </div>
         </div>
       </div>
@@ -298,11 +309,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a

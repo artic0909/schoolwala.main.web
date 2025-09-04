@@ -81,20 +81,21 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach($chapters as $chapter)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
-                  <td>Class 5</td>
-                  <td>Bengali</td>
-                  <td>Chapter 1</td>
+                  <td>{{ $chapter->class->name }}</td>
+                  <td>{{ $chapter->subject->name }}</td>
+                  <td>{{ $chapter->name }}</td>
 
                   <td>
                     <button
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $chapter->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -102,11 +103,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $chapter->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -123,7 +125,8 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-chapters.store') }}" method="POST">
+      @csrf
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Chapter
@@ -138,12 +141,11 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <select name="class_id" id="class_id_add" class="form-select class-select">
+              <option value="" selected>Choose Class</option>
+              @foreach ($classes as $class)
+              <option value="{{ $class->id }}">{{ $class->name }}</option>
+              @endforeach
             </select>
           </div>
         </div>
@@ -151,12 +153,9 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Choose Subject</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Subject 1</option>
-              <option value="2">Subject 2</option>
-              <option value="3">Subject 3</option>
-              <option value="4">Subject 4</option>
-              <option value="5">Subject 5</option>
+            <select name="subject_id" id="subject_id_add" class="form-select subject-select">
+              <option value="" selected disabled>Choose Subject</option>
+              <!-- Subjects will be appended dynamically -->
             </select>
           </div>
         </div>
@@ -164,7 +163,7 @@
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Chapter Name</label>
-            <input type="text" class="form-control" />
+            <input type="text" class="form-control" name="name" id="name" />
           </div>
         </div>
       </div>
@@ -175,20 +174,23 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit Chapter Modal -->
+@foreach($chapters as $chapter)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $chapter->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-chapters.update', $chapter->id) }}" method="POST">
+      @csrf
+      @method('PUT')
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Chapter
@@ -200,28 +202,32 @@
           aria-label="Close"></button>
       </div>
       <div class="modal-body">
+
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <label for="class_id_edit{{ $chapter->id }}" class="form-label">Choose Class</label>
+            <select name="class_id"
+              id="class_id_edit{{ $chapter->id }}"
+              class="form-select class-select"
+              data-chapter-id="{{ $chapter->id }}"
+              data-selected-class="{{ $chapter->class_id }}"
+              data-selected-subject="{{ $chapter->subject_id }}">
+              @foreach ($classes as $class)
+              <option value="{{ $class->id }}" {{ $class->id == $chapter->class_id ? 'selected' : '' }}>
+                {{ $class->name }}
+              </option>
+              @endforeach
             </select>
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Subject</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Subject 1</option>
-              <option value="2">Subject 2</option>
-              <option value="3">Subject 3</option>
-              <option value="4">Subject 4</option>
-              <option value="5">Subject 5</option>
+            <label for="subject_id_edit{{ $chapter->id }}" class="form-label">Choose Subject</label>
+            <select name="subject_id"
+              id="subject_id_edit{{ $chapter->id }}"
+              class="form-select subject-select">
+              <!-- subjects will be loaded dynamically -->
             </select>
           </div>
         </div>
@@ -229,7 +235,7 @@
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Chapter Name</label>
-            <input type="text" class="form-control" />
+            <input type="text" class="form-control" name="name" id="name" value="{{ $chapter->name }}" />
           </div>
         </div>
       </div>
@@ -240,20 +246,24 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Chapter Modal -->
+@foreach($chapters as $chapter)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $chapter->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-chapters.delete', $chapter->id) }}" method="POST">
+      @csrf
+      @method('DELETE')
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Chapter
@@ -267,7 +277,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <p>Are you sure you want to delete this Chapter?</p>
+            <p>Are you sure you want to delete this {{ $chapter->name }}?</p>
           </div>
         </div>
       </div>
@@ -278,11 +288,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a
@@ -294,5 +305,59 @@
   title="Add">
   Add
 </a>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    function loadSubjects(classId, subjectDropdown, selectedSubjectId) {
+      subjectDropdown.empty().append('<option value="">Loading...</option>');
+
+      if (classId) {
+        let url = "{{ route('admin.get-subjects', ':id') }}".replace(':id', classId);
+
+        $.ajax({
+          url: url,
+          type: "GET",
+          success: function(data) {
+            subjectDropdown.empty().append('<option value="">Choose Subject</option>');
+            $.each(data, function(key, subject) {
+              let selected = subject.id == selectedSubjectId ? 'selected' : '';
+              subjectDropdown.append('<option value="' + subject.id + '" ' + selected + '>' + subject.name + '</option>');
+            });
+          }
+        });
+      } else {
+        subjectDropdown.empty().append('<option value="">Choose Subject</option>');
+      }
+    }
+
+    // On change event
+    $(document).on('change', '.class-select', function() {
+      let classId = $(this).val();
+      let modalBody = $(this).closest('.modal-body');
+      let subjectDropdown = modalBody.find('.subject-select');
+
+      loadSubjects(classId, subjectDropdown, null); // no preselected subject when changing class
+    });
+
+    // On modal open (for edit) → load subjects for the preselected class
+    $('.class-select').each(function() {
+      let classId = $(this).data('selected-class');
+      let selectedSubjectId = $(this).data('selected-subject');
+      let modalBody = $(this).closest('.modal-body');
+      let subjectDropdown = modalBody.find('.subject-select');
+
+      if (classId) {
+        loadSubjects(classId, subjectDropdown, selectedSubjectId);
+      }
+    });
+  });
+</script>
+
+
+
+
 
 @endsection

@@ -39,6 +39,46 @@ Route::prefix('admin')->group(function () {
         Route::put('/admin-profile', [AdminController::class, 'adminProfileUpdate'])->name('admin.admin-profile-update');
         // Admin Profile Routes End ==============================>
 
+
+
+        // Course Related Routes Start =========================================================================================================================>
+        Route::get('/admin-classes', [AdminController::class, 'adminClassesView'])->name('admin.admin-classes');
+        Route::post('/admin-classes', [AdminController::class, 'addClass'])->name('admin.admin-classes.store');
+        Route::put('/admin-class/{id}', [AdminController::class, 'updateClass'])->name('admin.admin-class.update');
+        Route::delete('/admin-class/{id}', [AdminController::class, 'deleteClass'])->name('admin.admin-class.delete');
+
+
+        Route::get('/admin-class-faqs', [AdminController::class, 'adminClassFaqsView'])->name('admin.admin-class-faqs');
+        Route::post('/admin-class-faqs', [AdminController::class, 'addClassFaq'])->name('admin.admin-class-faqs.store');
+        Route::put('/admin-class-faqs/{id}', [AdminController::class, 'updateClassFaq'])->name('admin.admin-class-faqs.update');
+        Route::delete('/admin-class-faqs/{id}', [AdminController::class, 'deleteClassFaq'])->name('admin.admin-class-faqs.delete');
+
+
+        Route::get('/admin-subjects', [AdminController::class, 'adminSubjectsView'])->name('admin.admin-subjects');
+        Route::post('/admin-subjects', [AdminController::class, 'addSubject'])->name('admin.admin-subjects.store');
+        Route::put('/admin-subjects/{id}', [AdminController::class, 'updateSubject'])->name('admin.admin-subjects.update');
+        Route::delete('/admin-subjects/{id}', [AdminController::class, 'deleteSubject'])->name('admin.admin-subjects.delete');
+
+
+        Route::get('/admin-chapters', [AdminController::class, 'adminChaptersView'])->name('admin.admin-chapters');
+        // just for AJAX
+        Route::get('/get-subjects/{class_id}', [AdminController::class, 'getSubjects'])->name('admin.get-subjects');
+        Route::post('/admin-chapters', [AdminController::class, 'addChapter'])->name('admin.admin-chapters.store');
+        Route::put('/admin-chapters/{id}', [AdminController::class, 'updateChapter'])->name('admin.admin-chapters.update');
+        Route::delete('/admin-chapters/{id}', [AdminController::class, 'deleteChapter'])->name('admin.admin-chapters.delete');
+
+
+        Route::get('/admin-videos', [AdminController::class, 'adminVideosView'])->name('admin.admin-videos');
+        // just for AJAX
+        Route::get('/get-chapters/{subjectId}', [AdminController::class, 'getChapters'])->name('admin.get-chapters');
+        Route::post('/admin-videos', [AdminController::class, 'addVideo'])->name('admin.admin-videos.store');
+        Route::put('/admin-videos/{id}', [AdminController::class, 'updateVideo'])->name('admin.admin-videos.update');
+        Route::delete('/admin-videos/{id}', [AdminController::class, 'deleteVideo'])->name('admin.admin-videos.delete');
+
+        Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
+        // Course Related Routes End ==========================================================================================================================>
+
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>
@@ -63,14 +103,6 @@ Route::get('/admin-stories', [AdminController::class, 'adminStoriesView'])->name
 Route::get('/admin-faq', [AdminController::class, 'adminFaqView'])->name('admin.admin-faq');
 // Front Page Routes End ==========================================================================================================================>
 
-// Course Related Routes Start =========================================================================================================================>
-Route::get('/admin-classes', [AdminController::class, 'adminClassesView'])->name('admin.admin-classes');
-Route::get('/admin-class-faqs', [AdminController::class, 'adminClassFaqsView'])->name('admin.admin-class-faqs');
-Route::get('/admin-subjects', [AdminController::class, 'adminSubjectsView'])->name('admin.admin-subjects');
-Route::get('/admin-chapters', [AdminController::class, 'adminChaptersView'])->name('admin.admin-chapters');
-Route::get('/admin-videos', [AdminController::class, 'adminVideosView'])->name('admin.admin-videos');
-Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
-// Course Related Routes End ==========================================================================================================================>
 
 // Students Related Route Start =========================================================================================================================>
 Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->name('admin.admin-students');

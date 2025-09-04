@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Subject extends Model
+{
+    protected $table = 'subjects';
+    public $fillable = ['class_id', 'name', 'bg_color_txt', 'icon_txt', 'slug'];
+
+    public function class()
+    {
+        return $this->belongsTo(Classes::class);
+    }
+    
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class);
+    }
+}
