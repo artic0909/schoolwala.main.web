@@ -11,8 +11,8 @@ Route::get('/admin-page-not-found', [AdminController::class, 'adminPageErrorView
 
 
 // Auth Routes Start =========================================================================================================================>
-Route::get('/admin-register', [AdminController::class, 'adminRegisterView'])->name('admin.admin-register');
-Route::post('/admin-register', [AdminController::class, 'adminRegister'])->name('admin.admin-register.store');
+// Route::get('/admin-register', [AdminController::class, 'adminRegisterView'])->name('admin.admin-register');
+// Route::post('/admin-register', [AdminController::class, 'adminRegister'])->name('admin.admin-register.store');
 
 Route::get('/admin-login', [AdminController::class, 'adminLoginView'])->name('admin.admin-login');
 Route::post('/admin-login', [AdminController::class, 'adminLogin'])->name('admin.admin-login.verify');

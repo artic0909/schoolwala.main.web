@@ -43,22 +43,22 @@ return [
 
         'student' => [
             'driver' => 'session',
-            'provider' => 'students',
+            'provider' => 'student',
         ],
 
         'admin' => [
             'driver' => 'session',
-            'provider' => 'admins',
+            'provider' => 'admin',
         ],
 
         'waver' => [
             'driver' => 'session',
-            'provider' => 'wavers',
+            'provider' => 'waver',
         ],
 
         'subscriber' => [
             'driver' => 'session',
-            'provider' => 'subscribers',
+            'provider' => 'subscriber',
         ],
     ],
 
@@ -85,22 +85,22 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'students' => [
+        // 'student' => [
         //     'driver' => 'eloquent',
         //     'model' =>  App\Models\Students::class,
         // ],
 
-        'admins' => [
+        'admin' => [
             'driver' => 'eloquent',
             'model' =>  App\Models\Admin::class,
         ],
 
-        // 'wavers' => [
+        // 'waver' => [
         //     'driver' => 'eloquent',
         //     'model' =>  App\Models\Wavers::class,
         // ],
 
-        // 'subscribers' => [
+        // 'subscriber' => [
         //     'driver' => 'eloquent',
         //     'model' =>  App\Models\Subscribers::class,
         // ],
@@ -133,33 +133,33 @@ return [
             'throttle' => 60,
         ],
 
-        'students' => [
-            'provider' => 'students',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+        // 'student' => [
+        //     'provider' => 'students',
+        //     'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
 
-        'admins' => [
+        'admin' => [
             'provider' => 'admins',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
         ],
 
-        'subscribers' => [
-            'provider' => 'subscribers',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+        // 'subscriber' => [
+        //     'provider' => 'subscribers',
+        //     'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
 
-        'wavers' => [
-            'provider' => 'wavers',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
-        ],
+        // 'waver' => [
+        //     'provider' => 'wavers',
+        //     'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
+        //     'expire' => 60,
+        //     'throttle' => 60,
+        // ],
 
     ],
 

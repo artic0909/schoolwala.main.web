@@ -4,6 +4,8 @@
 
 @section('content')
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 <style>
   .fab {
     position: fixed;
@@ -74,13 +76,14 @@
               <thead>
                 <tr>
                   <th>SL</th>
+                  <th>Thumbnails</th>
                   <th>Class Names</th>
                   <th>Subjects</th>
                   <th>Chapters</th>
                   <th>Paid/ Free</th>
                   <th>Video Titles</th>
                   <th>Videos</th>
-                  <th>Practice Tests</th>
+                  <th>Practice Q/A</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -89,6 +92,12 @@
                 <tr>
                   <td>
                     <strong>{{ $loop->iteration }}</strong>
+                  </td>
+                  <td>
+                    <img
+                      class="img-fluid rounded"
+                      src="{{ asset('storage/' . $video->video_thumbnail) }}"
+                      width="50" />
                   </td>
                   <td>{{ $video->class->name }}</td>
                   <td>{{ $video->subject->name }}</td>
@@ -100,16 +109,17 @@
                     <span class="badge bg-label-info">Free</span>
                     @endif
                   </td>
-                  <td>
+                  <td style="text-transform: capitalize; white-space: normal; word-break: break-word;">
                     <strong>{{ $video->video_title }}</strong>
                   </td>
+
                   <td>
                     <button
                       type="button"
                       class="btn btn-info"
                       data-bs-toggle="modal"
                       data-bs-target="#backDropModalPlayVideo{{ $video->id }}">
-                      Play Video
+                      <i class="fa-solid fa-video"></i>
                     </button>
                   </td>
 
@@ -119,16 +129,16 @@
                         type="button"
                         class="btn btn-success"
                         data-bs-toggle="modal"
-                        data-bs-target="#backDropModalAddTest{{ $video->id }}">
-                        Add Test
+                        data-bs-target="#backDropModalAddTest{{ $video->id }}" style="width: fit-content;">
+                        <i class="fa-solid fa-plus"></i>
                       </button>
 
                       <button
                         type="button"
                         class="btn btn-primary"
                         data-bs-toggle="modal"
-                        data-bs-target="#backDropModalViewTest{{ $video->id }}">
-                        View
+                        data-bs-target="#backDropModalViewTest{{ $video->id }}" style="width: fit-content;">
+                        <i class="fa-solid fa-eye"></i>
                       </button>
                     </div>
                   </td>
@@ -140,14 +150,14 @@
                         class="btn btn-warning"
                         data-bs-toggle="modal"
                         data-bs-target="#backDropModalEditClass{{ $video->id }}">
-                        Edit
+                        <i class="fa-solid fa-pen-to-square"></i>
                       </button>
                       <button
                         class="btn btn-danger"
                         type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#backDropModalDeleteClass{{ $video->id }}">
-                        Delete
+                        <i class="fa-solid fa-trash"></i>
                       </button>
                     </div>
                   </td>
@@ -305,7 +315,7 @@
             <label for="nameBackdrop" class="form-label">Video Title: {{ $video->video_title }}</label> <br>
             <label for="nameBackdrop1" class="form-label">Practice Questions & Answers</label>
 
-            <input type="text" value="{{$video->id}}" name="video_id">
+            <input type="hidden" value="{{$video->id}}" name="video_id">
 
             @php
             $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
@@ -314,7 +324,7 @@
             @endphp
 
 
-            <div id="questions-wrapper">
+            <div id="questions-wrapper-{{ $video->id }}">
               @if(!empty($questions))
               @foreach($questions as $i => $q)
               <div class="multiple-section mb-3">
@@ -325,15 +335,18 @@
               </div>
               @endforeach
               @endif
+
               <div class="multiple-section mb-3">
                 <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
                 <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
                 <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" />
+                <button type="button" class="mb-2 btn btn-danger remove-section">Remove</button>
               </div>
-              <button type="button" class="mb-2 btn btn-danger remove-section">Remove</button>
             </div>
 
-            <button type="button" class="mt-2 btn btn-primary add-section">Add</button>
+            <button type="button" class="mt-2 btn btn-primary add-section" data-target="questions-wrapper-{{ $video->id }}">Add</button>
+
+
           </div>
         </div>
       </div>
@@ -674,16 +687,17 @@
 <script>
   $(document).ready(function() {
     // Add new section
-    $('.add-section').on('click', function() {
+    $(document).on('click', '.add-section', function() {
+      let targetWrapper = $(this).data('target'); // get wrapper ID
       let newSection = `
-        <div class="multiple-section mb-3">
-          <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
-          <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
-          <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" />
-          <button type="button" class="btn btn-danger remove-section">Remove</button>
-        </div>
-      `;
-      $('#questions-wrapper').append(newSection);
+      <div class="multiple-section mb-3">
+        <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
+        <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+        <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" />
+        <button type="button" class="btn btn-danger remove-section">Remove</button>
+      </div>
+    `;
+      $('#' + targetWrapper).append(newSection);
     });
 
     // Remove section

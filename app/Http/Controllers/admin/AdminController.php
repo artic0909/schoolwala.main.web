@@ -568,25 +568,55 @@ class AdminController extends Controller
 
     public function updateVideo(Request $request, $id)
     {
-        $video = Video::findOrFail($id);
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'chapter_id' => 'required|exists:chapters,id',
+            'video_title' => 'required|string|max:255',
+            'video_type' => 'required|in:paid,free',
+            'video_link' => 'nullable|url',
+            'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-        // update normal video fields if present
-        $video->video_title = $request->video_title ?? $video->video_title;
-        $video->video_type = $request->video_type ?? $video->video_type;
-        $video->video_link = $request->video_link ?? $video->video_link;
-        $video->video_description = $request->video_description ?? $video->video_description;
+        try {
+            $video = Video::findOrFail($id);
 
-        // update practice test if provided
-        if ($request->has('questions')) {
-            $video->questions = json_encode(array_values($request->questions));
-            $video->answers = json_encode(array_values($request->answers));
-            $video->correct_answers = json_encode(array_values($request->correct_answers));
+            $slug = Str::slug($request->video_title);
+  
+            $thumbnail = $video->video_thumbnail; 
+            if ($request->hasFile('video_thumbnail')) {
+                
+                if ($video->video_thumbnail && file_exists(public_path('storage/' . $video->video_thumbnail))) {
+                    unlink(public_path('storage/' . $video->video_thumbnail));
+                }
+
+                $thumbnail = $request->file('video_thumbnail')->store('thumbnails', 'public');
+            } else {
+             
+                $thumbnail = $video->video_thumbnail;
+            }
+
+            $video->update([
+                'class_id' => $request->class_id,
+                'subject_id' => $request->subject_id,
+                'chapter_id' => $request->chapter_id,
+                'video_title' => $request->video_title,
+                'slug' => $slug,
+                'video_type' => $request->video_type,
+                'video_link' => $request->video_link,
+                'video_description' => $request->video_description,
+                'video_thumbnail' => $thumbnail,
+                'questions' => $request->questions ? json_encode($request->questions) : null,
+                'answers' => $request->answers ? json_encode($request->answers) : null,
+                'correct_answers' => $request->correct_answers ? json_encode($request->correct_answers) : null,
+            ]);
+
+            return redirect()->back()->with('success', 'Video updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
-
-        $video->save();
-
-        return redirect()->back()->with('success', 'Video updated successfully!');
     }
+
 
 
     public function putPracticeTestOnVideoID(Request $request, $id) {}
