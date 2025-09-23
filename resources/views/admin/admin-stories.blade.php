@@ -63,11 +63,9 @@
         <div class="col-sm-5 text-center text-sm-left">
           <div class="card-body pb-0 px-0 px-md-4">
             <img
-              src="./admin/assets/img/illustrations/man-with-laptop-light.png"
+              src="{{ asset('admin/assets/img/illustrations/man-with-laptop-light.png') }}"
               height="140"
-              alt="View Badge User"
-              data-app-dark-img="illustrations/man-with-laptop-dark.png"
-              data-app-light-img="illustrations/man-with-laptop-light.png" />
+              alt="View Badge User" />
           </div>
         </div>
         <div class="col-lg-12">
@@ -76,33 +74,39 @@
               <thead>
                 <tr>
                   <th>SL</th>
-                  <th>Student Image</th>
-                  <th>Student Name</th>
-                  <th>Short Feedback</th>
-                  <th>Class</th>
+                  <th>Classes</th>
+                  <th>Story Tags</th>
+                  <th>Student Images</th>
+                  <th>Student Names</th>
+                  <th>Short Feedbacks</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach($stories as $story)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{$loop->iteration}}</strong>
                   </td>
+
+                  <td>
+                    <span class="badge bg-label-info">{{$story->class->name}}</span>
+                  </td>
+
+                  <td>{{$story->storyTag->tag_name}}</td>
                   <td>
                     <img
-                      src="./admin/assets/img/avatars/1.png"
+                      src="{{ asset('storage/' . $story->image) }}"
                       class="w-px-40 h-auto rounded-circle"
                       alt="" />
                   </td>
-                  <td>xyz mnp</td>
+                  <td>{{$story->name}}</td>
 
                   <td>
-                    My Parents are happy. Thanks Schoolwala!
+                    {{$story->feedback}}
                   </td>
 
-                  <td>
-                    <span class="badge bg-label-info">Class 8</span>
-                  </td>
+                  
 
                   <td>
                     <button
@@ -122,6 +126,7 @@
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -138,7 +143,9 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-stories.store') }}" enctype="multipart/form-data">
+      @csrf
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Story
@@ -151,36 +158,48 @@
       </div>
       <div class="modal-body">
         <div class="row">
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Choose Class</label>
+              <select name="class_id" class="form-select" id="">
+                @foreach($classes as $class)
+                <option value="{{ $class->id }}">{{ $class->name }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Choose Story Tags</label>
+              <select name="story_tag_id" class="form-select" id="">
+                @foreach($tags as $tag)
+                <option value="{{ $tag->id }}">{{ $tag->tag_name }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Student Image</label>
-            <input type="file" class="form-control" />
+            <input type="file" name="image" class="form-control" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Student Name</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="name" class="form-control" />
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Short Feedback</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="feedback" class="form-control" />
           </div>
         </div>
 
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" class="form-select" id="">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
+
       </div>
       <div class="modal-footer">
         <button
@@ -189,7 +208,7 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>

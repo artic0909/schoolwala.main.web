@@ -75,8 +75,42 @@ Route::prefix('admin')->group(function () {
         Route::put('/admin-videos/{id}', [AdminController::class, 'updateVideo'])->name('admin.admin-videos.update');
         Route::delete('/admin-videos/{id}', [AdminController::class, 'deleteVideo'])->name('admin.admin-videos.delete');
 
+        // Practice Test
+        Route::put('/admin-videos/{id}/practice-test', [AdminController::class, 'putPracticeTestOnVideoID'])->name('admin.admin-videos.practice-test.update');
+
         Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
         // Course Related Routes End ==========================================================================================================================>
+
+
+
+
+
+        // Front Page Routes Start =========================================================================================================================>
+        Route::get('/admin-upload-faculty', [AdminController::class, 'adminUploadFacultyView'])->name('admin.admin-upload-faculties');
+        Route::post('/admin-upload-faculty', [AdminController::class, 'adminAddFaculty'])->name('admin.admin-upload-faculties.store');
+        Route::put('/admin-upload-faculty', [AdminController::class, 'adminEditFaculty'])->name('admin.admin-upload-faculties.update');
+        Route::delete('/admin-upload-faculty/{id}', [AdminController::class, 'adminDeleteFaculty'])->name('admin.admin-upload-faculties.delete');
+
+
+        Route::get('/admin-aboutus', [AdminController::class, 'adminAboutusView'])->name('admin.admin-aboutus');
+        Route::post('/admin-aboutus', [AdminController::class, 'adminAddAboutus'])->name('admin.admin-aboutus.store');
+        Route::put('/admin-aboutus', [AdminController::class, 'adminEditAboutus'])->name('admin.admin-aboutus.update');
+        Route::delete('/admin-aboutus', [AdminController::class, 'adminDeleteAboutus'])->name('admin.admin-aboutus.delete');
+
+
+        Route::get('/admin-story-tags', [AdminController::class, 'adminStoryTagsView'])->name('admin.admin-story-tags');
+        Route::post('/admin-story-tags', [AdminController::class, 'adminAddStoryTags'])->name('admin.admin-story-tags.store');
+        Route::put('/admin-story-tags/edit/{id}', [AdminController::class, 'adminEditStoryTags'])->name('admin.admin-story-tags.update');
+        Route::delete('/admin-story-tags/{id}', [AdminController::class, 'adminDeleteStoryTags'])->name('admin.admin-story-tags.delete');
+
+
+        Route::get('/admin-stories', [AdminController::class, 'adminStoriesView'])->name('admin.admin-stories');
+        Route::post('/admin-stories', [AdminController::class, 'adminAddStory'])->name('admin.admin-stories.store');
+
+
+
+        Route::get('/admin-faq', [AdminController::class, 'adminFaqView'])->name('admin.admin-faq');
+        // Front Page Routes End ==========================================================================================================================>
 
 
     });
@@ -95,13 +129,7 @@ Route::get('/admin-seo-aboutus', [AdminController::class, 'adminSeoAboutusView']
 Route::get('/admin-seo-privacy-policy', [AdminController::class, 'adminSeoPrivacyPolicyView'])->name('admin.admin-seo-privacy-policy');
 // SEO Routes End ==========================================================================================================================>
 
-// Front Page Routes Start =========================================================================================================================>
-Route::get('/admin-upload-faculty', [AdminController::class, 'adminUploadFacultyView'])->name('admin.admin-upload-faculties');
-Route::get('/admin-aboutus', [AdminController::class, 'adminAboutusView'])->name('admin.admin-aboutus');
-Route::get('/admin-story-tags', [AdminController::class, 'adminStoryTagsView'])->name('admin.admin-story-tags');
-Route::get('/admin-stories', [AdminController::class, 'adminStoriesView'])->name('admin.admin-stories');
-Route::get('/admin-faq', [AdminController::class, 'adminFaqView'])->name('admin.admin-faq');
-// Front Page Routes End ==========================================================================================================================>
+
 
 
 // Students Related Route Start =========================================================================================================================>

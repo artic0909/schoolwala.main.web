@@ -88,13 +88,14 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @if($aboutus)
                 <tr>
                   <td>
                     <strong>1</strong>
                   </td>
-                  <td>2000+</td>
-                  <td>1200+</td>
-                  <td>1900+</td>
+                  <td>{{$aboutus->happy_kids}}+</td>
+                  <td>{{$aboutus->fun_lessons}}+</td>
+                  <td>{{$aboutus->satisfaction}}+</td>
                   <td>
                     <button
                       type="button"
@@ -150,6 +151,13 @@
                     </button>
                   </td>
                 </tr>
+                @else
+                <tr>
+                  <td colspan="9" class="text-center">
+                    No About Details Found.
+                  </td>
+                </tr>
+                @endif
               </tbody>
             </table>
           </div>
@@ -161,6 +169,7 @@
 
 
 <!-- Story Modal -->
+@if($aboutus)
 <div
   class="modal fade"
   id="backDropModalStory"
@@ -184,8 +193,7 @@
             <p>
               <strong>Our Story:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{$aboutus->our_story}}
             </p>
           </div>
         </div>
@@ -201,8 +209,10 @@
     </form>
   </div>
 </div>
+@endif
 
 <!-- Bold Message Modal -->
+@if($aboutus)
 <div
   class="modal fade"
   id="backDropModalMessage"
@@ -225,9 +235,8 @@
           <div class="col mb-3">
             <p>
               <strong>Bold Message:</strong>
-              <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              <br>
+              {{$aboutus->bold_message}}
             </p>
           </div>
         </div>
@@ -243,8 +252,10 @@
     </form>
   </div>
 </div>
+@endif
 
 <!-- Vison Modal -->
+@if($aboutus)
 <div
   class="modal fade"
   id="backDropModalVision"
@@ -267,9 +278,8 @@
           <div class="col mb-3">
             <p>
               <strong>Our Vision:</strong>
-              <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              <br>
+              {{$aboutus->our_vision}}
             </p>
           </div>
         </div>
@@ -285,8 +295,10 @@
     </form>
   </div>
 </div>
+@endif
 
 <!-- Cred Modal -->
+@if($aboutus)
 <div
   class="modal fade"
   id="backDropModalCred"
@@ -310,13 +322,12 @@
             <p>
               <strong>Company Credentials:</strong>
               <br />
-              <span><i class="bx bx-phone me-1"></i> +91
-                9999999999</span>
+              <span><i class="bx bx-phone me-1"></i> +91 {{$aboutus->cm_mobile}}</span>
               <br />
               <span><i class="bx bx-mail-send me-1"></i>
-                YZ3Yi@example.com</span>
+                {{$aboutus->cm_email}}</span>
               <br />
-              <span><i class="bx bx-map me-1"></i> Address</span>
+              <span><i class="bx bx-map me-1"></i> {{$aboutus->cm_address}}</span>
             </p>
           </div>
         </div>
@@ -332,6 +343,8 @@
     </form>
   </div>
 </div>
+@endif
+
 
 <!-- Add Company About Details Modal -->
 <div
@@ -340,7 +353,9 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-aboutus.store') }}">
+      @csrf
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add About Schoolwala Details
@@ -355,29 +370,29 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Happy Kids</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="happy_kids" class="form-control" required />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Fun Lessons</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="fun_lessons" class="form-control" required />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Happy Students</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="satisfaction" class="form-control" required />
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Email</label>
-            <input type="text" class="form-control" />
+            <input type="email" name="cm_email" class="form-control" required />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Mobile</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="cm_mobile" class="form-control" required />
           </div>
         </div>
 
@@ -385,10 +400,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Address</label>
             <textarea
-              name=""
-              id=""
+              name="cm_address"
+              id="cm_address"
               class="form-control"
-              rows="3"></textarea>
+              rows="3" required></textarea>
           </div>
         </div>
 
@@ -396,10 +411,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Our Story</label>
             <textarea
-              name=""
-              id=""
+              name="our_story"
+              id="our_story"
               class="form-control"
-              rows="5"></textarea>
+              rows="5" required></textarea>
           </div>
         </div>
 
@@ -407,10 +422,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Our Vision</label>
             <textarea
-              name=""
-              id=""
+              name="our_vision"
+              id="our_vision"
               class="form-control"
-              rows="5"></textarea>
+              rows="5" required></textarea>
           </div>
         </div>
 
@@ -418,10 +433,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Bold Message</label>
             <textarea
-              name=""
-              id=""
+              name="bold_message"
+              id="bold_message"
               class="form-control"
-              rows="5"></textarea>
+              rows="5" required></textarea>
           </div>
         </div>
       </div>
@@ -432,20 +447,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
+
 <!-- Edit Company About Details Modal -->
+@if ($aboutus)
 <div
   class="modal fade"
   id="backDropModalEditClass"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-aboutus.update', $aboutus) }}">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit About Schoolwala Details
@@ -460,29 +480,29 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Happy Kids</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="happy_kids" class="form-control" value="{{ $aboutus->happy_kids }}" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Fun Lessons</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="fun_lessons" class="form-control" value="{{ $aboutus->fun_lessons }}" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">No. of Happy Students</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="satisfaction" class="form-control" value="{{ $aboutus->satisfaction }}" />
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Email</label>
-            <input type="text" class="form-control" />
+            <input type="email" name="cm_email" class="form-control" value="{{ $aboutus->cm_email }}" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Mobile</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="cm_mobile" class="form-control" value="{{ $aboutus->cm_mobile }}" />
           </div>
         </div>
 
@@ -490,10 +510,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Company Address</label>
             <textarea
-              name=""
-              id=""
+              name="cm_address"
+              id="cm_address"
               class="form-control"
-              rows="3"></textarea>
+              rows="3">{{ $aboutus->cm_address }}</textarea>
           </div>
         </div>
 
@@ -501,10 +521,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Our Story</label>
             <textarea
-              name=""
-              id=""
+              name="our_story"
+              id="our_story"
               class="form-control"
-              rows="5"></textarea>
+              rows="5">{{ $aboutus->our_story }}</textarea>
           </div>
         </div>
 
@@ -512,10 +532,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Our Vision</label>
             <textarea
-              name=""
-              id=""
+              name="our_vision"
+              id="our_vision"
               class="form-control"
-              rows="5"></textarea>
+              rows="5">{{ $aboutus->our_vision }}</textarea>
           </div>
         </div>
 
@@ -523,10 +543,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Bold Message</label>
             <textarea
-              name=""
-              id=""
+              name="bold_message"
+              id="bold_message"
               class="form-control"
-              rows="5"></textarea>
+              rows="5">{{ $aboutus->bold_message }}</textarea>
           </div>
         </div>
       </div>
@@ -537,20 +557,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endif
 
 <!-- Delete Company About Details Modal -->
+@if($aboutus)
 <div
   class="modal fade"
   id="backDropModalDeleteClass"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-aboutus.delete', $aboutus) }}">
+      @csrf
+      @method('DELETE')
+      <input type="hidden" name="id" value="{{ $aboutus->id }}">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete About Schoolwala
@@ -575,12 +600,14 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endif
 
+@if (!$aboutus)
 <!-- Add Button -->
 <a
   type="button"
@@ -591,6 +618,7 @@
   title="Add">
   Add
 </a>
+@endif
 
 
 @endsection

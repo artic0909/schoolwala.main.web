@@ -76,16 +76,21 @@
                 <tr>
                   <th>SL</th>
                   <th>Tags</th>
+                  <th>Slugs</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach($tags as $tag)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{$loop->iteration}}</strong>
                   </td>
                   <td>
-                    <span class="badge bg-label-info">🌟 Star Performer</span>
+                    <span class="badge bg-label-info">{{$tag->tag_name}}</span>
+                  </td>
+                  <td>
+                    <span class="badge bg-label-secondary">{{$tag->slug}}</span>
                   </td>
 
                   <td>
@@ -93,7 +98,7 @@
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $tag->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -101,11 +106,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $tag->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -123,7 +129,9 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-story-tags.store') }}">
+      @csrf
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Story Tag
@@ -138,7 +146,7 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Add Tags With Emoji</label>
-            <input type="text" class="form-control" />
+            <input type="text" class="form-control" name="tag_name" />
           </div>
         </div>
       </div>
@@ -149,20 +157,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit Story Tags Modal -->
+@foreach($tags as $tag)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $tag->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-story-tags.update', $tag->id) }}">
+      @csrf
+      @method('PUT')
+
+      <input type="hidden" name="id" value="{{ $tag->id }}">
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Story Tag
@@ -177,7 +190,7 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Update Tags With Emoji</label>
-            <input type="text" class="form-control" />
+            <input type="text" class="form-control" name="tag_name" value="{{$tag->tag_name}}" />
           </div>
         </div>
       </div>
@@ -188,20 +201,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Story Tags Modal -->
+@foreach($tags as $tag)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $tag->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-story-tags.delete', $tag->id) }}">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Story Tag
@@ -215,7 +233,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <p>Are you sure you want to delete this story tag?</p>
+            <p>Are you sure you want to delete this <span class="badge bg-danger">{{ $tag->tag_name }}</span> story tag?</p>
           </div>
         </div>
       </div>
@@ -226,11 +244,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a

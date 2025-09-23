@@ -23,4 +23,19 @@ class Classes extends Model
     {
         return $this->hasMany(Chapter::class);
     }
+
+    public function videos()
+    {
+        return $this->hasMany(Video::class);
+    }
+
+    public function faculty()
+    {
+        return $this->belongsTo(Faculty::class, 'fac_id');
+    }
+
+    public function stories()
+    {
+        return $this->hasMany(Story::class, 'class_id');
+    }
 }

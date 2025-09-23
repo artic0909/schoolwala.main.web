@@ -86,42 +86,53 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($faculties as $fac)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
                   <td>
                     <img
-                      src="./assets/img/avatars/1.png"
+                      src="{{ $fac->image ? asset('storage/'.$fac->image) : './assets/img/avatars/1.png' }}"
                       class="w-px-40 h-auto rounded-circle" />
                   </td>
                   <td>
-                    <span class="badge bg-label-danger">25-SW-FAC-01</span>
+                    <span class="badge bg-label-danger">{{ $fac->fac_id }}</span>
                   </td>
-                  <td>Xyz Mnp</td>
+                  <td>{{ $fac->name }}</td>
                   <td>
-                    <span class="badge bg-label-primary">Class 5</span>
-                    <span class="badge bg-label-primary">Class 6</span>
-                    <span class="badge bg-label-primary">Class 8</span>
+                    @if (!empty($fac->assigned_classes))
+                    @foreach ($fac->assigned_classes as $classId)
+                    @php
+                    $class = \App\Models\Classes::find($classId);
+                    @endphp
+                    @if($class)
+                    <span class="badge bg-label-primary">{{ $class->name }}</span>
+                    @endif
+                    @endforeach
+                    @else
+                    <span class="text-muted">No classes assigned</span>
+                    @endif
                   </td>
-                  <td>xyz@gmail.com</td>
-                  <td>+91-123456789</td>
+
+
+                  <td>{{ $fac->email }}</td>
+                  <td>{{ $fac->mobile }}</td>
                   <td>
                     <button
                       type="button"
                       class="btn btn-info"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalAbout">
+                      data-bs-target="#backDropModalAbout{{ $fac->id }}">
                       About
                     </button>
                   </td>
-
                   <td>
                     <button
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $fac->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -129,11 +140,14 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $fac->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
+
+
               </tbody>
             </table>
           </div>
@@ -144,9 +158,10 @@
 </div>
 
 <!-- About Faculty Modal -->
+@foreach ($faculties as $fac)
 <div
   class="modal fade"
-  id="backDropModalAbout"
+  id="backDropModalAbout{{ $fac->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
@@ -165,10 +180,9 @@
         <div class="row">
           <div class="col mb-3">
             <p>
-              <strong>Faculty Name: XYZ | FAC ID: 25-SW-FAC-01</strong>
+              <strong>Faculty Name: {{ $fac->name }} | FAC ID: {{ $fac->fac_id }}</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{ $fac->about_fac }}
             </p>
           </div>
         </div>
@@ -184,6 +198,7 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Faculty Modal -->
 <div
@@ -192,7 +207,9 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-upload-faculties.store') }}" method="POST" enctype="multipart/form-data">
+      @csrf
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Faculty
@@ -206,57 +223,42 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Faculty Name</label>
-            <input type="text" class="form-control" />
+            <label for="nameBackdrop" class="form-label">Faculty Name<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="name" required placeholder="XYZ" />
           </div>
 
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Asign Classes</label>
+            <label for="nameBackdrop" class="form-label">Asign Classes<span class="text-danger">*</span></label>
             <br />
             <div>
+              @foreach ($classes as $class)
               <p
                 class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
+                <span>{{ $class->name }}</span> &nbsp;
+                <input type="checkbox" class="form-check" name="assigned_classes[]" value="{{ $class->id }}" />
 
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
               </p>
-
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
-
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
+              @endforeach
             </div>
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Email ID</label>
-            <input type="text" class="form-control" />
+            <label for="nameBackdrop" class="form-label">Email ID<span class="text-danger">*</span></label>
+            <input type="email" class="form-control" name="email" placeholder="xyz@gmail" required />
           </div>
 
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Mobile</label>
-            <input type="text" class="form-control" />
+            <label for="nameBackdrop" class="form-label">Mobile<span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="mobile" placeholder="Enter Mobile" required />
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Profile Image</label>
-            <input type="file" class="form-control" />
+            <input type="file" name="image" class="form-control" />
           </div>
         </div>
 
@@ -264,8 +266,8 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">About Faculty</label>
             <textarea
-              name=""
-              id=""
+              name="about_fac"
+              id="about_fac"
               class="form-control"
               rows="5"></textarea>
           </div>
@@ -278,23 +280,29 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit Faculty Modal -->
+@foreach ($faculties as $fac)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $fac->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-upload-faculties.update', $fac->id) }}" method="POST" enctype="multipart/form-data">
+      @csrf
+      @method('PUT')
+
+      <input type="hidden" name="fac_id" value="{{ $fac->id }}">
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
-          Edit Faculty
+          Edit Faculty | <span class="badge bg-label-success">{{ $fac->name }}</span> | <span class="badge bg-label-primary">{{ $fac->fac_id }}</span>
         </h5>
         <button
           type="button"
@@ -305,46 +313,41 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
+            <!-- realtime change whatever i choose image -->
             <img
-              src="./assets/img/avatars/1.png"
-              class="w-px-100 h-auto rounded-circle"
-              alt="" />
+              src="{{ $fac->image ? asset('storage/'.$fac->image) : './assets/img/avatars/1.png' }}"
+              class="rounded-circle"
+              id="previewImage{{ $fac->id }}" style="background-size: cover; background-position: center; background-repeat: no-repeat; width: 100px; height: 100px" />
+            <input type="file" name="image" class="form-control mt-2" onchange="previewImage(event, {{ $fac->id }})">
+
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Faculty Name</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="name" class="form-control" value="{{ $fac->name }}" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Asign Classes</label>
             <br />
             <div>
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
-
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
-
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
-
-              <p
-                class="d-flex justify-content-start align-items-center m-0 p-0">
-                <span>Class 1</span> &nbsp;
-                <input type="checkbox" class="form-check" />
-              </p>
+              <!-- all classes show here just checked those classes which are assigned -->
+              @foreach ($classes as $class)
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="assigned_classes[]"
+                  value="{{ $class->id }}"
+                  id="class{{ $fac->id }}_{{ $class->id }}"
+                  {{ in_array($class->id, $fac->assigned_classes ?? []) ? 'checked' : '' }}>
+                <label class="form-check-label" for="class{{ $fac->id }}_{{ $class->id }}">
+                  {{ $class->name }}
+                </label>
+              </div>
+              @endforeach
             </div>
           </div>
         </div>
@@ -352,30 +355,30 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Email ID</label>
-            <input type="text" class="form-control" />
+            <input type="email" name="email" class="form-control" value="{{ $fac->email }}" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Mobile</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="mobile" value="{{ $fac->mobile }}" class="form-control" />
           </div>
         </div>
 
-        <div class="row">
+        <!-- <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Profile Image</label>
-            <input type="file" class="form-control" />
+            <input type="file" name="image" class="form-control" />
           </div>
-        </div>
+        </div> -->
 
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">About Faculty</label>
             <textarea
-              name=""
-              id=""
+              name="about_fac"
+              id="about_fac"
               class="form-control"
-              rows="5"></textarea>
+              rows="5">{{ $fac->about_fac }}</textarea>
           </div>
         </div>
       </div>
@@ -386,20 +389,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Faculty Modal -->
+@foreach ($faculties as $fac)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $fac->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-upload-faculties.delete', $fac->id) }}" method="POST">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Faculty
@@ -415,7 +423,7 @@
           <div class="col mb-3">
             <p>
               Are you sure you want to delete this Faculty
-              <span class="text-danger">25-SW-FAC-01</span>?
+              <span class="text-danger">{{ $fac->fac_id }}</span>?
             </p>
           </div>
         </div>
@@ -427,11 +435,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a
@@ -443,5 +452,15 @@
   title="Add">
   Add
 </a>
+
+<script>
+  function previewImage(event, id) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      document.getElementById('previewImage' + id).src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  }
+</script>
 
 @endsection

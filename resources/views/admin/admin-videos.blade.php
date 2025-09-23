@@ -114,13 +114,23 @@
                   </td>
 
                   <td>
-                    <button
-                      type="button"
-                      class="btn btn-info"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalPlayVideo{{ $video->id }}">
-                      <i class="fa-solid fa-video"></i>
-                    </button>
+                    <div class="d-flex flex-column gap-2">
+                      <button
+                        type="button"
+                        class="btn btn-info"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalPlayVideo{{ $video->id }}">
+                        <i class="fa-solid fa-video"></i>
+                      </button>
+
+                      <button
+                        type="button"
+                        class="btn btn-warning"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalDescription{{ $video->id }}">
+                        <i class="fa-solid fa-file"></i>
+                      </button>
+                    </div>
                   </td>
 
                   <td>
@@ -296,12 +306,90 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-lg">
-    <form class="modal-content" action="{{ route('admin.admin-videos.update', $video->id) }}" method="POST">
+    <form class="modal-content" action="{{ route('admin.admin-videos.practice-test.update', $video->id) }}" method="POST">
       @csrf
       @method('PUT')
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Practice Test | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2">
+          <div class="col mb-3">
+            <label class="form-label">Video Title: {{ $video->video_title }}</label> <br>
+            <label class="form-label">Practice Questions & Answers</label>
+
+            <input type="hidden" value="{{ $video->id }}" name="video_id">
+
+            @php
+            $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
+            $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
+            $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
+            @endphp
+
+            <div id="questions-wrapper-{{ $video->id }}">
+              @if(!empty($questions))
+              @foreach($questions as $i => $q)
+              @php $ansArr = explode(',', $answers[$i] ?? ''); @endphp
+              <div class="multiple-section mb-3 border rounded p-3">
+                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" value="{{ $q }}" />
+
+                <input type="text" class="form-control mb-2 answers-field" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" value="{{ $answers[$i] ?? '' }}" />
+
+                <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+                  <option value="">-- Select Correct Answer --</option>
+                  @foreach($ansArr as $ans)
+                  <option value="{{ trim($ans) }}" {{ (trim($ans) == ($correct[$i] ?? '')) ? 'selected' : '' }}>
+                    {{ trim($ans) }}
+                  </option>
+                  @endforeach
+                </select>
+
+                <button type="button" class="btn btn-danger remove-section">Remove</button>
+              </div>
+              @endforeach
+              @endif
+
+              {{-- Blank section for new question --}}
+              <div class="multiple-section mb-3 border rounded p-3">
+                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
+                <input type="text" class="form-control mb-2 answers-field" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+                <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+                  <option value="">-- Select Correct Answer --</option>
+                </select>
+                <button type="button" class="btn btn-danger remove-section">Remove</button>
+              </div>
+            </div>
+
+            <button type="button" class="mt-2 btn btn-primary add-section" data-target="questions-wrapper-{{ $video->id }}">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+@endforeach
+
+
+<!-- Video Description Modal -->
+@foreach ($videos as $video)
+<div
+  class="modal fade"
+  id="backDropModalDescription{{ $video->id }}"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <form class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Video Description | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
         </h5>
         <button
           type="button"
@@ -310,43 +398,11 @@
           aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="row g-2">
+        <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Title: {{ $video->video_title }}</label> <br>
-            <label for="nameBackdrop1" class="form-label">Practice Questions & Answers</label>
+            <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
 
-            <input type="hidden" value="{{$video->id}}" name="video_id">
-
-            @php
-            $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
-            $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
-            $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
-            @endphp
-
-
-            <div id="questions-wrapper-{{ $video->id }}">
-              @if(!empty($questions))
-              @foreach($questions as $i => $q)
-              <div class="multiple-section mb-3">
-                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" value="{{ $q }}" />
-                <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" value="{{ $answers[$i] ?? '' }}" />
-                <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" value="{{ $correct[$i] ?? '' }}" />
-                <button type="button" class="mb-2 btn btn-danger remove-section">Remove</button>
-              </div>
-              @endforeach
-              @endif
-
-              <div class="multiple-section mb-3">
-                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
-                <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
-                <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" />
-                <button type="button" class="mb-2 btn btn-danger remove-section">Remove</button>
-              </div>
-            </div>
-
-            <button type="button" class="mt-2 btn btn-primary add-section" data-target="questions-wrapper-{{ $video->id }}">Add</button>
-
-
+            <p class="fw-bold">Video Description: {{ $video->video_description }}</p>
           </div>
         </div>
       </div>
@@ -356,12 +412,6 @@
           class="btn btn-outline-secondary"
           data-bs-dismiss="modal">
           Close
-        </button>
-
-        <button
-          type="submit"
-          class="btn btn-primary">
-          Save
         </button>
       </div>
     </form>
@@ -686,26 +736,59 @@
 
 <script>
   $(document).ready(function() {
+    // Function to build a new section
+    function buildSection() {
+      return `
+        <div class="multiple-section mb-3 border rounded p-3">
+          <input type="text" class="form-control mb-2 question-field" 
+                 placeholder="Enter Question" name="questions[]" />
+
+          <input type="text" class="form-control mb-2 answers-field" 
+                 placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+
+          <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+            <option value="">-- Select Correct Answer --</option>
+          </select>
+
+          <button type="button" class="btn btn-danger remove-section">Remove</button>
+        </div>
+      `;
+    }
+
     // Add new section
-    $(document).on('click', '.add-section', function() {
-      let targetWrapper = $(this).data('target'); // get wrapper ID
-      let newSection = `
-      <div class="multiple-section mb-3">
-        <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
-        <input type="text" class="form-control mb-2" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
-        <input type="text" class="form-control mb-2" placeholder="Enter Correct Answer" name="correct_answers[]" />
-        <button type="button" class="btn btn-danger remove-section">Remove</button>
-      </div>
-    `;
-      $('#' + targetWrapper).append(newSection);
+    $(document).on("click", ".add-section", function() {
+      let targetWrapper = $(this).data("target");
+      $("#" + targetWrapper).append(buildSection());
     });
 
-    // Remove section
-    $(document).on('click', '.remove-section', function() {
-      $(this).closest('.multiple-section').remove();
+    // Remove section (ensure at least one remains)
+    $(document).on("click", ".remove-section", function() {
+      let wrapper = $(this).closest("[id]");
+      if (wrapper.find(".multiple-section").length > 1) {
+        $(this).closest(".multiple-section").remove();
+      } else {
+        alert("At least one question is required.");
+      }
+    });
+
+    // Populate correct answer dropdown when answers field changes
+    $(document).on("input", ".answers-field", function() {
+      let answers = $(this).val().split(",");
+      let select = $(this).closest(".multiple-section").find(".correct-answer-field");
+
+      select.empty(); // clear old options
+      select.append(`<option value="">-- Select Correct Answer --</option>`);
+
+      answers.forEach(function(ans) {
+        let trimmed = ans.trim();
+        if (trimmed) {
+          select.append(`<option value="${trimmed}">${trimmed}</option>`);
+        }
+      });
     });
   });
 </script>
+
 
 
 @endsection

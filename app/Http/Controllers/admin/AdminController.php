@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AboutUs;
 use App\Models\Admin;
 use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
+use App\Models\Faculty;
+use App\Models\Story;
+use App\Models\StoryTag;
 use App\Models\Subject;
 use App\Models\Video;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -192,26 +198,339 @@ class AdminController extends Controller
     public function adminUploadFacultyView()
     {
 
-        return view('admin.admin-upload-faculties');
+        $classes = Classes::all();
+        $faculties = Faculty::all();
+
+        return view('admin.admin-upload-faculties', compact('classes', 'faculties'));
     }
+
+    public function adminAddFaculty(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|email|unique:faculties,email',
+            'mobile'            => 'required|string|max:15',
+            'image'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'about_fac'         => 'nullable|string',
+            'assigned_classes'  => 'required|array',
+            'assigned_classes.*' => 'exists:classes,id',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Validation failed. Please check the form.');
+        }
+
+        try {
+
+            $month = date('m');
+            $year  = date('y');
+            $prefix = "{$month}{$year}-SW-FAC-";
+
+
+            $lastFaculty = Faculty::where('fac_id', 'like', "{$prefix}%")
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($lastFaculty) {
+                $lastNumber = (int) Str::afterLast($lastFaculty->fac_id, '-');
+                $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+            } else {
+                $nextNumber = '01';
+            }
+
+            $facId = $prefix . $nextNumber;
+
+
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('faculties', 'public');
+            }
+
+            Faculty::create([
+                'fac_id'           => $facId,
+                'name'             => $request->name,
+                'email'            => $request->email,
+                'mobile'           => $request->mobile,
+                'about_fac'        => $request->about_fac,
+                'image'            => $imagePath,
+                'assigned_classes' => $request->assigned_classes,
+            ]);
+
+            return redirect()->back()->with('success', 'Faculty added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditFaculty(Request $request)
+    {
+        $request->validate([
+            'fac_id' => 'exists:faculties,id',
+            'name' => 'string|max:255',
+            'email' => 'email|max:255',
+            'mobile' => 'string|max:20',
+            'assigned_classes' => 'nullable|array',
+            'assigned_classes.*' => 'exists:classes,id',
+            'about_fac' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg',
+        ]);
+
+        try {
+            $faculty = Faculty::findOrFail($request->fac_id);
+
+            $faculty->name = $request->name;
+            $faculty->email = $request->email;
+            $faculty->mobile = $request->mobile;
+            $faculty->about_fac = $request->about_fac;
+            $faculty->assigned_classes = $request->assigned_classes ?? [];
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('faculties', 'public');
+                $faculty->image = $imagePath;
+            }
+
+
+            $faculty->save();
+
+            return back()->with('success', 'Faculty updated successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteFaculty($id)
+    {
+
+        try {
+            $faculty = Faculty::findOrFail($id);
+            $faculty->delete();
+            return back()->with('success', 'Faculty deleted successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
 
     public function adminAboutusView()
     {
 
-        return view('admin.admin-aboutus');
+        $aboutus = AboutUs::first();
+
+        return view('admin.admin-aboutus', compact('aboutus'));
     }
+
+    public function adminAddAboutus(Request $request)
+    {
+
+        try {
+            $request->validate([
+                'happy_kids' => 'required|string',
+                'fun_lessons' => 'required|string',
+                'satisfaction' => 'required|string',
+                'cm_email' => 'required|email',
+                'cm_mobile' => 'required|string',
+                'cm_address' => 'required|string',
+                'our_story' => 'required|string',
+                'our_vision' => 'required|string',
+                'bold_message' => 'required|string',
+            ]);
+
+            AboutUs::create([
+                'happy_kids' => $request->happy_kids,
+                'fun_lessons' => $request->fun_lessons,
+                'satisfaction' => $request->satisfaction,
+                'cm_email' => $request->cm_email,
+                'cm_mobile' => $request->cm_mobile,
+                'cm_address' => $request->cm_address,
+                'our_story' => $request->our_story,
+                'our_vision' => $request->our_vision,
+                'bold_message' => $request->bold_message,
+            ]);
+
+            return redirect()->back()->with('success', 'About Us added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditAboutus(Request $request)
+    {
+
+        $request->validate([
+            'happy_kids' => 'required|string',
+            'fun_lessons' => 'required|string',
+            'satisfaction' => 'required|string',
+            'cm_email' => 'required|email',
+            'cm_mobile' => 'required|string',
+            'cm_address' => 'required|string',
+            'our_story' => 'required|string',
+            'our_vision' => 'required|string',
+            'bold_message' => 'required|string',
+        ]);
+
+        try {
+            $aboutus = AboutUs::first();
+            $aboutus->happy_kids = $request->happy_kids;
+            $aboutus->fun_lessons = $request->fun_lessons;
+            $aboutus->satisfaction = $request->satisfaction;
+            $aboutus->cm_email = $request->cm_email;
+            $aboutus->cm_mobile = $request->cm_mobile;
+            $aboutus->cm_address = $request->cm_address;
+            $aboutus->our_story = $request->our_story;
+            $aboutus->our_vision = $request->our_vision;
+            $aboutus->bold_message = $request->bold_message;
+            $aboutus->save();
+
+            return redirect()->back()->with('success', 'About Us updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteAboutus(Request $request)
+    {
+
+        try {
+            $aboutus = AboutUs::findOrFail($request->id);
+            $aboutus->delete();
+            return redirect()->back()->with('success', 'About Us deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
 
     public function adminStoryTagsView()
     {
+        $tags = StoryTag::all();
 
-        return view('admin.admin-story-tags');
+        return view('admin.admin-story-tags', compact('tags'));
     }
+
+    public function adminAddStoryTags(Request $request)
+    {
+        // Implementation for adding story tags
+        try {
+            $request->validate([
+                'tag_name' => 'required|string|max:255|unique:story_tags,tag_name',
+            ]);
+
+            $tag = new StoryTag();
+            $tag->tag_name = $request->tag_name;
+            $tag->slug = Str::slug($request->tag_name);
+            $tag->save();
+
+            return redirect()->route('admin.admin-story-tags')
+                ->with('success', 'Story Tag created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-story-tags')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditStoryTags(Request $request)
+    {
+        $request->validate([
+            'tag_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('story_tags', 'tag_name')->ignore($request->id),
+            ],
+        ]);
+
+        try {
+            $tag = StoryTag::findOrFail($request->id);
+            $tag->tag_name = $request->tag_name;
+            $tag->slug = Str::slug($request->tag_name);
+            $tag->save();
+
+            return redirect()->route('admin.admin-story-tags')
+                ->with('success', 'Story Tag updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-story-tags')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteStoryTags(Request $request)
+    {
+        // Implementation for deleting story tags
+        try {
+            $tag = StoryTag::findOrFail($request->id);
+            $tag->delete();
+            return redirect()->route('admin.admin-story-tags')
+                ->with('success', 'Story Tag deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-story-tags')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
 
     public function adminStoriesView()
     {
+        $classes = Classes::all();
+        $tags = StoryTag::all();
+        $stories = Story::with('class', 'storyTag')->get();
 
-        return view('admin.admin-stories');
+        return view('admin.admin-stories', compact('classes', 'tags', 'stories'));
     }
+
+    public function adminAddStory(Request $request)
+    {
+        try {
+            $request->validate([
+                'class_id' => 'required|exists:classes,id',
+                'story_tag_id' => 'required|exists:story_tags,id',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'name' => 'required|string',
+                'feedback' => 'required|string',
+            ]);
+
+            $story = new Story();
+            $story->class_id = $request->class_id;
+            $story->story_tag_id = $request->story_tag_id;
+            $story->name = $request->name;
+            $story->feedback = $request->feedback;
+
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('images/stories'), $imageName);
+                $story->image = $imageName;
+            }
+
+            $story->save();
+
+            return redirect()->route('admin.admin-stories')
+                ->with('success', 'Story created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-stories')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
 
     public function adminFaqView()
     {
@@ -582,17 +901,17 @@ class AdminController extends Controller
             $video = Video::findOrFail($id);
 
             $slug = Str::slug($request->video_title);
-  
-            $thumbnail = $video->video_thumbnail; 
+
+            $thumbnail = $video->video_thumbnail;
             if ($request->hasFile('video_thumbnail')) {
-                
+
                 if ($video->video_thumbnail && file_exists(public_path('storage/' . $video->video_thumbnail))) {
                     unlink(public_path('storage/' . $video->video_thumbnail));
                 }
 
                 $thumbnail = $request->file('video_thumbnail')->store('thumbnails', 'public');
             } else {
-             
+
                 $thumbnail = $video->video_thumbnail;
             }
 
@@ -619,7 +938,32 @@ class AdminController extends Controller
 
 
 
-    public function putPracticeTestOnVideoID(Request $request, $id) {}
+    public function putPracticeTestOnVideoID(Request $request, $id)
+    {
+        // Validate
+        $request->validate([
+            'questions'        => 'array',
+            'answers'          => 'array',
+            'correct_answers'  => 'array',
+        ]);
+
+        // Find video
+        $video = Video::findOrFail($id);
+
+        // Convert to JSON (removing empty values)
+        $questions = array_filter($request->questions ?? []);
+        $answers = array_filter($request->answers ?? []);
+        $correct = array_filter($request->correct_answers ?? []);
+
+        // Save as JSON
+        $video->questions        = json_encode(array_values($questions));
+        $video->answers          = json_encode(array_values($answers));
+        $video->correct_answers  = json_encode(array_values($correct));
+
+        $video->save();
+
+        return back()->with('success', 'Practice test saved successfully!');
+    }
 
 
     public function deleteVideo($id)
