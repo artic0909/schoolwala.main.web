@@ -9,6 +9,7 @@ use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
 use App\Models\Faculty;
+use App\Models\FAQ;
 use App\Models\Story;
 use App\Models\StoryTag;
 use App\Models\Subject;
@@ -19,6 +20,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -510,17 +512,72 @@ class AdminController extends Controller
             $story->name = $request->name;
             $story->feedback = $request->feedback;
 
+            $imagePath = null;
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = time() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('images/stories'), $imageName);
-                $story->image = $imageName;
+                $imagePath = $request->file('image')->store('stories', 'public');
+
+                $story->image = $imagePath;
             }
+
 
             $story->save();
 
             return redirect()->route('admin.admin-stories')
                 ->with('success', 'Story created successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-stories')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
+    public function adminEditStory(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'class_id'     => 'required|exists:classes,id',
+                'story_tag_id' => 'required|exists:story_tags,id',
+                'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'name'         => 'required|string',
+                'feedback'     => 'required|string',
+            ]);
+
+            $story = Story::findOrFail($id);
+
+            $story->class_id     = $request->class_id;
+            $story->story_tag_id = $request->story_tag_id;
+            $story->name         = $request->name;
+            $story->feedback     = $request->feedback;
+
+            // handle image upload
+            if ($request->hasFile('image')) {
+                // delete old file if exists
+                if (!empty($story->image) && Storage::disk('public')->exists($story->image)) {
+                    Storage::disk('public')->delete($story->image);
+                }
+
+                // store new file
+                $imagePath   = $request->file('image')->store('stories', 'public');
+                $story->image = $imagePath;
+            }
+
+            $story->save();
+
+            return redirect()->route('admin.admin-stories')
+                ->with('success', 'Story updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-stories')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteStory(Request $request, $id)
+    {
+        try {
+            $story = Story::findOrFail($id);
+            $story->delete();
+            return redirect()->route('admin.admin-stories')
+                ->with('success', 'Story deleted successfully!');
         } catch (\Exception $e) {
             return redirect()->route('admin.admin-stories')
                 ->with('error', 'Something went wrong. ' . $e->getMessage());
@@ -534,8 +591,67 @@ class AdminController extends Controller
 
     public function adminFaqView()
     {
+        $faqs = FAQ::all();
 
-        return view('admin.admin-faq');
+        return view('admin.admin-faq', compact('faqs'));
+    }
+
+    public function adminAddFaq(Request $request)
+    {
+        try {
+            $request->validate([
+                'question' => 'required|string|max:500',
+                'answer'   => 'required|string',
+            ]);
+
+            $faq = new FAQ();
+            $faq->question = $request->question;
+            $faq->answer   = $request->answer;
+            $faq->slug     = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
+            $faq->save();
+
+            return redirect()->route('admin.admin-faq')
+                ->with('success', 'FAQ added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-faq')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditFaq(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'question' => 'required|string|max:500',
+                'answer'   => 'required|string',
+            ]);
+
+            $faq = FAQ::findOrFail($id);
+            $faq->question = $request->question;
+            $faq->answer   = $request->answer;
+            $faq->slug     = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
+            $faq->save();
+
+            return redirect()->route('admin.admin-faq')
+                ->with('success', 'FAQ updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-faq')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteFaq($id)
+    {
+        try {
+            $faq = FAQ::findOrFail($id);
+            $faq->delete();
+
+            return redirect()->route('admin.admin-faq')
+                ->with('success', 'FAQ deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-faq')
+                ->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
     }
     // Front Page End ==========================================================================================================================>
 

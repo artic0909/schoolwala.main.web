@@ -96,7 +96,7 @@
                   <td>{{$story->storyTag->tag_name}}</td>
                   <td>
                     <img
-                      src="{{ asset('storage/' . $story->image) }}"
+                      src="{{asset('storage/'.$story->image) }}"
                       class="w-px-40 h-auto rounded-circle"
                       alt="" />
                   </td>
@@ -106,14 +106,14 @@
                     {{$story->feedback}}
                   </td>
 
-                  
+
 
                   <td>
                     <button
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $story->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -121,7 +121,7 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $story->id }}">
                       Delete
                     </button>
                   </td>
@@ -215,13 +215,17 @@
 </div>
 
 <!-- Edit Story Modal -->
+@foreach($stories as $story)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $story->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-stories.update', $story->id) }}" enctype="multipart/form-data">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Story
@@ -234,36 +238,50 @@
       </div>
       <div class="modal-body">
         <div class="row">
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Choose Class</label>
+              <select name="class_id" class="form-select" id="">
+                <option value="{{ $story->class->id }}" selected>{{ $story->class->name }}</option>
+                @foreach($classes as $class)
+                <option value="{{ $class->id }}">{{ $class->name }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Choose Story Tags</label>
+              <select name="story_tag_id" class="form-select" id="">
+                <option value="{{ $story->storyTag->id }}" selected>{{ $story->storyTag->tag_name }}</option>
+                @foreach($tags as $tag)
+                <option value="{{ $tag->id }}">{{ $tag->tag_name }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Student Image</label>
-            <input type="file" class="form-control" />
+            <input type="file" name="image" class="form-control" accept="image/*" />
           </div>
 
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Student Name</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="name" class="form-control" value="{{ $story->name }}" />
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Short Feedback</label>
-            <input type="text" class="form-control" />
+            <input type="text" name="feedback" class="form-control" value="{{ $story->feedback }}" />
           </div>
         </div>
 
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" class="form-select" id="">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-        </div>
+
       </div>
       <div class="modal-footer">
         <button
@@ -272,20 +290,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Story Modal -->
+@foreach($stories as $story)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $story->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-stories.delete', $story->id) }}">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Story
@@ -310,11 +333,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a

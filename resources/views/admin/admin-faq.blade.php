@@ -80,16 +80,17 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach($faqs as $faq)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
                   <td>
                     <button
                       class="btn btn-primary"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalQuestion">
+                      data-bs-target="#backDropModalQuestion{{ $faq->id }}">
                       Question
                     </button>
                   </td>
@@ -99,7 +100,7 @@
                       class="btn btn-info"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalAnswers">
+                      data-bs-target="#backDropModalAnswers{{ $faq->id }}">
                       Answer
                     </button>
                   </td>
@@ -109,7 +110,7 @@
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $faq->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -117,11 +118,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $faq->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -132,9 +134,10 @@
 </div>
 
 <!-- Question Modal -->
+@foreach($faqs as $faq)
 <div
   class="modal fade"
-  id="backDropModalQuestion"
+  id="backDropModalQuestion{{ $faq->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
@@ -155,8 +158,7 @@
             <p>
               <strong>Question:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{ $faq->question }}
             </p>
           </div>
         </div>
@@ -172,11 +174,13 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Answer Modal -->
+@foreach($faqs as $faq)
 <div
   class="modal fade"
-  id="backDropModalAnswers"
+  id="backDropModalAnswers{{ $faq->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
@@ -195,8 +199,7 @@
             <p>
               <strong>Answer:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{ $faq->answer }}
             </p>
           </div>
         </div>
@@ -212,6 +215,7 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add FAQ Modal -->
 <div
@@ -220,7 +224,9 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-faq.store') }}" method="POST" enctype="multipart/form-data">
+      @csrf
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">Add FAQ</h5>
         <button
@@ -234,16 +240,14 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Question</label>
-            <textarea class="form-control" name="" id="" rows="5">
-                        </textarea>
+            <textarea class="form-control" name="question" id="question" rows="5"></textarea>
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Answer</label>
-            <textarea class="form-control" name="" id="" rows="5">
-                        </textarea>
+            <textarea class="form-control" name="answer" id="answer" rows="5"></textarea>
           </div>
         </div>
       </div>
@@ -254,20 +258,24 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit FAQ Modal -->
+@foreach($faqs as $faq)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $faq->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-faq.update', $faq->id) }}" method="POST">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit FAQ
@@ -283,16 +291,14 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Question</label>
-            <textarea class="form-control" name="" id="" rows="5">
-                        </textarea>
+            <textarea class="form-control" name="question" id="question" rows="5">{{ $faq->question }}</textarea>
           </div>
         </div>
 
         <div class="row g-2">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Answer</label>
-            <textarea class="form-control" name="" id="" rows="5">
-                        </textarea>
+            <textarea class="form-control" name="answer" id="answer" rows="5">{{ $faq->answer }}</textarea>
           </div>
         </div>
       </div>
@@ -303,20 +309,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete FAQ Modal -->
+@foreach($faqs as $faq)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $faq->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-faq.delete', $faq->id) }}" method="POST">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete FAQ
@@ -341,11 +352,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a

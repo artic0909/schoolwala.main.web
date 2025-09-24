@@ -106,10 +106,15 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/admin-stories', [AdminController::class, 'adminStoriesView'])->name('admin.admin-stories');
         Route::post('/admin-stories', [AdminController::class, 'adminAddStory'])->name('admin.admin-stories.store');
+        Route::put('/admin-stories/{id}', [AdminController::class, 'adminEditStory'])->name('admin.admin-stories.update');
+        Route::delete('/admin-stories/{id}', [AdminController::class, 'adminDeleteStory'])->name('admin.admin-stories.delete');
 
 
 
         Route::get('/admin-faq', [AdminController::class, 'adminFaqView'])->name('admin.admin-faq');
+        Route::post('/admin-faq', [AdminController::class, 'adminAddFaq'])->name('admin.admin-faq.store');
+        Route::put('/admin-faq/{id}', [AdminController::class, 'adminEditFaq'])->name('admin.admin-faq.update');
+        Route::delete('/admin-faq/{id}', [AdminController::class, 'adminDeleteFaq'])->name('admin.admin-faq.delete');
         // Front Page Routes End ==========================================================================================================================>
 
 
