@@ -1,5 +1,5 @@
 @php
-  $currentRoute = request()->path();
+$currentRoute = request()->path();
 @endphp
 
 <!-- NAVBAR -->
@@ -39,9 +39,35 @@
           </a>
         </li>
         <li>
-          <a class="btn-outline {{ request()->is('login') ? 'active' : '' }}" href="{{ url('login') }}">
+          @auth('student')
+          <a
+            href="{{route('student.student-profile')}}"
+            style="
+                  max-width: fit-content;
+                  max-height: fit-content;
+                  margin: 0;
+                  padding: 0;
+                  display: flex;
+                  align-items: center;
+                ">
+            <p
+              class="btn-outline"
+              style="
+                    background: url(./img/profile.png);
+                    height: 45px;
+                    width: 45px;
+                    border-radius: 50%;
+                    background-size: cover;
+                    background-position: center;
+                    margin: 0;
+                    padding: 0;
+                  "></p>
+          </a>
+          @else
+          <a class="btn-outline {{ request()->is('student-login') ? 'active' : '' }}" href="{{ url('student-login') }}">
             Login/Reg
           </a>
+          @endauth
         </li>
       </ul>
     </div>

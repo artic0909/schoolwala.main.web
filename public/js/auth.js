@@ -20,22 +20,4 @@ document.addEventListener('DOMContentLoaded', function() {
       this.parentElement.style.transform = 'translateY(0)';
     });
   });
-
-  // Login form
-  const loginFormEl = document.getElementById('loginForm');
-  if (loginFormEl) {
-    loginFormEl.addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert('Login successful! Redirecting to dashboard...');
-    });
-  }
-
-  // Signup form
-  const signupFormEl = document.getElementById('signupForm');
-  if (signupFormEl) {
-    signupFormEl.addEventListener('submit', function(e) {
-      e.preventDefault();
-      alert('Account created successfully! Welcome to Schoolwala!');
-    });
-  }
 });

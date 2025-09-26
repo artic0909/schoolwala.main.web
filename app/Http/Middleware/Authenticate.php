@@ -35,7 +35,9 @@ class Authenticate
     protected function unauthenticated($request, array $guards)
     {
         throw new AuthenticationException(
-            'Unauthenticated', $guards, $this->redirectTo($request)
+            'Unauthenticated',
+            $guards,
+            $this->redirectTo($request)
         );
     }
 
@@ -44,9 +46,13 @@ class Authenticate
      */
     protected function redirectTo($request)
     {
-        
+
         if ($request->is('admin/*')) {
             return route('admin.admin-login');
+        }
+
+        if ($request->is('student/*')) {
+            return route('student.student-login');
         }
 
         return route('home');

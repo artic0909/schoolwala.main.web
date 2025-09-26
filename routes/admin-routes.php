@@ -118,6 +118,23 @@ Route::prefix('admin')->group(function () {
         // Front Page Routes End ==========================================================================================================================>
 
 
+
+
+
+
+        // Students Related Route Start =========================================================================================================================>
+        Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->name('admin.admin-students');
+        Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
+        Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
+        // Students Related Route End ==========================================================================================================================>
+
+
+
+        // Waver Routes Start =========================================================================================================================>
+        Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
+        Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
+        // Waver Routes End ==========================================================================================================================>
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>
@@ -137,17 +154,7 @@ Route::get('/admin-seo-privacy-policy', [AdminController::class, 'adminSeoPrivac
 
 
 
-// Students Related Route Start =========================================================================================================================>
-Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->name('admin.admin-students');
-Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
-Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
-// Students Related Route End ==========================================================================================================================>
 
 // Enquiry Routes Start =========================================================================================================================>
 Route::get('/admin-enquiry', [AdminController::class, 'adminEnquiryView'])->name('admin.admin-enquiry');
 // Enquiry Routes End ==========================================================================================================================>
-
-// Waver Routes Start =========================================================================================================================>
-Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
-Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
-// Waver Routes End ==========================================================================================================================>
