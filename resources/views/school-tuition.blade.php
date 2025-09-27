@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Schoolwala - Fun Learning for Kids')
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 
 @section('content')
 <!-- HERO -->
@@ -52,13 +52,11 @@
 <section class="class-pills">
     <div class="container">
         <div class="pill-container" id="classPills">
-            <div class="class-pill active">Class 3</div>
-            <div class="class-pill">Class 4</div>
-            <div class="class-pill">Class 5</div>
-            <div class="class-pill">Class 6</div>
-            <div class="class-pill">Class 7</div>
-            <div class="class-pill">Class 8</div>
-            <div class="class-pill">Class 9</div>
+            @foreach($classes as $class)
+            <div class="class-pill" data-id="{{ $class->id }}">
+                {{ $class->name }}
+            </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -67,53 +65,11 @@
 <section class="curriculum">
     <div class="container">
         <div class="section-header">
-            <h2>Personalise- Curriculum for Every Subject</h2>
-            <p>
-                Covers your child’s grade, board, and all key subjects—start to
-                finish.
-            </p>
+            <h2>Personalise - Curriculum for Every Subject</h2>
+            <p>Select a class to see subjects and chapters.</p>
         </div>
         <div class="curriculum-grid" id="curriculumCards">
-            <div class="subject-box">
-                <h3>English</h3>
-                <ul>
-                    <li>Grammar</li>
-                    <li>Writing Skills</li>
-                    <li>Comprehension</li>
-                    <li>Vocabulary</li>
-                    <li>Creative Writing</li>
-                </ul>
-            </div>
-            <div class="subject-box">
-                <h3>Maths</h3>
-                <ul>
-                    <li>Numbers</li>
-                    <li>Addition & Subtraction</li>
-                    <li>Fractions</li>
-                    <li>Geometry</li>
-                    <li>Algebra</li>
-                </ul>
-            </div>
-            <div class="subject-box">
-                <h3>Science</h3>
-                <ul>
-                    <li>Plants & Animals</li>
-                    <li>Human Body</li>
-                    <li>Environment</li>
-                    <li>Experiments</li>
-                    <li>Physics</li>
-                </ul>
-            </div>
-            <div class="subject-box">
-                <h3>Social Studies</h3>
-                <ul>
-                    <li>My Country</li>
-                    <li>Maps & Globes</li>
-                    <li>Community</li>
-                    <li>Culture</li>
-                    <li>History</li>
-                </ul>
-            </div>
+            <p class="text-muted">👉 Please select a class pill above.</p>
         </div>
     </div>
 </section>
@@ -122,42 +78,8 @@
 <section class="course-about" id="courseAbout">
     <div class="container">
         <div class="section-header text-center">
-            <h2>About Online Tuition For Class 3</h2>
-            <p>
-                Class 3 Online Tuition helps your child learn English, Math,
-                Science, and Social Studies through live interactive classes and the
-                support of two dedicated mentors.
-            </p>
-        </div>
-
-        <div class="about-box">
-            <p class="highlight-text">
-                As a parent, you want to make sure your child gets the right
-                attention in school subjects from an early stage. At CuriousJr, our
-                online tuition for Class 3 gives your child the guidance they need
-                in English, Maths, Science, and Social Studies.
-            </p>
-
-            <p class="highlight-text">
-                As a parent, you want to make sure your child gets the right
-                attention in school subjects from an early stage. At CuriousJr, our
-                online tuition for Class 3 gives your child the guidance they need
-                in English, Maths, Science, and Social Studies.
-            </p>
-
-            <div class="extra-content" style="display: none">
-                <p>
-                    Through daily lessons, doubt clearing, and academic assistance, we
-                    help students stay on track with their goals. Whether it’s
-                    completing homework, preparing for exams, or understanding new
-                    topics, CuriousJr ensures your child has help available at the
-                    right time.
-                </p>
-            </div>
-
-            <div class="read-more text-center">
-                <a href="#" class="read-more-btn">Read More <span>&#9660;</span></a>
-            </div>
+            <h2 id="aboutTitle">About Online Tuition</h2>
+            <p id="aboutDescription">Choose a class to see details.</p>
         </div>
     </div>
 </section>
@@ -197,46 +119,8 @@
             <h2>Tuition Curriculum FAQ</h2>
             <p>Common questions from parents</p>
         </div>
-
         <div class="accordion" id="faqAcc">
-            <div class="accordion-item">
-                <button class="accordion-button">
-                    How many students are there in one class?
-                </button>
-                <div class="accordion-content">
-                    <p>
-                        We keep small group sizes to encourage participation. Each class
-                        has a maximum of 8 students to ensure personalized attention.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What subjects are in demo?</button>
-                <div class="accordion-content">
-                    <p>
-                        English, Maths and Science demo lessons are available. You can
-                        try one subject or multiple during the demo session.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">How are doubts handled?</button>
-                <div class="accordion-content">
-                    <p>
-                        Teachers pause for doubt time and answer live, plus chat
-                        support. Each session includes dedicated Q&A time.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What's the class schedule?</button>
-                <div class="accordion-content">
-                    <p>
-                        Classes are scheduled after school hours and on weekends. You
-                        can choose between multiple time slots based on your preference.
-                    </p>
-                </div>
-            </div>
+            <p class="text-muted">👉 Select a class to see FAQs.</p>
         </div>
     </div>
 </section>
@@ -258,6 +142,89 @@
         });
     });
 </script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pills = document.querySelectorAll(".class-pill");
+        const curriculumCards = document.getElementById("curriculumCards");
+        const aboutTitle = document.getElementById("aboutTitle");
+        const aboutDescription = document.getElementById("aboutDescription");
+        const faqAcc = document.getElementById("faqAcc");
+
+        function initAccordions() {
+            const buttons = faqAcc.querySelectorAll(".accordion-button");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const content = this.nextElementSibling;
+                    const isOpen = content.classList.contains("open");
+
+                    // Toggle this accordion
+                    if (isOpen) {
+                        content.classList.remove("open");
+                        content.style.maxHeight = null;
+                    } else {
+                        content.classList.add("open");
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            });
+        }
+
+        pills.forEach(pill => {
+            pill.addEventListener("click", function() {
+                pills.forEach(p => p.classList.remove("active"));
+                this.classList.add("active");
+
+                const classId = this.getAttribute("data-id");
+                curriculumCards.innerHTML = "<p>Loading...</p>";
+                faqAcc.innerHTML = "<p>Loading FAQs...</p>";
+
+                fetch(`/get-class-curriculum/${classId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        // Curriculum
+                        let html = "";
+                        data.subjects.forEach(subject => {
+                            html += `<div class="subject-box">
+                            <h3>${subject.name}</h3>
+                            <ul>${subject.chapters.map(ch => `<li>${ch.name}</li>`).join('')}</ul>
+                        </div>`;
+                        });
+                        curriculumCards.innerHTML = html || "<p>No subjects found</p>";
+
+                        // About
+                        aboutTitle.textContent = `About Online Tuition For ${data.name}`;
+                        aboutDescription.textContent = data.description || "No description available.";
+
+                        // FAQs
+                        if (data.faqs.length > 0) {
+                            let faqHtml = "";
+                            data.faqs.forEach(faq => {
+                                faqHtml += `<div class="accordion-item">
+                                <button class="accordion-button">${faq.question}</button>
+                                <div class="accordion-content" style="max-height:0; overflow:hidden; transition: max-height 0.3s ease;">
+                                    <p>${faq.answer}</p>
+                                </div>
+                            </div>`;
+                            });
+                            faqAcc.innerHTML = faqHtml;
+                            initAccordions();
+                        } else {
+                            faqAcc.innerHTML = "<p>No FAQs available.</p>";
+                        }
+                    })
+                    .catch(err => {
+                        curriculumCards.innerHTML = "<p style='color:red'>Error loading data</p>";
+                        faqAcc.innerHTML = "<p style='color:red'>Error loading FAQs</p>";
+                    });
+            });
+        });
+
+        if (pills.length > 0) pills[0].click();
+    });
+</script>
+
 
 
 @endsection

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\student;
 
 use App\Http\Controllers\Controller;
+use App\Models\Chapter;
 use App\Models\Classes;
+use App\Models\ClassFAQ;
 use App\Models\PasswordReset;
 use App\Models\Student;
+use App\Models\Subject;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -264,4 +267,90 @@ class StudentController extends Controller
     {
         return view('my-profile');
     }
+
+
+
+
+
+    // Home Page ================================================================================================================================>
+
+
+
+    // School Tuition Page ===============================================================================================================================>
+    public function schoolTuitionView()
+    {
+        $classIds = Chapter::select('class_id')->distinct()->pluck('class_id');
+        $classes = Classes::whereIn('id', $classIds)->get();
+
+        return view('school-tuition', compact('classes'));
+    }
+
+    // API endpoint for class-wise subjects + chapters + description + faqs
+    public function getClassCurriculum($classId)
+    {
+        $class = Classes::with([
+            'subjects.chapters' => function ($q) use ($classId) {
+                $q->where('class_id', $classId);
+            },
+            'faqs'
+        ])->findOrFail($classId);
+
+        return response()->json($class);
+    }
+    // School Tuition Page ===============================================================================================================================>
+
+
+    // My Class Page ==============================================================================================================================>
+    public function myClassView()
+    {
+        // Use 'student' guard
+        $student = auth()->guard('student')->user();
+
+        $class = Classes::with(['subjects.chapters'])
+            ->where('id', $student->class_id)
+            ->firstOrFail();
+
+        $faqs = ClassFAQ::where('class_id', $student->class_id)->get();
+
+        return view('my-class', compact('class', 'faqs'));
+    }
+
+    public function myClassContent($classId, $subjectId)
+    {
+        $class = Classes::with(['subjects.chapters.videos'])
+            ->where('id', $classId)
+            ->firstOrFail();
+
+        $subject = $class->subjects->find($subjectId);
+
+
+        return view('my-class-content', compact('class', 'subject'));
+    }
+
+    public function myChapterVideos($classId, $subjectId, $chapterId)
+    {
+        $class = Classes::with(['subjects.chapters.videos'])
+            ->where('id', $classId)
+            ->firstOrFail();
+
+        $subject = $class->subjects->find($subjectId);
+        $chapter = $subject->chapters->find($chapterId);
+
+        return view('my-chapter-videos', compact('class', 'subject', 'chapter'));
+    }
+
+    public function myVideoPlay($classId, $subjectId, $chapterId, $videoId)
+    {
+        $class = Classes::with(['subjects.chapters.videos'])
+            ->where('id', $classId)
+            ->firstOrFail();
+
+        $subject = $class->subjects->find($subjectId);
+        $chapter = $subject->chapters->find($chapterId);
+        $video = $chapter->videos->find($videoId);
+
+        return view('my-video-play', compact('class', 'subject', 'chapter', 'video'));
+    }
+
+    // My Class Page ==============================================================================================================================>
 }

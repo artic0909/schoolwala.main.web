@@ -11,7 +11,7 @@
                     <div class="card-body">
                         <h5
                             class="card-title text-primary">
-                            Welcome Back Saklin! 🎉
+                            Welcome Back {{ Auth::user()->name }} ! 🎉
                         </h5>
                         <p class="mb-4">
                             It's your space in the

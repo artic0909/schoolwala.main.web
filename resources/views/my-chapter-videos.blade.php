@@ -9,6 +9,18 @@
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
+<style>
+    .video-description {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5em;
+        max-height: 3em;
+    }
+</style>
+
 @section('content')
 
 <!-- VIDEOS -->
@@ -17,11 +29,9 @@
     <div class="breadcrumb">
         <a href="#"><i class="fas fa-home"></i> Home</a>
         <span>/</span>
-        <a href="#"><i class="fas fa-book-open"></i> Learning</a>
+        <a href="{{ route('student.my-class', $class->id) }}"><i class="{{ $subject->icon_txt }}"></i> Subjects</a>
         <span>/</span>
-        <a href="#"><i class="fas fa-calculator"></i> Mathematics</a>
-        <span>/</span>
-        <a href="#"><i class="fas fa-list-ol"></i> Chapter 1</a>
+        <a href="{{ route('student.my-class-content', [$class->id, $subject->id]) }}"><i class="fas fa-list-ol"></i> Chapters</a>
         <span>/</span>
         <span class="current"><i class="fas fa-play-circle"></i> Videos</span>
     </div>
@@ -44,7 +54,7 @@
         </svg>
 
         <div class="chapter-header">
-            <h1>Chapter 1: Knowing Our Numbers</h1>
+            <h1>{{ $chapter->name }}</h1>
             <p>
                 Embark on a numerical adventure! Learn how to handle big numbers,
                 compare them, and use them in real-life situations. This chapter
@@ -53,15 +63,11 @@
 
             <div class="chapter-stats">
                 <div class="chapter-stat">
-                    <div class="stat-number">6</div>
+                    <div class="stat-number">{{ $chapter->videos->count() }}</div>
                     <div class="stat-label">Fun Video Lessons</div>
                 </div>
                 <div class="chapter-stat">
-                    <div class="stat-number">45</div>
-                    <div class="stat-label">Minutes of Learning</div>
-                </div>
-                <div class="chapter-stat">
-                    <div class="stat-number">6</div>
+                    <div class="stat-number">{{ $chapter->videos->count() }}</div>
                     <div class="stat-label">Practice Activities</div>
                 </div>
             </div>
@@ -73,17 +79,18 @@
         <h2 class="section-title">Video Lessons</h2>
 
         <div class="video-grid">
+            @foreach ($chapter->videos as $video)
             <!-- Video 1 -->
             <div class="video-card">
                 <div
                     class="video-thumbnail"
                     style="
-                background: url(./img/thumbnail.png);
+                background: url({{ asset('storage/' . $video->video_thumbnail) }});
                 background-size: cover;
                 background-position: center;
               ">
                     <a
-                        href="/my-video-play"
+                        href="{{ route('student.my-video-play', [$class->id, $subject->id, $chapter->id, $video->id]) }}"
                         class="play-btn"
                         style="text-decoration: none">
                         <i class="fas fa-play"></i>
@@ -91,10 +98,9 @@
                     <div class="video-duration">5:24</div>
                 </div>
                 <div class="video-content">
-                    <h3 class="video-title">Introduction to Large Numbers</h3>
+                    <h3 class="video-title">{{ $video->video_title }}</h3>
                     <p class="video-description">
-                        Discover how to read and write big numbers. Learn about place
-                        values up to lakhs and crores!
+                        {{ $video->video_description }}
                     </p>
                     <div class="video-actions">
                         <a href="#" class="action-btn btn-notes">
@@ -111,188 +117,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Video 2 -->
-            <div class="video-card">
-                <div
-                    class="video-thumbnail"
-                    style="
-                background: url(./img/thumbnail2.png);
-                background-size: cover;
-                background-position: center;
-              ">
-                    <div class="play-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="video-duration">6:42</div>
-                </div>
-                <div class="video-content">
-                    <h3 class="video-title">Comparing Numbers</h3>
-                    <p class="video-description">
-                        Which is bigger? Learn tricks to compare large numbers quickly
-                        and easily.
-                    </p>
-                    <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
-                            <i class="fas fa-download"></i> Notes
-                        </a>
-                        <a
-                            href="my-video-practice-test.html"
-                            class="action-btn btn-practice">
-                            <i class="fas fa-pencil-alt"></i> Practice
-                        </a>
-                        <a href="#" class="action-btn btn-completed">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 3 -->
-            <div class="video-card">
-                <div
-                    class="video-thumbnail"
-                    style="
-                background: url(./img/thumbnail3.png);
-                background-size: cover;
-                background-position: center;
-              ">
-                    <div class="play-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="video-duration">7:18</div>
-                </div>
-                <div class="video-content">
-                    <h3 class="video-title">Number Patterns</h3>
-                    <p class="video-description">
-                        Find the magic in numbers! Discover exciting patterns in number
-                        sequences.
-                    </p>
-                    <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
-                            <i class="fas fa-download"></i> Notes
-                        </a>
-                        <a
-                            href="my-video-practice-test.html"
-                            class="action-btn btn-practice">
-                            <i class="fas fa-pencil-alt"></i> Practice
-                        </a>
-                        <a href="#" class="action-btn btn-completed">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 4 -->
-            <div class="video-card">
-                <div
-                    class="video-thumbnail"
-                    style="
-                background: url(./img/thumbnail4.png);
-                background-size: cover;
-                background-position: center;
-              ">
-                    <div class="play-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="video-duration">4:56</div>
-                </div>
-                <div class="video-content">
-                    <h3 class="video-title">Rounding Off Numbers</h3>
-                    <p class="video-description">
-                        Learn to estimate like a pro! Master the art of rounding numbers
-                        to nearest tens, hundreds and thousands.
-                    </p>
-                    <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
-                            <i class="fas fa-download"></i> Notes
-                        </a>
-                        <a
-                            href="my-video-practice-test.html"
-                            class="action-btn btn-practice">
-                            <i class="fas fa-pencil-alt"></i> Practice
-                        </a>
-                        <a href="#" class="action-btn btn-completed">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 5 -->
-            <div class="video-card">
-                <div
-                    class="video-thumbnail"
-                    style="
-                background: url(./img/thumbnail5.png);
-                background-size: cover;
-                background-position: center;
-              ">
-                    <div class="play-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="video-duration">6:31</div>
-                </div>
-                <div class="video-content">
-                    <h3 class="video-title">Roman Numerals Adventure</h3>
-                    <p class="video-description">
-                        Travel back in time! Learn the ancient system of Roman numerals
-                        and how to use them today.
-                    </p>
-                    <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
-                            <i class="fas fa-download"></i> Notes
-                        </a>
-                        <a
-                            href="my-video-practice-test.html"
-                            class="action-btn btn-practice">
-                            <i class="fas fa-pencil-alt"></i> Practice
-                        </a>
-                        <a href="#" class="action-btn btn-completed">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Video 6 -->
-            <div class="video-card">
-                <div
-                    class="video-thumbnail"
-                    style="
-                background: url(./img/thumbnail.png);
-                background-size: cover;
-                background-position: center;
-              ">
-                    <div class="play-btn">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="video-duration">5:45</div>
-                </div>
-                <div class="video-content">
-                    <h3 class="video-title">Estimation Fun</h3>
-                    <p class="video-description">
-                        How many jellybeans in the jar? Learn estimation techniques to
-                        make smart guesses!
-                    </p>
-                    <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
-                            <i class="fas fa-download"></i> Notes
-                        </a>
-                        <a
-                            href="my-video-practice-test.html"
-                            class="action-btn btn-practice">
-                            <i class="fas fa-pencil-alt"></i> Practice
-                        </a>
-                        <a href="#" class="action-btn btn-completed">
-                            <i class="fas fa-check-circle"></i> Mark as Completed
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-
+            @endforeach
         </div>
     </div>
 

@@ -967,6 +967,8 @@ class AdminController extends Controller
             'video_type' => 'required|in:paid,free',
             'video_link' => 'nullable|url',
             'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
+            
         ]);
 
         try {
@@ -1086,8 +1088,7 @@ class AdminController extends Controller
     {
         $video = Video::findOrFail($id);
         $video->delete();
-
-        return response()->json(['message' => 'Video deleted successfully'], 200);
+        return redirect()->back()->with('success', 'Video deleted successfully!');
     }
 
     public function adminVideoFeedbacksView()

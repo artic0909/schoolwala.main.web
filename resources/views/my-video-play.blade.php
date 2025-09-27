@@ -17,7 +17,7 @@
         <div class="video-wrapper">
             <div class="video-player">
                 <iframe
-                    src="https://www.youtube.com/embed/E3oG313_kps?si=mA1vie_IPCPwfeHv"
+                    src="{{ $video->video_link }}"
                     title="YouTube video player"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen></iframe>
@@ -25,13 +25,13 @@
         </div>
 
         <div class="video-info">
-            <h1 class="video-title">Introduction to Large Numbers</h1>
+            <h1 class="video-title">{{ $video->video_title }}</h1>
 
             <div class="video-meta">
                 <div class="meta-item"><i class="fas fa-eye"></i> 1,245 views</div>
                 <div class="meta-item"><i class="fas fa-clock"></i> 5:24 min</div>
                 <div class="meta-item">
-                    <i class="fas fa-calendar"></i> Published: Oct 15, 2023
+                    <i class="fas fa-calendar"></i> Published: {{ $video->created_at->format('M d, Y') }}
                 </div>
             </div>
 

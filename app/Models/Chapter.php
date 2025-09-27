@@ -11,11 +11,16 @@ class Chapter extends Model
 
     public function subject()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsTo(Subject::class, 'subject_id', 'id');
     }
 
     public function class()
     {
-        return $this->belongsTo(Classes::class);
+        return $this->belongsTo(Classes::class, 'class_id', 'id');
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(Video::class);
     }
 }

@@ -37,7 +37,7 @@
 <div class="container">
     <div class="class-navigation">
         <div class="class-tabs">
-            <div class="class-tab active">Class 8</div>
+            <div class="class-tab active">{{ $class->name }}</div>
         </div>
     </div>
 </div>
@@ -47,13 +47,14 @@
     <div class="subjects-section">
         <h2 class="section-title">Subjects We Cover</h2>
         <div class="subject-cards">
-            <!-- Maths -->
+            <!-- Subjects Cards -->
+            @foreach($class->subjects as $subject)
             <div class="subject-card">
-                <div class="subject-icon maths-bg">
-                    <i class="fas fa-calculator"></i>
+                <div class="subject-icon {{ $subject->bg_color_txt }}">
+                    <i class="{{ $subject->icon_txt }}"></i>
                 </div>
                 <div class="subject-content">
-                    <h3 class="subject-title">Mathematics</h3>
+                    <h3 class="subject-title">{{ $subject->name }}</h3>
                     <p class="subject-description">
                         Build strong foundation in concepts with interactive problems
                         and visual learning.
@@ -61,95 +62,18 @@
                     <div class="subject-topics">
                         <h4>Key Topics:</h4>
                         <div class="topics-list">
-                            <span class="topic-pill">Algebra</span>
-                            <span class="topic-pill">Geometry</span>
-                            <span class="topic-pill">Calculus</span>
+                            @foreach($subject->chapters as $chapter)
+                            <span class="topic-pill">{{ $chapter->name }}</span>
+                            @endforeach
                         </div>
                     </div>
                     <a
-                        href="/my-class-content"
+                        href="{{ route('student.my-class-content', ['classId' => $class->id, 'subjectId' => $subject->id]) }}"
                         class="btn-view"
                         style="margin-top: 20px">Let's Learn</a>
                 </div>
             </div>
-
-            <!-- Science -->
-            <div class="subject-card">
-                <div class="subject-icon science-bg">
-                    <i class="fas fa-flask"></i>
-                </div>
-                <div class="subject-content">
-                    <h3 class="subject-title">Science</h3>
-                    <p class="subject-description">
-                        Explore the wonders of Physics, Chemistry and Biology through
-                        experiments.
-                    </p>
-                    <div class="subject-topics">
-                        <h4>Key Topics:</h4>
-                        <div class="topics-list">
-                            <span class="topic-pill">Physics</span>
-                            <span class="topic-pill">Chemistry</span>
-                            <span class="topic-pill">Biology</span>
-                        </div>
-                    </div>
-                    <a
-                        href="/my-class-content"
-                        class="btn-view"
-                        style="margin-top: 20px">Let's Learn</a>
-                </div>
-            </div>
-
-            <!-- English -->
-            <div class="subject-card">
-                <div class="subject-icon english-bg">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <div class="subject-content">
-                    <h3 class="subject-title">English</h3>
-                    <p class="subject-description">
-                        Master language skills with grammar, literature, and creative
-                        writing.
-                    </p>
-                    <div class="subject-topics">
-                        <h4>Key Topics:</h4>
-                        <div class="topics-list">
-                            <span class="topic-pill">Grammar</span>
-                            <span class="topic-pill">Comprehension</span>
-                            <span class="topic-pill">Writing</span>
-                        </div>
-                    </div>
-                    <a
-                        href="/my-class-content"
-                        class="btn-view"
-                        style="margin-top: 20px">Let's Learn</a>
-                </div>
-            </div>
-
-            <!-- Social Science -->
-            <div class="subject-card">
-                <div class="subject-icon social-bg">
-                    <i class="fas fa-globe-asia"></i>
-                </div>
-                <div class="subject-content">
-                    <h3 class="subject-title">Social Science</h3>
-                    <p class="subject-description">
-                        Understand history, geography, civics and economics in engaging
-                        ways.
-                    </p>
-                    <div class="subject-topics">
-                        <h4>Key Topics:</h4>
-                        <div class="topics-list">
-                            <span class="topic-pill">History</span>
-                            <span class="topic-pill">Geography</span>
-                            <span class="topic-pill">Civics</span>
-                        </div>
-                    </div>
-                    <a
-                        href="/my-class-content"
-                        class="btn-view"
-                        style="margin-top: 20px">Let's Learn</a>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </div>
@@ -158,9 +82,9 @@
 <section class="course-about" id="courseAbout">
     <div class="container">
         <div class="section-header text-center">
-            <h2>About Online Tuition For Class 8</h2>
+            <h2>About Online Tuition For {{ $class->name }}</h2>
             <p>
-                Class 3 Online Tuition helps your child learn English, Math,
+                {{ $class->name }} Online Tuition helps your child learn English, Math,
                 Science, and Social Studies through live interactive classes and the
                 support of two dedicated mentors.
             </p>
@@ -168,17 +92,7 @@
 
         <div class="about-box">
             <p class="highlight-text">
-                As a parent, you want to make sure your child gets the right
-                attention in school subjects from an early stage. At CuriousJr, our
-                online tuition for Class 3 gives your child the guidance they need
-                in English, Maths, Science, and Social Studies.
-            </p>
-
-            <p class="highlight-text">
-                As a parent, you want to make sure your child gets the right
-                attention in school subjects from an early stage. At CuriousJr, our
-                online tuition for Class 3 gives your child the guidance they need
-                in English, Maths, Science, and Social Studies.
+                {{$class->description}}
             </p>
 
             <div class="extra-content" style="display: none">
@@ -303,44 +217,18 @@
         </div>
 
         <div class="accordion" id="faqAcc">
+            @foreach($faqs as $faq)
             <div class="accordion-item">
                 <button class="accordion-button">
-                    How many students are there in one class?
+                    {{$faq->question}}
                 </button>
                 <div class="accordion-content">
                     <p>
-                        We keep small group sizes to encourage participation. Each class
-                        has a maximum of 8 students to ensure personalized attention.
+                        {{$faq->answer}}
                     </p>
                 </div>
             </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What subjects are in demo?</button>
-                <div class="accordion-content">
-                    <p>
-                        English, Maths and Science demo lessons are available. You can
-                        try one subject or multiple during the demo session.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">How are doubts handled?</button>
-                <div class="accordion-content">
-                    <p>
-                        Teachers pause for doubt time and answer live, plus chat
-                        support. Each session includes dedicated Q&A time.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What's the class schedule?</button>
-                <div class="accordion-content">
-                    <p>
-                        Classes are scheduled after school hours and on weekends. You
-                        can choose between multiple time slots based on your preference.
-                    </p>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>

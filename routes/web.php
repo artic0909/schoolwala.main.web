@@ -14,25 +14,25 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/school-tuitions', function () {
-    return view('school-tuition');
-})->name('school-tuition');
+// Route::get('/school-tuitions', function () {
+//     return view('school-tuition');
+// })->name('school-tuition');
 
-Route::get('/my-class', function () {
-    return view('my-class');
-})->name('my-class');
+// Route::get('/my-class', function () {
+//     return view('my-class');
+// })->name('my-class');
 
-Route::get('/my-class-content', function () {
-    return view('my-class-content');
-})->name('my-class-content');
+// Route::get('/my-class-content', function () {
+//     return view('my-class-content');
+// })->name('my-class-content');
 
-Route::get('/my-chapter-videos', function () {
-    return view('my-chapter-videos');
-})->name('my-chapter-videos');
+// Route::get('/my-chapter-videos', function () {
+//     return view('my-chapter-videos');
+// })->name('my-chapter-videos');
 
-Route::get('/my-video-play', function () {
-    return view('my-video-play');
-})->name('my-video-play');
+// Route::get('/my-video-play', function () {
+//     return view('my-video-play');
+// })->name('my-video-play');
 
 Route::get('/my-video-practice-test', function () {
     return view('my-video-practice-test');

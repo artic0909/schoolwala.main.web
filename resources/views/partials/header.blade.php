@@ -29,7 +29,7 @@ $currentRoute = request()->path();
           </a>
         </li>
         <li>
-          <a href="{{ url('my-class') }}" class="{{ request()->is('my-class') ? 'active' : '' }}">
+          <a href="{{ route('student.my-class') }}" class="{{ request()->is('student/my-class') ? 'active' : '' }}">
             My Class
           </a>
         </li>

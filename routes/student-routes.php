@@ -24,6 +24,15 @@ Route::post('/update-password', [StudentController::class, 'updatePassword'])->n
 Route::get('/student-register', [StudentController::class, 'registerView'])->name('student.student-register');
 Route::post('/student-register', [StudentController::class, 'register'])->name('student.student-register.store');
 
+// School Tuition Page
+Route::get('/school-tuitions', [StudentController::class, 'schoolTuitionView'])->name('student.school-tuitions');
+Route::get('/get-class-curriculum/{classId}', [StudentController::class, 'getClassCurriculum']);
+
+
+
+
+
+
 
 // Student Guard Routes Start =========================================================================================================================>
 Route::prefix('student')->group(function () {
@@ -43,6 +52,19 @@ Route::prefix('student')->group(function () {
 
         // Profile View
         Route::get('/student-profile', [StudentController::class, 'studentProfileView'])->name('student.student-profile');
+
+        // My Class Page
+        Route::get('/my-class', [StudentController::class, 'myClassView'])->name('student.my-class');
+
+        // My Class Content
+        Route::get('/my-class-content/{classId}/{subjectId}', [StudentController::class, 'myClassContent'])->name('student.my-class-content');
+
+        // My Chapter Videos
+        Route::get('/my-chapter-videos/{classId}/{subjectId}/{chapterId}', [StudentController::class, 'myChapterVideos'])->name('student.my-chapter-videos');
+
+        // My Video Play
+        Route::get('/my-video-play/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPlay'])->name('student.my-video-play');
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>

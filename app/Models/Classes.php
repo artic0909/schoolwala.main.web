@@ -11,12 +11,12 @@ class Classes extends Model
 
     public function faqs()
     {
-        return $this->hasMany(ClassFAQ::class);
+        return $this->hasMany(ClassFAQ::class, 'class_id');
     }
 
     public function subjects()
     {
-        return $this->hasMany(Subject::class);
+        return $this->hasMany(Subject::class, 'class_id', 'id');
     }
 
     public function chapters()
