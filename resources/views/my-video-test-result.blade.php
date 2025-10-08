@@ -89,6 +89,19 @@
             <div class="option-text">{{ $optionText }}</div>
           </div>
           @endforeach
+
+          <!-- correct answer show below after form -->
+          <!-- correct answer -->
+
+          @if ($submittedTest !== null)
+          @php
+          $correctAnswer = $correctAnswers[$index] ?? null;
+          @endphp
+          <div class="option correct">
+            <div class="option-label"><i class="fas fa-check"></i></div>
+            <div class="option-text"><strong>Correct : </strong> {{ $correctAnswer ?? 'N/A' }}</div>
+          </div>
+          @endif
         </div>
       </div>
       @endforeach
@@ -113,7 +126,7 @@
     <div class="result-score">0</div>
     <p class="result-message"></p>
     <div class="result-actions">
-      <a href="{{ route('student.my-video-practice-test.result', [$class->id, $subject->id, $chapter->id, $video->id]) }}" class="btn-result btn-review"><i class="fas fa-redo"></i> Review Answers</a>
+      <a href="" class="btn-result btn-review"><i class="fas fa-redo"></i> Review Answers</a>
       <a href="{{ route('student.my-chapter-videos', ['classId' => $class->id,'subjectId'=> $subject->id,'chapterId' => $chapter->id]) }}" class="btn-result btn-next"><i class="fas fa-arrow-right"></i> Next Lesson</a>
     </div>
   </div>
@@ -122,7 +135,11 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    const totalQuestions = {{count($questions)}};
+    const totalQuestions = {
+      {
+        count($questions)
+      }
+    };
     let answeredQuestions = 0;
 
     // Update progress bar

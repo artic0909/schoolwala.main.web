@@ -8,7 +8,9 @@ use App\Models\Classes;
 use App\Models\ClassFAQ;
 use App\Models\PasswordReset;
 use App\Models\Student;
+use App\Models\StudentTest;
 use App\Models\Subject;
+use App\Models\Video;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -351,6 +353,170 @@ class StudentController extends Controller
 
         return view('my-video-play', compact('class', 'subject', 'chapter', 'video'));
     }
+
+    public function myVideoPracticeTest($classId, $subjectId, $chapterId, $videoId)
+    {
+        $studentId = auth()->guard('student')->id(); // Get logged-in student via student guard
+
+        $class = \App\Models\Classes::findOrFail($classId);
+        $subject = \App\Models\Subject::findOrFail($subjectId);
+        $chapter = \App\Models\Chapter::findOrFail($chapterId);
+        $video = \App\Models\Video::findOrFail($videoId);
+
+        // Decode safely
+        $questions = is_string($video->questions)
+            ? json_decode($video->questions, true)
+            : $video->questions;
+
+        $answers = is_string($video->answers)
+            ? json_decode($video->answers, true)
+            : $video->answers;
+
+        $correctAnswers = is_string($video->correct_answers)
+            ? json_decode($video->correct_answers, true)
+            : $video->correct_answers;
+
+        // Handle cases where answers may be comma-separated strings
+        if (!is_array($answers)) {
+            $answers = array_map('trim', explode(',', $answers));
+        }
+
+        // Normalize each question’s answers to arrays
+        foreach ($answers as &$ans) {
+            if (is_string($ans)) {
+                $decoded = json_decode($ans, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $ans = $decoded;
+                } else {
+                    $ans = array_map('trim', explode(',', $ans));
+                }
+            }
+        }
+
+        // Fetch already submitted test for this student & video
+        $submittedTest = \App\Models\StudentTest::where('student_id', $studentId)
+            ->where('video_id', $videoId)
+            ->first();
+
+        return view('my-video-practice-test', compact(
+            'class',
+            'subject',
+            'chapter',
+            'video',
+            'questions',
+            'answers',
+            'correctAnswers',
+            'submittedTest',
+            'studentId'
+        ));
+    }
+
+    public function  myVideoPracticeTestResult($classId, $subjectId, $chapterId, $videoId)
+    {
+        $studentId = auth()->guard('student')->id(); // Get logged-in student via student guard
+
+        $class = \App\Models\Classes::findOrFail($classId);
+        $subject = \App\Models\Subject::findOrFail($subjectId);
+        $chapter = \App\Models\Chapter::findOrFail($chapterId);
+        $video = \App\Models\Video::findOrFail($videoId);
+
+        // Decode safely
+        $questions = is_string($video->questions)
+            ? json_decode($video->questions, true)
+            : $video->questions;
+
+        $answers = is_string($video->answers)
+            ? json_decode($video->answers, true)
+            : $video->answers;
+
+        $correctAnswers = is_string($video->correct_answers)
+            ? json_decode($video->correct_answers, true)
+            : $video->correct_answers;
+
+        // Handle cases where answers may be comma-separated strings
+        if (!is_array($answers)) {
+            $answers = array_map('trim', explode(',', $answers));
+        }
+
+        // Normalize each question’s answers to arrays
+        foreach ($answers as &$ans) {
+            if (is_string($ans)) {
+                $decoded = json_decode($ans, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $ans = $decoded;
+                } else {
+                    $ans = array_map('trim', explode(',', $ans));
+                }
+            }
+        }
+
+        // Fetch already submitted test for this student & video
+        $submittedTest = \App\Models\StudentTest::where('student_id', $studentId)
+            ->where('video_id', $videoId)
+            ->first();
+
+        return view('my-video-test-result', compact(
+            'class',
+            'subject',
+            'chapter',
+            'video',
+            'questions',
+            'answers',
+            'correctAnswers',
+            'submittedTest',
+            'studentId'
+        ));
+    }
+
+
+    public function myVideoPracticeTestSubmit(Request $request, $studentId, $videoId)
+    {
+        // Validate input
+        $request->validate([
+            'answers' => 'required|array', // answers should come as array like ["answer a","answer c", ...]
+        ]);
+
+        $studentAnswers = $request->input('answers');
+
+        // Fetch video and correct answers
+        $video = \App\Models\Video::findOrFail($videoId);
+
+        $correctAnswers = is_string($video->correct_answers)
+            ? json_decode($video->correct_answers, true)
+            : $video->correct_answers;
+
+        // Calculate score (2 marks per correct answer)
+        $score = 0;
+        foreach ($studentAnswers as $index => $answer) {
+            if (isset($correctAnswers[$index]) && strtolower($answer) == strtolower($correctAnswers[$index])) {
+                $score += 2;
+            }
+        }
+
+        // Store or update student test
+        $studentTest = \App\Models\StudentTest::updateOrCreate(
+            [
+                'student_id' => $studentId,
+                'video_id' => $videoId,
+            ],
+            [
+                'student_answers' => $studentAnswers,
+                'score' => $score,
+            ]
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'score' => $score,
+            'message' => 'Test submitted successfully',
+            'student_test' => $studentTest
+        ]);
+    }
+
+
+
+
+
 
     // My Class Page ==============================================================================================================================>
 }

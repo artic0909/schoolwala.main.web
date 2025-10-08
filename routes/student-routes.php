@@ -65,6 +65,12 @@ Route::prefix('student')->group(function () {
         // My Video Play
         Route::get('/my-video-play/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPlay'])->name('student.my-video-play');
 
+        // My Video Practice Test
+        Route::get('/my-video-practice-test/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPracticeTest'])->name('student.my-video-practice-test');
+        Route::post('/my-video-practice-test/submit/{studentId}/{videoId}', [StudentController::class, 'myVideoPracticeTestSubmit'])->name('student.myVideoPracticeTest.submit');
+        Route::get('/my-video-practice-test-result/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPracticeTestResult'])->name('student.my-video-practice-test.result');
+
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>

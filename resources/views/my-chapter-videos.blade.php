@@ -107,7 +107,7 @@
                             <i class="fas fa-download"></i> Notes
                         </a>
                         <a
-                            href="/my-video-practice-test"
+                            href="{{ route('student.my-video-practice-test', [$class->id, $subject->id, $chapter->id, $video->id]) }}"
                             class="action-btn btn-practice">
                             <i class="fas fa-pencil-alt"></i> Practice
                         </a>
