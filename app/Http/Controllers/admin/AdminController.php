@@ -966,9 +966,12 @@ class AdminController extends Controller
             'video_title' => 'required|string|max:255',
             'video_type' => 'required|in:paid,free',
             'video_link' => 'nullable|url',
+            // 'note_link' => 'nullable|url',
+            // 'duration' => 'required|string|max:255',
+            // 'views' => 'required|string|max:255',
             'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
 
-            
+
         ]);
 
         try {
@@ -989,6 +992,9 @@ class AdminController extends Controller
                 'slug' => $slug,
                 'video_type' => $request->video_type,
                 'video_link' => $request->video_link,
+                'note_link' => $request->note_link,
+                'duration' => $request->duration,
+                'views' => $request->views,
                 'video_description' => $request->video_description,
                 'video_thumbnail' => $thumbnail,
                 'questions' => $request->questions ? json_encode($request->questions) : null,
@@ -1013,6 +1019,7 @@ class AdminController extends Controller
             'video_type' => 'required|in:paid,free',
             'video_link' => 'nullable|url',
             'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'note_link' => 'nullable|url',
         ]);
 
         try {
@@ -1020,20 +1027,20 @@ class AdminController extends Controller
 
             $slug = Str::slug($request->video_title);
 
+            // Handle thumbnail upload or keep old one
             $thumbnail = $video->video_thumbnail;
             if ($request->hasFile('video_thumbnail')) {
 
+                // Delete old thumbnail if exists
                 if ($video->video_thumbnail && file_exists(public_path('storage/' . $video->video_thumbnail))) {
                     unlink(public_path('storage/' . $video->video_thumbnail));
                 }
 
                 $thumbnail = $request->file('video_thumbnail')->store('thumbnails', 'public');
-            } else {
-
-                $thumbnail = $video->video_thumbnail;
             }
 
-            $video->update([
+            // Build base update array
+            $updateData = [
                 'class_id' => $request->class_id,
                 'subject_id' => $request->subject_id,
                 'chapter_id' => $request->chapter_id,
@@ -1041,18 +1048,33 @@ class AdminController extends Controller
                 'slug' => $slug,
                 'video_type' => $request->video_type,
                 'video_link' => $request->video_link,
+                'note_link' => $request->note_link,
+                'duration' => $request->duration,
+                'views' => $request->views,
                 'video_description' => $request->video_description,
                 'video_thumbnail' => $thumbnail,
-                'questions' => $request->questions ? json_encode($request->questions) : null,
-                'answers' => $request->answers ? json_encode($request->answers) : null,
-                'correct_answers' => $request->correct_answers ? json_encode($request->correct_answers) : null,
-            ]);
+            ];
+
+            // Only update these if they exist in request
+            if ($request->has('questions')) {
+                $updateData['questions'] = json_encode($request->questions);
+            }
+            if ($request->has('answers')) {
+                $updateData['answers'] = json_encode($request->answers);
+            }
+            if ($request->has('correct_answers')) {
+                $updateData['correct_answers'] = json_encode($request->correct_answers);
+            }
+
+            // Update video record
+            $video->update($updateData);
 
             return redirect()->back()->with('success', 'Video updated successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong: ' . $e->getMessage());
         }
     }
+
 
 
 

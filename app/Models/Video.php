@@ -17,11 +17,17 @@ class Video extends Model
         'slug',
         'video_type',
         'video_link',
+        'note_link',
         'video_description',
         'video_thumbnail',
         'questions',
         'answers',
         'correct_answers',
+        'duration',
+        'rating',
+        'feedback',
+        'likes',
+        'views',
     ];
 
     // Cast JSON fields to array automatically

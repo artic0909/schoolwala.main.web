@@ -19,6 +19,12 @@
         line-height: 1.5em;
         max-height: 3em;
     }
+
+
+    .sticky-cta {
+        display: none !important;
+    }
+
 </style>
 
 @section('content')
@@ -95,7 +101,7 @@
                         style="text-decoration: none">
                         <i class="fas fa-play"></i>
                     </a>
-                    <div class="video-duration">5:24</div>
+                    <div class="video-duration">{{ $video->duration }}</div>
                 </div>
                 <div class="video-content">
                     <h3 class="video-title">{{ $video->video_title }}</h3>
@@ -103,14 +109,31 @@
                         {{ $video->video_description }}
                     </p>
                     <div class="video-actions">
-                        <a href="#" class="action-btn btn-notes">
+                        <a href="{{ $video->note_link }}" target="_blank" class="action-btn btn-notes">
                             <i class="fas fa-download"></i> Notes
                         </a>
-                        <a
-                            href="{{ route('student.my-video-practice-test', [$class->id, $subject->id, $chapter->id, $video->id]) }}"
+                        @php
+                        $studentId = auth()->guard('student')->id();
+                        $submittedTest = \App\Models\StudentTest::where('student_id', $studentId)
+                        ->where('video_id', $video->id)
+                        ->first();
+                        @endphp
+
+
+                        @if(!$submittedTest)
+                        <!-- Show Practice button -->
+                        <a href="{{ route('student.my-video-practice-test', [$class->id, $subject->id, $chapter->id, $video->id]) }}"
                             class="action-btn btn-practice">
                             <i class="fas fa-pencil-alt"></i> Practice
                         </a>
+                        @else
+                        <!-- Show Test Result button -->
+                        <a href="{{ route('student.my-video-practice-test.result', [$class->id, $subject->id, $chapter->id, $video->id]) }}"
+                            class="action-btn btn-practice">
+                            <i class="fas fa-pencil-alt"></i> Test Result
+                        </a>
+                        @endif
+
                         <a href="#" class="action-btn btn-completed">
                             <i class="fas fa-check-circle"></i> Mark as Completed
                         </a>

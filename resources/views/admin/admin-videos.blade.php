@@ -403,6 +403,12 @@
             <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
 
             <p class="fw-bold">Video Description: {{ $video->video_description }}</p>
+
+            <br>
+            <p>Notes Link: <a href="{{ $video->note_link }}" target="_blank">View</a></p>
+
+            <p>Video Duration: {{ $video->duration }}</p>
+            <p>Views: {{ $video->views }}</p>
           </div>
         </div>
       </div>
@@ -497,6 +503,26 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Video Link</label>
             <input type="text" class="form-control" name="video_link" id="video_link" />
+          </div>
+        </div>
+
+
+        <div class="row g-2">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
+            <input type="text" class="form-control" name="note_link" id="note_link" />
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6 mb-3">
+            <label for="nameBackdrop" class="form-label">Video Duration</label>
+            <input type="text" class="form-control" name="duration" id="duration" />
+          </div>
+
+          <div class="col-6 mb-3">
+            <label for="nameBackdrop" class="form-label">Views</label>
+            <input type="text" class="form-control" name="views" id="views" />
           </div>
         </div>
 
@@ -617,6 +643,25 @@
 
         <div class="row g-2">
           <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
+            <input type="text" class="form-control" name="note_link" id="note_link" value="{{ $video->note_link }}"/>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6 mb-3">
+            <label for="nameBackdrop" class="form-label">Video Duration</label>
+            <input type="text" class="form-control" name="duration" id="duration" value="{{ $video->duration }}"/>
+          </div>
+
+          <div class="col-6 mb-3">
+            <label for="nameBackdrop" class="form-label">Views</label>
+            <input type="text" class="form-control" name="views" id="views" value="{{ $video->views }}"/>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col mb-3">
             <label for="video_description" class="form-label">Video Description</label>
             <textarea name="video_description" class="form-control" rows="5">{{ $video->video_description }}</textarea>
           </div>
@@ -644,7 +689,7 @@
 
 
 <!-- Delete Video Modal -->
- @foreach ($videos as $video)
+@foreach ($videos as $video)
 <div
   class="modal fade"
   id="backDropModalDeleteClass{{ $video->id }}"
@@ -680,7 +725,7 @@
           Close
         </button>
         <button type="submit" class="btn btn-danger">Delete</button>
-        
+
       </div>
     </form>
   </div>

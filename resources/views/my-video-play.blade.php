@@ -9,6 +9,12 @@
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
+<style>
+    .sticky-cta {
+        display: none !important;
+    }
+</style>
+
 @section('content')
 <!-- VIDEO PLAY -->
 <div class="container">
@@ -28,8 +34,8 @@
             <h1 class="video-title">{{ $video->video_title }}</h1>
 
             <div class="video-meta">
-                <div class="meta-item"><i class="fas fa-eye"></i> 1,245 views</div>
-                <div class="meta-item"><i class="fas fa-clock"></i> 5:24 min</div>
+                <div class="meta-item"><i class="fas fa-eye"></i> {{ $video->views }} views</div>
+                <div class="meta-item"><i class="fas fa-clock"></i> {{ $video->duration }} min</div>
                 <div class="meta-item">
                     <i class="fas fa-calendar"></i> Published: {{ $video->created_at->format('M d, Y') }}
                 </div>
@@ -42,9 +48,9 @@
                 <button class="action-btn">
                     <i class="fas fa-share-alt"></i> Share
                 </button>
-                <button class="action-btn">
+                <a href="{{ $video->note_link }}" target="_blank" style="text-decoration: none; display: flex; align-items: center;" class="action-btn">
                     <i class="fas fa-download"></i> Download Notes
-                </button>
+                </a>
             </div>
         </div>
     </div>

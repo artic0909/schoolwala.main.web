@@ -38,7 +38,7 @@
       </div>
       <div class="info-item">
         <i class="fas fa-medal"></i>
-        <span>Earn 25 points</span>
+        <span>Earn {{ count($questions) * 2 }} points</span>
       </div>
     </div>
   </div>
