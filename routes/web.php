@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\student\StudentController;
 use App\Livewire\Settings\Appearance;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
@@ -10,9 +11,12 @@ Route::get('/page-not-found', function () {
     return view('page-error');
 })->name('page-error');
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [StudentController::class, 'homeView'])->name('home');
+
+
+// Route::get('/', function () {
+//     return view('home');
+// })->name('home');
 
 // Route::get('/school-tuitions', function () {
 //     return view('school-tuition');
@@ -56,4 +60,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

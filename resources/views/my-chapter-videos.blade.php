@@ -145,7 +145,7 @@
     </div>
 
     <!-- Progress Section -->
-    <div class="progress-section">
+    <!-- <div class="progress-section">
         <div class="progress-container">
             <div class="progress-header">
                 <div class="progress-title">Your Chapter Progress</div>
@@ -159,7 +159,7 @@
                 <div>2 of 5 activities done</div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 
 

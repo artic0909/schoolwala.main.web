@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
+use App\Models\Feedback;
 use App\Models\PasswordReset;
 use App\Models\Student;
+use App\Models\StudentProfile;
 use App\Models\StudentTest;
 use App\Models\Subject;
 use App\Models\Video;
@@ -264,18 +266,167 @@ class StudentController extends Controller
         }
     }
 
-    // Profile View
+    // Profile View ====================================================================>
     public function studentProfileView()
     {
-        return view('my-profile');
+        $studentId = auth()->guard('student')->user()->id;
+
+        $student = auth()->guard('student')->user();
+
+        $class = Classes::with(['subjects.chapters'])
+            ->where('id', $student->class_id)
+            ->firstOrFail();
+
+
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        $interests = $profile->interest_in ? json_decode($profile->interest_in, true) : [];
+
+        return view('my-profile', compact('profile', 'class', 'interests'));
     }
+
+    public function studentProfileUpdateView()
+    {
+
+        $student = auth()->guard('student')->user();
+
+        $class = Classes::with(['subjects.chapters'])
+            ->where('id', $student->class_id)
+            ->firstOrFail();
+
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+
+
+        return view('my-update-profile', compact('class', 'profile'));
+    }
+
+    public function studentProfileImageOrIconUpdate(Request $request)
+    {
+        $student = auth()->guard('student')->user();
+
+        $profile = StudentProfile::firstOrCreate([
+            'student_id' => $student->id
+        ]);
+
+        if ($request->hasFile('profile_image')) {
+            $path = $request->file('profile_image')->store('profile_images', 'public');
+            $profile->profile_image = $path;
+            $profile->profile_icon = null;
+        } elseif ($request->filled('profile_icon')) {
+            $profile->profile_icon = $request->profile_icon;
+            $profile->profile_image = null;
+        }
+
+        $profile->save();
+
+        return redirect()->back()->with('success', 'Profile updated successfully!');
+    }
+
+    public function studentProfileNameUpdate(Request $request)
+    {
+        $request->validate([
+            'id'   => 'required|integer|exists:students,id',
+            'student_name' => 'required|string|max:255',
+        ]);
+
+        $student = Student::find($request->id);
+        $student->student_name = $request->student_name;
+        $student->save();
+
+        return redirect()->back()->with('success', 'Name updated successfully!');
+    }
+
+    public function studentProfileInterestUpdate(Request $request, $studentId)
+    {
+        $request->validate([
+            'interest_in' => 'required|array',
+            'interest_in.*' => 'string|max:255',
+        ]);
+
+        $student = StudentProfile::findOrFail($studentId);
+
+        $student->interest_in = json_encode($request->interest_in);
+
+        $student->save();
+
+        return redirect()->back()->with('success', 'Interests updated successfully!');
+    }
+
+    public function studentProfilePasswordUpdate(Request $request)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:students,email',
+            'password' => [
+                'required',
+                'string',
+                'min:8',             // Minimum 8 characters
+                'confirmed',         // Must match password_confirmation
+                // 'regex:/[a-z]/',     // At least one lowercase letter
+                // 'regex:/[A-Z]/',     // At least one uppercase letter
+                // 'regex:/[0-9]/',     // At least one digit
+                // 'regex:/[@$!%*#?&]/' // At least one special character
+            ],
+        ]);
+
+        // If validation fails, send as 'error'
+        if ($validator->fails()) {
+            $errors = implode(' ', $validator->errors()->all());
+            return redirect()->back()->with('error', $errors);
+        }
+
+        try {
+            // Find student by email
+            $student = Student::where('email', $request->email)->firstOrFail();
+
+            // Update password
+            $student->password = Hash::make($request->password);
+            $student->save();
+
+            return redirect()->back()->with('success', 'Password updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. Please try again.');
+        }
+    }
+    // Profile View ====================================================================>
+
+
+
+
+
+
 
 
 
 
 
     // Home Page ================================================================================================================================>
-
+    public function home()
+    {
+       $studentId = Student::first()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+        return view('home', compact('profile'));
+    }
+    public function homeView()
+    {
+        $studentId = Student::first()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+        return view('home', compact('profile'));
+    }
 
 
     // School Tuition Page ===============================================================================================================================>
@@ -284,7 +435,13 @@ class StudentController extends Controller
         $classIds = Chapter::select('class_id')->distinct()->pluck('class_id');
         $classes = Classes::whereIn('id', $classIds)->get();
 
-        return view('school-tuition', compact('classes'));
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        return view('school-tuition', compact('classes', 'profile'));
     }
 
     // API endpoint for class-wise subjects + chapters + description + faqs
@@ -314,7 +471,13 @@ class StudentController extends Controller
 
         $faqs = ClassFAQ::where('class_id', $student->class_id)->get();
 
-        return view('my-class', compact('class', 'faqs'));
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        return view('my-class', compact('class', 'faqs', 'profile'));
     }
 
     public function myClassContent($classId, $subjectId)
@@ -325,8 +488,13 @@ class StudentController extends Controller
 
         $subject = $class->subjects->find($subjectId);
 
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
 
-        return view('my-class-content', compact('class', 'subject'));
+        return view('my-class-content', compact('class', 'subject', 'profile'));
     }
 
     public function myChapterVideos($classId, $subjectId, $chapterId)
@@ -338,7 +506,13 @@ class StudentController extends Controller
         $subject = $class->subjects->find($subjectId);
         $chapter = $subject->chapters->find($chapterId);
 
-        return view('my-chapter-videos', compact('class', 'subject', 'chapter'));
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        return view('my-chapter-videos', compact('class', 'subject', 'chapter', 'profile'));
     }
 
     public function myVideoPlay($classId, $subjectId, $chapterId, $videoId)
@@ -351,7 +525,19 @@ class StudentController extends Controller
         $chapter = $subject->chapters->find($chapterId);
         $video = $chapter->videos->find($videoId);
 
-        return view('my-video-play', compact('class', 'subject', 'chapter', 'video'));
+        $feedbacks = Feedback::where('video_id', $videoId)
+            ->with('student')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+
+        return view('my-video-play', compact('class', 'subject', 'chapter', 'video', 'feedbacks', 'profile'));
     }
 
     public function myVideoPracticeTest($classId, $subjectId, $chapterId, $videoId)
@@ -398,6 +584,12 @@ class StudentController extends Controller
             ->where('video_id', $videoId)
             ->first();
 
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
         return view('my-video-practice-test', compact(
             'class',
             'subject',
@@ -407,7 +599,8 @@ class StudentController extends Controller
             'answers',
             'correctAnswers',
             'submittedTest',
-            'studentId'
+            'studentId',
+            'profile'
         ));
     }
 
@@ -455,6 +648,12 @@ class StudentController extends Controller
             ->where('video_id', $videoId)
             ->first();
 
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
         return view('my-video-test-result', compact(
             'class',
             'subject',
@@ -464,7 +663,8 @@ class StudentController extends Controller
             'answers',
             'correctAnswers',
             'submittedTest',
-            'studentId'
+            'studentId',
+            'profile'
         ));
     }
 
@@ -473,7 +673,7 @@ class StudentController extends Controller
     {
         // Validate input
         $request->validate([
-            'answers' => 'required|array', // answers should come as array like ["answer a","answer c", ...]
+            'answers' => 'required|array',
         ]);
 
         $studentAnswers = $request->input('answers');
@@ -505,6 +705,16 @@ class StudentController extends Controller
             ]
         );
 
+        // Update student profile
+        $studentProfile = \App\Models\StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        // Increment the number of tests and add the score
+        $studentProfile->increment('no_practise_test'); // +1
+        $studentProfile->increment('total_practise_test_score', $score); // + current score
+
         return response()->json([
             'status' => 'success',
             'score' => $score,
@@ -512,6 +722,55 @@ class StudentController extends Controller
             'student_test' => $studentTest
         ]);
     }
+
+
+    public function myVideoPlayFeedbackSubmit(Request $request)
+    {
+
+        $request->validate([
+            'student_id' => 'required|integer|exists:students,id',
+            'video_id' => 'required|integer|exists:videos,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'required|string',
+        ]);
+
+        $studentId = $request->input('student_id');
+        $videoId = $request->input('video_id');
+        $rating = $request->input('rating');
+        $feedback = $request->input('feedback');
+
+        $video = Video::findOrFail($videoId);
+
+        Feedback::create([
+            'student_id' => $studentId,
+            'video_id' => $videoId,
+            'rating' => $rating,
+            'feedback' => $feedback,
+        ]);
+
+        return redirect()->back()->with('success', 'Feedback submitted successfully!');
+    }
+
+    public function myVideoLikesSubmit(Request $request)
+    {
+        $request->validate([
+            'video_id' => 'required|integer|exists:videos,id',
+        ]);
+
+        $videoId = $request->input('video_id');
+        $video = Video::findOrFail($videoId);
+
+        // Increment likes by 1
+        $video->increment('likes');
+
+        return redirect()->back()->with('success', 'Thank you dear for your like! 💖');
+    }
+
+
+
+
+
+
 
 
 

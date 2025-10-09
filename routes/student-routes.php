@@ -42,9 +42,12 @@ Route::prefix('student')->group(function () {
         Route::get('/student-dashboard', [StudentController::class, 'studentDashboardView'])->name('student.student-dashboard');
         Route::get('/student-logout', [StudentController::class, 'logout'])->name('student.student-logout');
 
-        Route::get('/', function () {
-            return view('home');
-        })->name('student.home');
+        // Route::get('/', function () {
+        //     return view('home');
+        // })->name('student.home');
+
+        // Home Page
+        Route::get('/', [StudentController::class, 'homeView'])->name('student.home');
 
 
 
@@ -52,6 +55,11 @@ Route::prefix('student')->group(function () {
 
         // Profile View
         Route::get('/student-profile', [StudentController::class, 'studentProfileView'])->name('student.student-profile');
+        Route::get('/my-profile-update', [StudentController::class, 'studentProfileUpdateView'])->name('student.student-profile.update.view');
+        Route::post('/my-profile/image/update', [StudentController::class, 'studentProfileImageOrIconUpdate'])->name('student.profile-image.update');
+        Route::post('/my-profile-update', [StudentController::class, 'studentProfileNameUpdate'])->name('student.profile-name.update');
+        Route::post('/my-profile-update/interest/{studentId}', [StudentController::class, 'studentProfileInterestUpdate'])->name('student.profile-interest.update');
+        Route::post('/my-profile-update/password', [StudentController::class, 'studentProfilePasswordUpdate'])->name('student.profile-password.update');
 
         // My Class Page
         Route::get('/my-class', [StudentController::class, 'myClassView'])->name('student.my-class');
@@ -64,13 +72,15 @@ Route::prefix('student')->group(function () {
 
         // My Video Play
         Route::get('/my-video-play/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPlay'])->name('student.my-video-play');
+        Route::post('/my-video-play', [StudentController::class, 'myVideoPlayFeedbackSubmit'])->name('student.my-video-play.submit');
+        Route::post('/my-video-play/like', [StudentController::class, 'myVideoLikesSubmit'])->name('student.my-video-play.like.submit');
+
+
 
         // My Video Practice Test
         Route::get('/my-video-practice-test/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPracticeTest'])->name('student.my-video-practice-test');
         Route::post('/my-video-practice-test/submit/{studentId}/{videoId}', [StudentController::class, 'myVideoPracticeTestSubmit'])->name('student.myVideoPracticeTest.submit');
         Route::get('/my-video-practice-test-result/{classId}/{subjectId}/{chapterId}/{videoId}', [StudentController::class, 'myVideoPracticeTestResult'])->name('student.my-video-practice-test.result');
-
-
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>

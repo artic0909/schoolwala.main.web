@@ -52,4 +52,9 @@ class Video extends Model
     {
         return $this->belongsTo(Chapter::class, 'chapter_id');
     }
+
+    public function feedback()
+    {
+        return $this->hasMany(Feedback::class);
+    }
 }

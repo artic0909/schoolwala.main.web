@@ -5,7 +5,7 @@ $currentRoute = request()->path();
 <!-- NAVBAR -->
 <nav class="navbar">
   <div class="container" style="display: flex; justify-content: space-between">
-    <a class="brand" href="{{ url('/') }}">
+    <a class="brand" href="{{route('student.home')}}">
       <div class="logo">
         <img src="{{ asset('img/logo.png') }}" class="img-fluid" width="54px" alt="SW" />
       </div>
@@ -50,18 +50,34 @@ $currentRoute = request()->path();
                   display: flex;
                   align-items: center;
                 ">
-            <p
-              class="btn-outline"
-              style="
-                    background: url(./img/profile.png);
-                    height: 45px;
-                    width: 45px;
-                    border-radius: 50%;
-                    background-size: cover;
-                    background-position: center;
-                    margin: 0;
-                    padding: 0;
-                  "></p>
+<p
+    class="btn-outline"
+    style="
+        height: 45px;
+        width: 45px;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+        @if($profile->profile_image)
+            background-image: url('{{ asset('storage/' . $profile->profile_image) }}');
+        @else
+            background-image: none;
+            background-color: orange; /* fallback bg color if you want */
+        @endif
+    "
+>
+    @if(!$profile->profile_image && $profile->profile_icon)
+        <i class="{{ $profile->profile_icon }}"></i>
+    @endif
+</p>
+
           </a>
           @else
           <a class="btn-outline {{ request()->is('student-login') ? 'active' : '' }}" href="{{ url('student-login') }}">

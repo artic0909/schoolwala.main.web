@@ -10,6 +10,12 @@
 
 @section('content')
 
+<style>
+    .sticky-cta {
+        display: none !important;
+    }
+</style>
+
 <!-- CHAPTERS -->
 <div class="container">
     <!-- BREADCRUMB -->
