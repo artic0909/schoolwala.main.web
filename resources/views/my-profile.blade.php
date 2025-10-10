@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'My Profile - Schoolwala')
+@section('title', Auth::user()->student_name . ' - ' . 'Schoolwala')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/student-profile.css') }}" />
 

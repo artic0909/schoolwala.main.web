@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Schoolwala - Fun Learning for Kids')
+@section('title', $subject->name . ' - ' . $class->name)
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('./css/my-class-content.css') }}" />
 

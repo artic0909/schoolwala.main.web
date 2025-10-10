@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Schoolwala - Fun Learning for Kids')
+@section('title',  $chapter->name . ' - ' . $subject->name . ' - ' . $class->name . ' - ')
 
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('./css/my-video-practice-test.css') }}" />

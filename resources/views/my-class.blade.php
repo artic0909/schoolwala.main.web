@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Schoolwala - My Class')
+@section('title', $class->name  . ' - ' . 'My Class - Schoolwala')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('./css/my-class.css') }}" />
 
