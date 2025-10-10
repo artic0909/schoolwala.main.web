@@ -83,8 +83,7 @@
                     <div class="faculty-info">
                         <h3>{{ $faculty->name }}</h3>
                         <p>
-                            B.Sc Graduate, CTET and HTET qualified with 4+ years of teaching
-                            experience.
+                            {{ $faculty->about_fac}}
                         </p>
 
                         @if (!empty($faculty->assigned_classes))
