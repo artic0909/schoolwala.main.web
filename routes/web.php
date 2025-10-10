@@ -7,8 +7,8 @@ use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 
 // Page Not Found
-Route::get('/page-not-found', function () {
-    return view('page-error');
+Route::fallback(function () {
+    return response()->view('page-error', [], 404);
 })->name('page-error');
 
 Route::get('/', [StudentController::class, 'homeView'])->name('home');

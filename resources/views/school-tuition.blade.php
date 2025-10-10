@@ -15,8 +15,13 @@
             </p>
 
             <div class="hero-actions">
-                <a class="btn-primary" href="#">Book Demo Session</a>
-                <a class="btn-secondary" href="#courses">Browse Courses</a>
+                @guest
+                <a class="btn-primary" href="{{route('student.contact-us')}}">Book Demo Session</a>
+                @endguest
+                @auth
+                <a class="btn-primary" href="{{route('student.contact-us.view')}}">Book Demo Session</a>
+                @endauth
+                <a class="btn-secondary" href="#coursessss">Browse Courses</a>
             </div>
 
             <div class="hero-features">
@@ -62,7 +67,7 @@
 </section>
 
 <!-- CURRICULUM -->
-<section class="curriculum">
+<section class="curriculum" id="coursessss">
     <div class="container">
         <div class="section-header">
             <h2>Personalise - Curriculum for Every Subject</h2>

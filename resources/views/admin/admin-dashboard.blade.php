@@ -36,13 +36,13 @@
                         <a
                             href="{{ route('admin.admin-wavers-request') }}"
                             class="btn btn-primary">
-                            Waver Request
+                            Waiver Request
                         </a>
                         &nbsp;
                         <a
                             href="{{ route('admin.admin-waver-profiles') }}"
                             class="btn btn-info">
-                            Waver Profiles
+                            Waiver Profiles
                         </a>
                     </div>
                 </div>

@@ -70,9 +70,14 @@
       <div class="misc-wrapper">
         <h2 class="mb-2 mx-2">Page Not Found :(</h2>
         <p class="mb-4 mx-2">
-          Oops! 😖 The requested URL was not found on this server.
+          Oops! <img src="{{asset('img/logo.png')}}" width="50" alt=""> The requested URL was not found on this server.
         </p>
-        <a href="{{ route('home') }}" class="btn btn-primary">Back to home</a>
+        @guest
+        <a href="{{ route('student.home') }}" class="btn btn-primary">Back to Schoolwala</a>
+        @endguest
+        @auth
+        <a href="{{ route('student.home') }}" class="btn btn-primary">Back to Schoolwala</a>
+        @endauth
         <div class="mt-3">
           <img
             src="{{ asset('./admin/assets/img/illustrations/page-misc-error-light.png') }}"
