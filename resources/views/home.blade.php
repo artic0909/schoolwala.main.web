@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Schoolwala - Fun Learning for Kids')
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 
 @section('content')
 
@@ -50,114 +50,38 @@
 </section>
 
 <!-- COURSES GRID -->
-<section id="courses" class="courses">
+<!-- CLASS PILL NAV -->
+<section class="class-pills">
+    <div class="container">
+        <div class="pill-container" id="classPills">
+            @foreach($classes as $class)
+            <div class="class-pill" data-id="{{ $class->id }}">
+                {{ $class->name }}
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- CURRICULUM -->
+<section class="curriculum">
     <div class="container">
         <div class="section-header">
-            <h2>Popular Courses</h2>
-            <p>Choose from our engaging curriculum designed for young minds</p>
+            <h2>Personalise - Curriculum for Every Subject</h2>
+            <p>Select a class to see subjects and chapters.</p>
         </div>
-        <div class="courses-grid" id="coursesGrid">
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
+        <div class="curriculum-grid" id="curriculumCards">
+            <p class="text-muted">👉 Please select a class pill above.</p>
+        </div>
+    </div>
+</section>
 
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
-
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
-
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
-
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
-
-            <div class="course-card">
-                <div class="course-header">
-                    <div class="course-icon">📘</div>
-                    <div>
-                        <h3 class="course-title">Maths — Foundations</h3>
-                        <div class="course-meta">10 videos · Ages 8-10</div>
-                    </div>
-                </div>
-                <div class="course-footer" style="width: 100%">
-                    <!-- <div class="course-price">₹249</div> -->
-                    <a
-                        class="btn-secondary"
-                        href="#"
-                        style="width: 100%; text-align: center">Read More</a>
-                </div>
-            </div>
+<!-- COURSE ABOUT -->
+<section class="course-about" id="courseAbout">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 id="aboutTitle">About Online Tuition</h2>
+            <p id="aboutDescription">Choose a class to see details.</p>
         </div>
     </div>
 </section>
@@ -301,46 +225,18 @@
 
         <div class="carousel" style="padding: 10px">
             <div class="carousel-track">
+                @foreach ($stories as $story)
                 <div class="carousel-item">
                     <div class="story-card star-performer">
-                        <img src="./img/student.jpg" alt="Student" />
-                        <div class="badge">🌟 Star Performer</div>
+                        <img src="{{ asset('storage/' . $story->image) }}" alt="Student" />
+                        <div class="badge" style="background-color: #FE4A49;">{{$story->storyTag->tag_name}}</div>
                         <div class="carousel-caption">
-                            <p>Excelled in English, Maths and Science</p>
-                            <span>Arvind, Class 8th</span>
+                            <p>{{$story->feedback}}</p>
+                            <span>{{$story->name}}, {{$story->class->name}}</span>
                         </div>
                     </div>
                 </div>
-                <div class="carousel-item">
-                    <div class="story-card bright-thinker">
-                        <img src="./img/student.jpg" alt="Student" />
-                        <div class="badge">💡 Bright Thinker</div>
-                        <div class="carousel-caption">
-                            <p>I love all my mentors: They help me with all my doubts</p>
-                            <span>Naksh, Class 3rd</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="story-card happy-achiever">
-                        <img src="./img/student.jpg" alt="Student" />
-                        <div class="badge">🎉 Happy Achiever</div>
-                        <div class="carousel-caption">
-                            <p>My Parents are happy. Thanks Schoolwala!</p>
-                            <span>Utkarsh, Class 3rd</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <div class="story-card skill-builder">
-                        <img src="./img/student.jpg" alt="Student" />
-                        <div class="badge">🚀 Skill Builder</div>
-                        <div class="carousel-caption">
-                            <p>Improved confidence & skills</p>
-                            <span>Priya, Class 6th</span>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -355,61 +251,37 @@
         </div>
 
         <div class="faculty-cards">
+            @foreach($faculties as $faculty)
             <div class="faculty-card">
                 <div class="faculty-info">
-                    <h3>Vishal Sir</h3>
+                    <h3>{{ $faculty->name }}</h3>
                     <p>
                         B.Sc Graduate, CTET and HTET qualified with 4+ years of teaching
                         experience.
                     </p>
-                    <a href="#">Know More ↗</a>
-                </div>
-                <div class="faculty-img">
-                    <img src="./img/fac.png" alt="Vishal Sir" />
-                </div>
-            </div>
 
-            <div class="faculty-card">
-                <div class="faculty-info">
-                    <h3>Vishal Sir</h3>
-                    <p>
-                        B.Sc Graduate, CTET and HTET qualified with 4+ years of teaching
-                        experience.
-                    </p>
-                    <a href="#">Know More ↗</a>
-                </div>
-                <div class="faculty-img">
-                    <img src="./img/fac.png" alt="Vishal Sir" />
-                </div>
-            </div>
+                    @if (!empty($faculty->assigned_classes))
+                    @foreach ($faculty->assigned_classes as $classId)
+                    @php
+                    $class = \App\Models\Classes::find($classId);
+                    @endphp
 
-            <div class="faculty-card">
-                <div class="faculty-info">
-                    <h3>Vishal Sir</h3>
-                    <p>
-                        B.Sc Graduate, CTET and HTET qualified with 4+ years of teaching
-                        experience.
-                    </p>
-                    <a href="#">Know More ↗</a>
+                    <a href="#">
+                        @if ($class)
+                        {{ $class->name }}
+                        @endif
+                    </a>
+                    @endforeach
+                    <a href="#">↗</a>
+                    @endif
                 </div>
-                <div class="faculty-img">
-                    <img src="./img/fac.png" alt="Vishal Sir" />
-                </div>
-            </div>
 
-            <div class="faculty-card">
-                <div class="faculty-info">
-                    <h3>Vishal Sir</h3>
-                    <p>
-                        B.Sc Graduate, CTET and HTET qualified with 4+ years of teaching
-                        experience.
-                    </p>
-                    <a href="#">Know More ↗</a>
-                </div>
                 <div class="faculty-img">
-                    <img src="./img/fac.png" alt="Vishal Sir" />
+                    <img src="{{ asset('storage/' . $faculty->image) }}" alt="{{ $faculty->name }}" />
                 </div>
             </div>
+            @endforeach
+
         </div>
     </div>
 </section>
@@ -418,51 +290,114 @@
 <section id="faq" class="faq">
     <div class="container">
         <div class="section-header">
-            <h2>School Curriculum FAQ</h2>
+            <h2>Tuition Curriculum FAQ</h2>
             <p>Common questions from parents</p>
         </div>
-
         <div class="accordion" id="faqAcc">
-            <div class="accordion-item">
-                <button class="accordion-button">
-                    How many students are there in one class?
-                </button>
-                <div class="accordion-content">
-                    <p>
-                        We keep small group sizes to encourage participation. Each class
-                        has a maximum of 8 students to ensure personalized attention.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What subjects are in demo?</button>
-                <div class="accordion-content">
-                    <p>
-                        English, Maths and Science demo lessons are available. You can
-                        try one subject or multiple during the demo session.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">How are doubts handled?</button>
-                <div class="accordion-content">
-                    <p>
-                        Teachers pause for doubt time and answer live, plus chat
-                        support. Each session includes dedicated Q&A time.
-                    </p>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <button class="accordion-button">What's the class schedule?</button>
-                <div class="accordion-content">
-                    <p>
-                        Classes are scheduled after school hours and on weekends. You
-                        can choose between multiple time slots based on your preference.
-                    </p>
-                </div>
-            </div>
+            <p class="text-muted">👉 Select a class to see FAQs.</p>
         </div>
     </div>
 </section>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const readMoreBtn = document.querySelector(".read-more-btn");
+        const extraContent = document.querySelector(".extra-content");
+        let isExpanded = false;
+
+        readMoreBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            isExpanded = !isExpanded;
+            extraContent.style.display = isExpanded ? "block" : "none";
+            readMoreBtn.innerHTML = isExpanded ?
+                'Read Less <span style="transform: rotate(180deg);">&#9660;</span>' :
+                "Read More <span>&#9660;</span>";
+        });
+    });
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const pills = document.querySelectorAll(".class-pill");
+        const curriculumCards = document.getElementById("curriculumCards");
+        const aboutTitle = document.getElementById("aboutTitle");
+        const aboutDescription = document.getElementById("aboutDescription");
+        const faqAcc = document.getElementById("faqAcc");
+
+        function initAccordions() {
+            const buttons = faqAcc.querySelectorAll(".accordion-button");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    const content = this.nextElementSibling;
+                    const isOpen = content.classList.contains("open");
+
+                    // Toggle this accordion
+                    if (isOpen) {
+                        content.classList.remove("open");
+                        content.style.maxHeight = null;
+                    } else {
+                        content.classList.add("open");
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    }
+                });
+            });
+        }
+
+        pills.forEach(pill => {
+            pill.addEventListener("click", function() {
+                pills.forEach(p => p.classList.remove("active"));
+                this.classList.add("active");
+
+                const classId = this.getAttribute("data-id");
+                curriculumCards.innerHTML = "<p>Loading...</p>";
+                faqAcc.innerHTML = "<p>Loading FAQs...</p>";
+
+                fetch(`/get-class-curriculum/${classId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        // Curriculum
+                        let html = "";
+                        data.subjects.forEach(subject => {
+                            html += `<div class="subject-box">
+                            <h3>${subject.name}</h3>
+                            <ul>${subject.chapters.map(ch => `<li>${ch.name}</li>`).join('')}</ul>
+                        </div>`;
+                        });
+                        curriculumCards.innerHTML = html || "<p>No subjects found</p>";
+
+                        // About
+                        aboutTitle.textContent = `About Online Tuition For ${data.name}`;
+                        aboutDescription.textContent = data.description || "No description available.";
+
+                        // FAQs
+                        if (data.faqs.length > 0) {
+                            let faqHtml = "";
+                            data.faqs.forEach(faq => {
+                                faqHtml += `<div class="accordion-item">
+                                <button class="accordion-button">${faq.question}</button>
+                                <div class="accordion-content" style="max-height:0; overflow:hidden; transition: max-height 0.3s ease;">
+                                    <p>${faq.answer}</p>
+                                </div>
+                            </div>`;
+                            });
+                            faqAcc.innerHTML = faqHtml;
+                            initAccordions();
+                        } else {
+                            faqAcc.innerHTML = "<p>No FAQs available.</p>";
+                        }
+                    })
+                    .catch(err => {
+                        curriculumCards.innerHTML = "<p style='color:red'>Error loading data</p>";
+                        faqAcc.innerHTML = "<p style='color:red'>Error loading FAQs</p>";
+                    });
+            });
+        });
+
+        if (pills.length > 0) pills[0].click();
+    });
+</script>
 
 @endsection

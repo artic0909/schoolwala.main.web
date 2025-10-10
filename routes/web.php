@@ -38,9 +38,9 @@ Route::get('/', [StudentController::class, 'homeView'])->name('home');
 //     return view('my-video-play');
 // })->name('my-video-play');
 
-Route::get('/my-video-practice-test', function () {
-    return view('my-video-practice-test');
-})->name('my-video-practice-test');
+// Route::get('/my-video-practice-test', function () {
+//     return view('my-video-practice-test');
+// })->name('my-video-practice-test');
 
 Route::get('/privacy-policy', function () {
     return view('privacy-policy');

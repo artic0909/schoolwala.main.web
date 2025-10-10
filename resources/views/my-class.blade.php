@@ -8,6 +8,12 @@
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet" />
 
+<style>
+    .sticky-cta {
+        display: none !important;
+    }
+</style>
+
 
 @section('content')
 <!-- BREADCRUMB -->

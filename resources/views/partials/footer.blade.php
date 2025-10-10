@@ -44,11 +44,37 @@
           </div>
 
           <div class="footer-links">
-            <a href="{{ url('privacy-policy') }}">Privacy</a>
-            <a href="{{ url('contact') }}">Contact</a>
-            <a href="{{ url('aboutus') }}">About Us</a>
-            <a href="{{ url('my-class') }}">My Class</a>
+            <a href="{{route ('student.my-class') }}">My Class</a>
+            @guest
+            <a href="{{route('student.about.view')}}">About Us</a>
+            <a href="{{route('student.contact-us')}}">Contact Us</a>
+            <a href="{{route('student.privacy.view')}}">Privacy & Policy</a>
+            @endguest
+            @auth
+            <a href="{{route('student.about-us.view')}}">About Us</a>
+            <a href="{{route('student.contact-us.view')}}">Contact Us</a>
+            <a href="{{route('student.privacy-policy.view')}}">Privacy & Policy</a>
+            @endauth
           </div>
+
+          @guest
+          <div class="footer-links">
+            <a href="{{route('student.contact-us')}}">Book Demo</a>
+            <a href="{{route('student.student-login')}}"> Student Login</a>
+            <a href="{{route('student.contact-us')}}">Waiver Request</a>
+            <a href="{{route('student.school-tuitions')}}">School Tuition</a>
+          </div>
+          @endguest
+
+          @auth
+          <div class="footer-links">
+            <a href="{{route('student.student-profile')}}"> My Profile</a>
+            <a href="{{route('student.contact-us.view')}}">Waiver Request</a>
+            <a href="{{route('student.school-tuitions.view')}}">School Tuition</a>
+            <a href="{{route('student.contact-us.view')}}">Book Demo Class</a>
+          </div>
+          @endauth
+
         </div>
 
         <div class="footer-bottom">

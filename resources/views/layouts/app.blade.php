@@ -84,7 +84,12 @@
         <div class="container">
             <div class="sticky-content">
                 <p>Learning made fun for curious minds! 🚀</p>
-                <a class="btn-primary" href="#">Book a Demo</a>
+                @guest
+                <a class="btn-primary" href="{{route('student.contact-us')}}">Book a Demo</a>
+                @endguest
+                @auth
+                <a class="btn-primary" href="{{route('student.contact-us.view')}}">Book a Demo</a>
+                @endauth
             </div>
         </div>
     </div>

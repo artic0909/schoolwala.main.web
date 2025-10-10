@@ -501,7 +501,7 @@ class AdminController extends Controller
             $request->validate([
                 'class_id' => 'required|exists:classes,id',
                 'story_tag_id' => 'required|exists:story_tags,id',
-                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'name' => 'required|string',
                 'feedback' => 'required|string',
             ]);
@@ -537,7 +537,7 @@ class AdminController extends Controller
             $request->validate([
                 'class_id'     => 'required|exists:classes,id',
                 'story_tag_id' => 'required|exists:story_tags,id',
-                'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
                 'name'         => 'required|string',
                 'feedback'     => 'required|string',
             ]);

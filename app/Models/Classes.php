@@ -38,4 +38,9 @@ class Classes extends Model
     {
         return $this->hasMany(Story::class, 'class_id');
     }
+
+    public function waverRequests()
+    {
+        return $this->hasMany(WaverRequest::class, 'class_id');
+    }
 }

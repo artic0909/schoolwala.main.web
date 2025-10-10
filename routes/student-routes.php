@@ -29,8 +29,16 @@ Route::get('/school-tuitions', [StudentController::class, 'schoolTuitionView'])-
 Route::get('/get-class-curriculum/{classId}', [StudentController::class, 'getClassCurriculum']);
 
 
+// Contact Us Page
+Route::get('/contact', [StudentController::class, 'contactUsView'])->name('student.contact-us');
+Route::post('/contact', [StudentController::class, 'contactUsSubmit'])->name('student.contact.submit');
+Route::post('/contact/waiver', [StudentController::class, 'waverRequestSubmit'])->name('student.waiver.submit');
 
+// About Us Page
+Route::get('/about-us', [StudentController::class, 'aboutUsView'])->name('student.about.view');
 
+// Privacy Policy Page
+Route::get('/privacy-policy', [StudentController::class, 'privacyPolicyView'])->name('student.privacy.view');
 
 
 
@@ -42,14 +50,20 @@ Route::prefix('student')->group(function () {
         Route::get('/student-dashboard', [StudentController::class, 'studentDashboardView'])->name('student.student-dashboard');
         Route::get('/student-logout', [StudentController::class, 'logout'])->name('student.student-logout');
 
-        // Route::get('/', function () {
-        //     return view('home');
-        // })->name('student.home');
 
         // Home Page
         Route::get('/', [StudentController::class, 'homeView'])->name('student.home');
 
+        // Contact Us Page
+        Route::get('/contact', [StudentController::class, 'contactUsView'])->name('student.contact-us.view');
+        Route::post('/contact', [StudentController::class, 'contactUsSubmit'])->name('student.contact-us.submit');
+        Route::post('/contact/waiver', [StudentController::class, 'waverRequestSubmit'])->name('student.waiver-student.submit');
 
+        // About Us Page
+        Route::get('/about-us', [StudentController::class, 'aboutUsView'])->name('student.about-us.view');
+
+        // Privacy Policy Page
+        Route::get('/privacy-policy', [StudentController::class, 'privacyPolicyView'])->name('student.privacy-policy.view');
 
 
 
@@ -60,6 +74,11 @@ Route::prefix('student')->group(function () {
         Route::post('/my-profile-update', [StudentController::class, 'studentProfileNameUpdate'])->name('student.profile-name.update');
         Route::post('/my-profile-update/interest/{studentId}', [StudentController::class, 'studentProfileInterestUpdate'])->name('student.profile-interest.update');
         Route::post('/my-profile-update/password', [StudentController::class, 'studentProfilePasswordUpdate'])->name('student.profile-password.update');
+
+
+        // School Tuition Page
+        Route::get('/school-tuitions', [StudentController::class, 'schoolTuitionView'])->name('student.school-tuitions.view');
+
 
         // My Class Page
         Route::get('/my-class', [StudentController::class, 'myClassView'])->name('student.my-class');

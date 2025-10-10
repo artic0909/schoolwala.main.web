@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\student;
 
 use App\Http\Controllers\Controller;
+use App\Models\AboutUs;
 use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
+use App\Models\ContactUs;
+use App\Models\Faculty;
+use App\Models\FAQ;
 use App\Models\Feedback;
 use App\Models\PasswordReset;
+use App\Models\Story;
 use App\Models\Student;
 use App\Models\StudentProfile;
 use App\Models\StudentTest;
 use App\Models\Subject;
 use App\Models\Video;
+use App\Models\WaverRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -409,24 +415,140 @@ class StudentController extends Controller
 
 
     // Home Page ================================================================================================================================>
-    public function home()
-    {
-       $studentId = Student::first()->id;
-        $profile = StudentProfile::firstOrCreate(
-            ['student_id' => $studentId],
-            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
-        );
-        return view('home', compact('profile'));
-    }
     public function homeView()
     {
-        $studentId = Student::first()->id;
-        $profile = StudentProfile::firstOrCreate(
-            ['student_id' => $studentId],
-            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
-        );
-        return view('home', compact('profile'));
+        // Fetch class, story, and faculty data (common for both)
+        $classIds = Chapter::select('class_id')->distinct()->pluck('class_id');
+        $classes = Classes::whereIn('id', $classIds)->get();
+        $stories = Story::with('storyTag')->get();
+        $faculties = Faculty::all();
+
+        // Check if student is logged in
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            // Logged-in student view (includes profile)
+            return view('home', compact('profile', 'classes', 'stories', 'faculties'));
+        }
+
+        // Guest view (no profile)
+        return view('home', compact('classes', 'stories', 'faculties'));
     }
+
+
+    // Contact Us Page ===============================================================================================================================>
+    public function contactUsView()
+    {
+        $classes = Classes::all();
+
+        $faqs = FAQ::all();
+
+        $abouts = AboutUs::all();
+
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            return view('contact-us', compact('profile', 'classes', 'faqs', 'abouts'));
+        } else {
+            return view('contact-us', compact('classes', 'faqs', 'abouts'));
+        }
+    }
+
+    public function contactUsSubmit(Request $request)
+    {
+        try {
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'subject' => 'required|string',
+                'message' => 'required|string',
+            ]);
+
+            ContactUs::create($validated);
+
+            return back()->with('success', 'Your message has been sent successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Something went wrong. Please try again later.');
+        }
+    }
+
+    public function waverRequestSubmit(Request $request)
+    {
+        try {
+            // Validate input fields
+            $validated = $request->validate([
+                'class_id' => 'required|exists:classes,id',
+                'p_name'   => 'required|string|max:255',
+                'c_name'   => 'required|string|max:255',
+                'c_age'    => 'required|integer',
+                'email'    => 'required|email|max:255',
+                'mobile'   => 'required|string|max:15',
+                'address'  => 'required|string',
+            ]);
+
+            WaverRequest::create($validated);
+            return back()->with('success', 'Your waiver request has been submitted successfully!');
+        } catch (\Exception $e) {
+
+            return back()->with('error', 'Something went wrong. Please try again later.');
+        }
+    }
+
+
+
+
+    // About Us Page ===============================================================================================================================>
+    public function aboutUsView()
+    {
+        $abouts = AboutUs::all();
+        $faculties = Faculty::all();
+        
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            return view('about-us', compact('profile', 'abouts', 'faculties'));
+        } else {
+            return view('about-us', compact('abouts', 'faculties'));
+        }
+    }
+
+
+    // Privacy Policy Page ===============================================================================================================================>
+    public function privacyPolicyView()
+    {
+
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            return view('privacy-policy', compact('profile'));
+        } else {
+            return view('privacy-policy');
+        }
+    }
+
+
+
 
 
     // School Tuition Page ===============================================================================================================================>
@@ -435,14 +557,22 @@ class StudentController extends Controller
         $classIds = Chapter::select('class_id')->distinct()->pluck('class_id');
         $classes = Classes::whereIn('id', $classIds)->get();
 
-        $studentId = auth()->guard('student')->user()->id;
-        $profile = StudentProfile::firstOrCreate(
-            ['student_id' => $studentId],
-            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
-        );
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
 
-        return view('school-tuition', compact('classes', 'profile'));
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            // Authenticated student view
+            return view('school-tuition', compact('classes', 'profile'));
+        }
+
+        // Guest view (no profile)
+        return view('school-tuition', compact('classes'));
     }
+
 
     // API endpoint for class-wise subjects + chapters + description + faqs
     public function getClassCurriculum($classId)

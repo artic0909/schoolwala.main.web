@@ -24,9 +24,16 @@ $currentRoute = request()->path();
     <div class="nav-menu" id="navMenu">
       <ul>
         <li>
+          @guest
           <a href="{{ url('school-tuitions') }}" class="{{ request()->is('school-tuitions') ? 'active' : '' }}">
             School Tuitions
           </a>
+          @endguest
+          @auth
+          <a href="{{ url('student/school-tuitions') }}" class="{{ request()->is('student/school-tuitions') ? 'active' : '' }}">
+            School Tuitions
+          </a>
+          @endauth
         </li>
         <li>
           <a href="{{ route('student.my-class') }}" class="{{ request()->is('student/my-class') ? 'active' : '' }}">
