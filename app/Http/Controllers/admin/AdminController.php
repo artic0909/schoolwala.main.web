@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
+use App\Models\ContactUs;
 use App\Models\Faculty;
 use App\Models\FAQ;
 use App\Models\Feedback;
@@ -1351,7 +1352,37 @@ class AdminController extends Controller
     public function adminEnquiryView()
     {
 
-        return view('admin.admin-enquiry');
+        $enquiries = ContactUs::orderBy('id', 'desc')->paginate(8);
+
+        return view('admin.admin-enquiry', compact('enquiries'));
+    }
+
+    public function adminEnquiryReply(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'reply' => 'required|string',
+            ]);
+
+            $enquiry = ContactUs::findOrFail($id);
+            $enquiry->reply = $request->reply;
+            $enquiry->save();
+
+            return redirect()->back()->with('success', 'Reply sent successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEnquiryDelete($id)
+    {
+        try {
+            $enquiry = ContactUs::findOrFail($id);
+            $enquiry->delete();
+            return redirect()->back()->with('success', 'Enquiry deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
     }
     // Enquiry End ==========================================================================================================================>
 

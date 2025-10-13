@@ -92,24 +92,31 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($enquiries as $enquiry)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{$loop->iteration}}</strong>
                   </td>
 
                   <td>
-                    <span class="badge bg-label-warning">01-01-2025</span>
+                    <span class="badge bg-label-warning">{{ $enquiry->created_at->format('d M, Y | h:i A') }}</span>
                   </td>
                   <td>
-                    <span class="badge bg-label-primary">01-01-2025</span>
+                    @if($enquiry->reply == 0)
+                    <span class="badge bg-label-danger">N/A</span>
+                    @else
+                    <span class="badge bg-label-primary">{{$enquiry->updated_at->format('d M, Y | h:i A')}}</span>
+                    @endif
                   </td>
-                  <td>Xyz Mnp</td>
-                  <td>xyz@gmail.com</td>
-                  <td>Subject 1</td>
+                  <td>{{$enquiry->name}}</td>
+                  <td>{{$enquiry->email}}</td>
+                  <td>{{$enquiry->subject}}</td>
                   <td>
+                    @if($enquiry->reply == 0)
                     <span class="badge bg-label-danger">Not Replied</span>
-                    /
+                    @else
                     <span class="badge bg-label-success">Replied</span>
+                    @endif
                   </td>
 
                   <td>
@@ -117,7 +124,7 @@
                       type="button"
                       class="btn btn-primary"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEnquiry">
+                      data-bs-target="#backDropModalEnquiry{{$enquiry->id}}">
                       Enquiry
                     </button>
                     &nbsp;
@@ -125,7 +132,7 @@
                       class="btn btn-info"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalReply">
+                      data-bs-target="#backDropModalReply{{$enquiry->id}}">
                       Reply
                     </button>
                   </td>
@@ -135,11 +142,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{$enquiry->id}}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -150,13 +158,17 @@
 </div>
 
 <!-- Enquiry Modal -->
+@foreach ($enquiries as $enquiry)
 <div
   class="modal fade"
-  id="backDropModalEnquiry"
+  id="backDropModalEnquiry{{$enquiry->id}}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-enquiry.reply', $enquiry->id) }}">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">Enquiry</h5>
         <button
@@ -170,20 +182,20 @@
           <div class="col d-flex justify-content-between mb-3">
             <p class="m-0 p-0 mb-2">
               <strong>Enquiry Date:
-                <span class="badge bg-label-primary">01-01-2025</span></strong>
+                <span class="badge bg-label-primary">{{$enquiry->created_at->format('d M, Y | h:i A')}}</span></strong>
             </p>
             <p class="m-0 p-0">
               <strong>Name:
                 <span
                   class="badge bg-label-info"
-                  style="text-transform: capitalize">Xyz Mnp</span></strong>
+                  style="text-transform: capitalize">{{$enquiry->name}}</span></strong>
             </p>
 
             <p class="m-0 p-0">
               <strong>Email:
                 <span
                   class="badge bg-label-success"
-                  style="text-transform: lowercase">xyz@gmail.com</span></strong>
+                  style="text-transform: lowercase">{{$enquiry->email}}</span></strong>
             </p>
           </div>
         </div>
@@ -194,16 +206,12 @@
               <strong>Subject:
                 <span
                   class="badge bg-label-warning"
-                  style="text-transform: capitalize">Lorem ipsum dolor sit amet consectetur
-                  adipisicing elit. Mollitia?</span></strong>
+                  style="text-transform: capitalize">{{$enquiry->subject}}</span></strong>
             </p>
 
             <p class="m-0 p-0">
               <strong>Enquiry:</strong><br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Exercitationem velit, veritatis quia
-              reprehenderit vel saepe totam modi adipisci provident
-              pariatur!
+              {{$enquiry->message}}
             </p>
           </div>
         </div>
@@ -212,9 +220,9 @@
           <div class="col">
             <p class="m-0 p-0 mb-2"><strong>Reply:</strong></p>
             <textarea
-              name=""
+              name="reply"
               class="form-control"
-              id=""
+              id="reply"
               rows="10"></textarea>
           </div>
         </div>
@@ -226,18 +234,20 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary">
           Send Reply
         </button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Reply Modal -->
+@foreach ($enquiries as $enquiry)
 <div
   class="modal fade"
-  id="backDropModalReply"
+  id="backDropModalReply{{$enquiry->id}}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -255,12 +265,12 @@
           <div class="col d-flex justify-content-between mb-3">
             <p class="m-0 p-0 mb-2">
               <strong>Enquiry Date:
-                <span class="badge bg-label-warning">01-01-2025</span></strong>
+                <span class="badge bg-label-warning">{{$enquiry->created_at->format('d M, Y | h:i A')}}</span></strong>
             </p>
 
             <p class="m-0 p-0 mb-2">
               <strong>Reply Date:
-                <span class="badge bg-label-success">01-01-2025</span></strong>
+                <span class="badge bg-label-success">{{$enquiry->updated_at->format('d M, Y | h:i A')}}</span></strong>
             </p>
           </div>
         </div>
@@ -269,20 +279,18 @@
             <p>
               <strong>Subject:</strong>
               <br />
-              Lorem ipsum dolor sit ame?
+              {{$enquiry->subject}}
             </p>
             <p>
               <strong>Enquiry:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{$enquiry->message}}
             </p>
 
             <p>
               <strong>Reply:</strong>
               <br />
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              {{$enquiry->reply ? $enquiry->reply : 'N/A'}}
             </p>
           </div>
         </div>
@@ -298,15 +306,20 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Enquiry Modal -->
+@foreach ($enquiries as $enquiry)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{$enquiry->id}}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-enquiry.delete', $enquiry->id) }}">
+      @csrf
+      @method('DELETE')
+      
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Enquiry
@@ -322,7 +335,7 @@
           <div class="col mb-3">
             <p>
               Are you sure you want to delete this enquiry
-              <span class="text-danger">Subject 1</span>?
+              <span class="text-danger">{{$enquiry->subject}}</span>?
             </p>
           </div>
         </div>
@@ -334,10 +347,11 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 @endsection

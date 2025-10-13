@@ -145,6 +145,14 @@ Route::prefix('admin')->group(function () {
         Route::delete('/admin-wavers-request/delete/{id}', [AdminController::class, 'adminWaverRequestDelete'])->name('admin.admin-wavers-request.delete');
         // Waver Routes End ==========================================================================================================================>
 
+
+        // Enquiry Routes Start =========================================================================================================================>
+        Route::get('/admin-enquiry', [AdminController::class, 'adminEnquiryView'])->name('admin.admin-enquiry');
+        Route::put('/admin-enquiry/reply/{id}', [AdminController::class, 'adminEnquiryReply'])->name('admin.admin-enquiry.reply');
+        Route::delete('/admin-enquiry/delete/{id}', [AdminController::class, 'adminEnquiryDelete'])->name('admin.admin-enquiry.delete');
+        // Enquiry Routes End ==========================================================================================================================>
+
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>
@@ -160,11 +168,3 @@ Route::get('/admin-seo-contact', [AdminController::class, 'adminSeoContactView']
 Route::get('/admin-seo-aboutus', [AdminController::class, 'adminSeoAboutusView'])->name('admin.admin-seo-aboutus');
 Route::get('/admin-seo-privacy-policy', [AdminController::class, 'adminSeoPrivacyPolicyView'])->name('admin.admin-seo-privacy-policy');
 // SEO Routes End ==========================================================================================================================>
-
-
-
-
-
-// Enquiry Routes Start =========================================================================================================================>
-Route::get('/admin-enquiry', [AdminController::class, 'adminEnquiryView'])->name('admin.admin-enquiry');
-// Enquiry Routes End ==========================================================================================================================>
