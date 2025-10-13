@@ -79,6 +79,8 @@ Route::prefix('admin')->group(function () {
         Route::put('/admin-videos/{id}/practice-test', [AdminController::class, 'putPracticeTestOnVideoID'])->name('admin.admin-videos.practice-test.update');
 
         Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
+        Route::put('/admin-video-feedbacks/edit/{id}', [AdminController::class, 'editVideoFeedback'])->name('admin.admin-video-feedbacks.edit');
+        Route::delete('/admin-video-feedbacks/delete/{id}', [AdminController::class, 'deleteVideoFeedback'])->name('admin.admin-video-feedbacks.delete');
         // Course Related Routes End ==========================================================================================================================>
 
 
@@ -124,6 +126,13 @@ Route::prefix('admin')->group(function () {
 
         // Students Related Route Start =========================================================================================================================>
         Route::get('/admin-students', [AdminController::class, 'adminStudentsView'])->name('admin.admin-students');
+        Route::post('/admin-students', [AdminController::class, 'adminAddStudent'])->name('admin.admin-students.add');
+        Route::put('/admin-students/edit/{id}', [AdminController::class, 'adminEditStudent'])->name('admin.admin-students.edit');
+        Route::delete('/admin-students/delete/{id}', [AdminController::class, 'adminDeleteStudent'])->name('admin.admin-students.delete');
+        Route::post('/admin-students/type-waiver/{id}', [AdminController::class, 'adminStudentTypeChangeIntoWaiver'])->name('admin.admin-students.type-waiver');
+        Route::post('/admin-students/type-regular/{id}', [AdminController::class, 'adminStudentTypeChangeIntoRegular'])->name('admin.admin-students.type-regular');
+
+
         Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
         Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
         // Students Related Route End ==========================================================================================================================>

@@ -26,6 +26,7 @@ class Student extends Authenticatable
         'mobile',
         'age',
         'password',
+        'type',
     ];
 
     /**
@@ -58,5 +59,10 @@ class Student extends Authenticatable
             ->take(2)
             ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    public function classes()
+    {
+        return $this->belongsTo(Classes::class, 'class_id');
     }
 }

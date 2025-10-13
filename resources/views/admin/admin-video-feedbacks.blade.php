@@ -76,65 +76,88 @@
                 <tr>
                   <th>SL</th>
                   <th>Video Details</th>
+                  <th>Total Likes</th>
                   <th>Student Details</th>
                   <th>Feedbacks</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($videoFeedbacks as $key => $feedback)
                 <tr>
+                  <td><strong>{{$loop->iteration}}</strong></td>
+
                   <td>
-                    <strong>1</strong>
+                    <p class="m-0 p-0">{{ $feedback->video->class->name ?? '-' }}</p>
+                    <p class="m-0 p-0">{{ $feedback->video->subject->name ?? '-' }}</p>
+                    <p class="m-0 p-0">{{ $feedback->video->chapter->name ?? '-' }}</p>
+                    <p class="m-0 p-0">{{ $feedback->video->video_title ?? '-' }}</p>
                   </td>
+
                   <td>
-                    <p class="m-0 p-0">Class 8</p>
-                    <p class="m-0 p-0">Subject 1</p>
-                    <p class="m-0 p-0">Chapter 1</p>
-                    <p class="m-0 p-0">Video Title</p>
+                    <span class="text-danger fw-bold">{{ $feedback->video->likes ?? '-' }}</span>
                   </td>
+
                   <td>
-                    <p class="m-0 p-0">
-                      <strong>Name:</strong> Xyz
-                    </p>
-                    <p class="m-0 p-0">
-                      <strong>Email:</strong> xyz@gmail.com
-                    </p>
-                    <p class="m-0 p-0">
-                      <strong>Mobile:</strong> +91 1234567890
-                    </p>
-                    <p class="m-0 p-0">
-                      <strong>STU ID:</strong> 25-SW-CLASS8-01
-                    </p>
+                    <p class="m-0 p-0"><strong>Name:</strong> {{ $feedback->student->student_name ?? '-' }}</p>
+                    <p class="m-0 p-0"><strong>Email:</strong> {{ $feedback->student->email ?? '-' }}</p>
+                    <p class="m-0 p-0"><strong>Mobile:</strong> {{ $feedback->student->mobile ?? '-' }}</p>
+                    <p class="m-0 p-0"><strong>STU ID:</strong> {{ $feedback->student->student_id ?? '-' }}</p>
                   </td>
+
                   <td>
-                    <button
-                      type="button"
-                      class="btn btn-primary"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalFeedback">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                      data-bs-target="#backDropModalFeedback{{ $feedback->id }}">
                       Feedback
                     </button>
                   </td>
 
                   <td>
-                    <button
-                      type="button"
-                      class="btn btn-warning"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
-                      Edit
-                    </button>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                      data-bs-target="#backDropModalEdit{{ $feedback->id }}">Edit</button>
                     &nbsp;
-                    <button
-                      class="btn btn-danger"
-                      type="button"
-                      data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
-                      Delete
-                    </button>
+                    <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                      data-bs-target="#backDropModalDelete{{ $feedback->id }}">Delete</button>
                   </td>
                 </tr>
+                @endforeach
+
               </tbody>
+
+              <!-- Pagination Footer -->
+              <tr>
+                <td colspan="6">
+                  <div class="d-flex justify-content-center align-items-center mt-2">
+                    <!-- Custom Pagination -->
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                      @if ($videoFeedbacks->onFirstPage())
+                      <button class="btn btn-secondary me-2" disabled>Prev</button>
+                      @else
+                      <a href="{{ $videoFeedbacks->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                      @endif
+
+                      <form action="" method="GET" class="d-flex align-items-center">
+                        <input type="number" name="page" value="{{ $videoFeedbacks->currentPage() }}"
+                          min="1" max="{{ $videoFeedbacks->lastPage() }}"
+                          class="form-control text-center me-1" style="width: 70px;"
+                          onchange="this.form.submit()" readonly>
+
+                        <span class="mx-1">/</span>
+                        <input type="text" readonly value="{{ $videoFeedbacks->lastPage() }}"
+                          class="form-control text-center ms-1" style="width: 70px;">
+                      </form>
+
+                      @if ($videoFeedbacks->hasMorePages())
+                      <a href="{{ $videoFeedbacks->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                      @else
+                      <button class="btn btn-secondary ms-2" disabled>Next</button>
+                      @endif
+                    </div>
+
+                  </div>
+                </td>
+              </tr>
+
             </table>
           </div>
         </div>
@@ -144,9 +167,10 @@
 </div>
 
 <!-- Feedback Modal -->
+@foreach ($videoFeedbacks as $feedback)
 <div
   class="modal fade"
-  id="backDropModalFeedback"
+  id="backDropModalFeedback{{ $feedback->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
@@ -165,18 +189,16 @@
         <div class="row">
           <div class="col mb-3">
             <p class="fw-bold">
-              STU ID | Student Name | Video Title
+              {{ $feedback->student->student_id ?? '-' }} | {{ $feedback->student->student_name ?? '-' }}
             </p>
             <p class="fw-bold m-0 p-0">Video Title:</p>
-            <span>Lorem ipsum dolor sit amet consectetur adipisicing
-              elit.</span>
+            <span>{{ $feedback->video->video_title ?? '-' }}</span>
             <p class="fw-bold m-0 p-0 mt-2 text-danger">
-              Rating: 4/5
+              Rating: {{ $feedback->rating ?? '-' }}/5
             </p>
             <p class="fw-bold m-0 p-0 mt-2">Feedback:</p>
             <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing
-              elit.
+              {{ $feedback->feedback ?? '-' }}
             </p>
           </div>
         </div>
@@ -192,9 +214,10 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Video Feedback Modal -->
-<div
+<!-- <div
   class="modal fade"
   id="backDropModalAddClass"
   data-bs-backdrop="static"
@@ -321,16 +344,20 @@
       </div>
     </form>
   </div>
-</div>
+</div> -->
 
 <!-- Edit Video Feedback Modal -->
+@foreach ($videoFeedbacks as $feedback)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEdit{{ $feedback->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-xl">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-video-feedbacks.edit', $feedback->id) }}">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Video Feedback
@@ -344,88 +371,11 @@
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
-            </select>
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Subject</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Subject 1</option>
-              <option value="2">Subject 2</option>
-              <option value="3">Subject 3</option>
-              <option value="4">Subject 4</option>
-              <option value="5">Subject 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Chapter</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Chapter 1</option>
-              <option value="2">Chapter 2</option>
-              <option value="3">Chapter 3</option>
-              <option value="4">Chapter 4</option>
-              <option value="5">Chapter 5</option>
-            </select>
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Type</label>
-            <select name="" id="" class="form-select">
-              <option value="paid">Paid</option>
-              <option value="free">Free</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Video Title</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Title 1</option>
-              <option value="2">Title 2</option>
-              <option value="3">Title 3</option>
-              <option value="4">Title 4</option>
-              <option value="5">Title 5</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student ID</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student Name</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student Email</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student Mobile</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Rating</label>
-            <input type="text" class="form-control" />
+            <div class="d-flex gap-5">
+              <input type="number" name="rating" id="rating" value="{{ $feedback->rating }}" class="form-control" /> Out of
+              <input type="number" class="form-control" value="5" readonly>
+            </div>
           </div>
         </div>
 
@@ -433,10 +383,10 @@
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Feedback</label>
             <textarea
-              name=""
-              id=""
+              name="feedback"
+              id="feedback"
               class="form-control"
-              rows="5"></textarea>
+              rows="5">{{ $feedback->feedback }}</textarea>
           </div>
         </div>
       </div>
@@ -447,20 +397,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Video Feedback Modal -->
+@foreach ($videoFeedbacks as $feedback)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDelete{{ $feedback->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-video-feedbacks.delete', $feedback->id) }}">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Video Feedback
@@ -487,14 +442,15 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
-<a
+<!-- <a
   type="button"
   data-bs-toggle="modal"
   data-bs-target="#backDropModalAddClass"
@@ -502,6 +458,6 @@
   aria-label="Add new item"
   title="Add">
   Add
-</a>
+</a> -->
 
 @endsection

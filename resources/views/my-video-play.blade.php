@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title',  $subject->name . ' - ' . $video->video_title . ' - ')
+@section('title', $subject->name . ' - ' . $video->video_title . ' - ')
 
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('./css/my-video-play.css') }}" />
@@ -35,6 +35,23 @@
 @section('content')
 <!-- VIDEO PLAY -->
 <div class="container">
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <a href="#"><i class="fas fa-home"></i> Home</a>
+        <span>/</span>
+        <a href="{{ route('student.my-class-content', [$class->id, $subject->id]) }}"><i class="fas fa-list-ol"></i> Chapters</a>
+        <span>/</span>
+        <a href="{{ route('student.my-chapter-videos', [
+        'classId' => $class->id,
+        'subjectId' => $subject->id,
+        'chapterId' => $chapter->id
+    ]) }}"><i class="fas fa-play-circle"></i> Chapter Videos</a>
+        <span>/</span>
+        <span class="current"><i class="fas fa-play-circle"></i> Videos</span>
+    </div>
+
+
     <!-- Video Player -->
     <div class="video-player-container">
         <div class="video-wrapper">

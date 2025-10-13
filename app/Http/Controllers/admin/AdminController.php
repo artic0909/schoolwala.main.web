@@ -10,8 +10,10 @@ use App\Models\Classes;
 use App\Models\ClassFAQ;
 use App\Models\Faculty;
 use App\Models\FAQ;
+use App\Models\Feedback;
 use App\Models\Story;
 use App\Models\StoryTag;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Video;
 use Illuminate\Support\Facades\Hash;
@@ -1116,16 +1118,220 @@ class AdminController extends Controller
     public function adminVideoFeedbacksView()
     {
 
-        return view('admin.admin-video-feedbacks');
+        $videoFeedbacks = Feedback::with('video.class', 'video.subject', 'video.chapter', 'student')->orderBy('id', 'desc')->paginate(8);
+
+        return view('admin.admin-video-feedbacks', compact('videoFeedbacks'));
+    }
+
+    public function editVideoFeedback(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'nullable|string',
+            'feedback' => 'nullable|string',
+        ]);
+
+        $feedback = Feedback::findOrFail($id);
+        $feedback->rating = $request->rating;
+        $feedback->feedback = $request->feedback;
+        $feedback->save();
+        return redirect()->back()->with('success', 'Feedback updated successfully!');
+    }
+
+    public function deleteVideoFeedback($id)
+    {
+        $feedback = Feedback::findOrFail($id);
+        $feedback->delete();
+        return redirect()->back()->with('success', 'Feedback deleted successfully!');
     }
     // Course Related End ==========================================================================================================================>
 
     // Students Related Start =========================================================================================================================>
-    public function adminStudentsView()
+    public function adminStudentsView(Request $request)
     {
 
-        return view('admin.admin-students');
+        $classes = Classes::all();
+        $classId = $request->input('class_id');
+        $query = Student::with('classes')->orderBy('id', 'desc');
+
+        if (!empty($classId)) {
+            $query->where('class_id', $classId);
+        }
+
+        $students = $query->paginate(8);
+        $students->appends($request->all());
+
+        return view('admin.admin-students', compact('students', 'classes', 'classId'));
     }
+
+    public function adminAddStudent(Request $request)
+    {
+        try {
+            $request->validate([
+                'type' => 'required|in:regular,waiver',
+                'parent_name' => 'required|string|max:255',
+                'student_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:students,email',
+                'mobile' => 'required|string|max:20',
+                'age' => 'required|string|max:3',
+                'class_id' => 'required|exists:classes,id',
+                'password' => 'required|string|min:6|confirmed',
+            ]);
+
+            // ----- AUTO GENERATE STUDENT ID -----
+            $year   = date('y'); // e.g., "25" for 2025
+            $prefix = "SW";
+
+            // Get class name (e.g., "Class 8" → "CLASS8")
+            $class = Classes::findOrFail($request->class_id);
+            $className = strtoupper(str_replace(' ', '', $class->name));
+
+            // Find the last student for this class
+            $lastStudent = Student::where('class_id', $request->class_id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($lastStudent && preg_match('/-(\d+)$/', $lastStudent->student_id, $matches)) {
+                $lastNumber = (int) $matches[1];
+            } else {
+                $lastNumber = 0;
+            }
+
+            // Increment & pad number (01, 02, 03…)
+            $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+
+            $studentId = "{$year}-{$prefix}-{$className}-{$nextNumber}";
+
+            // ----- SAVE STUDENT -----
+            $student = new Student();
+            $student->type = $request->type;
+            $student->parent_name = $request->parent_name;
+            $student->student_name = $request->student_name;
+            $student->email = $request->email;
+            $student->mobile = $request->mobile;
+            $student->age = $request->age;
+            $student->class_id = $request->class_id;
+            $student->student_id = $studentId;
+            $student->password = Hash::make($request->password);
+            $student->save();
+
+            return redirect()->back()->with('success', 'Student added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditStudent(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'type' => 'required|in:regular,waiver',
+                'parent_name' => 'required|string|max:255',
+                'student_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:students,email,' . $id,
+                'mobile' => 'required|string|max:20',
+                'age' => 'required|string|max:3',
+                'class_id' => 'required|exists:classes,id',
+                'password' => 'nullable|string|min:6|confirmed',
+            ]);
+
+            $student = Student::findOrFail($id);
+
+            // Check if class_id changed
+            if ($student->class_id != $request->class_id) {
+                // ----- AUTO GENERATE STUDENT ID ----- 
+                $year   = date('y'); // e.g., "25" for 2025
+                $prefix = "SW";
+
+                $class = Classes::findOrFail($request->class_id);
+                $className = strtoupper(str_replace(' ', '', $class->name));
+
+                $lastStudent = Student::where('class_id', $request->class_id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if ($lastStudent && preg_match('/-(\d+)$/', $lastStudent->student_id, $matches)) {
+                    $lastNumber = (int) $matches[1];
+                } else {
+                    $lastNumber = 0;
+                }
+
+                $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+
+                $student->student_id = "{$year}-{$prefix}-{$className}-{$nextNumber}";
+            }
+
+            // ----- UPDATE STUDENT ----- 
+            $student->type = $request->type;
+            $student->parent_name = $request->parent_name;
+            $student->student_name = $request->student_name;
+            $student->email = $request->email;
+            $student->mobile = $request->mobile;
+            $student->age = $request->age;
+            $student->class_id = $request->class_id;
+
+            if (!empty($request->password)) {
+                $student->password = Hash::make($request->password);
+            }
+
+            $student->save();
+
+            return redirect()->back()->with('success', 'Student updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteStudent($id)
+    {
+        try {
+            $student = Student::findOrFail($id);
+            $student->delete();
+            return redirect()->back()->with('success', 'Student deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminStudentTypeChangeIntoWaiver(Request $request, $id)
+    {
+        try {
+            $student = Student::findOrFail($id);
+
+            if ($student->type === 'regular') {
+                $student->type = 'waiver';
+                $student->save();
+
+                return redirect()->back()->with('success', 'Student type changed to waiver successfully!');
+            } else {
+                return redirect()->back()->with('error', 'Only regular students can be changed to waiver.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminStudentTypeChangeIntoRegular(Request $request, $id)
+    {
+        try {
+            $student = Student::findOrFail($id);
+
+            if ($student->type === 'waiver') {
+                $student->type = 'regular';
+                $student->save();
+
+                return redirect()->back()->with('success', 'Student type changed to regular successfully!');
+            } else {
+                return redirect()->back()->with('error', 'Only waiver students can be changed to regular.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
+
+
+
 
     public function adminTuitionFeesView()
     {

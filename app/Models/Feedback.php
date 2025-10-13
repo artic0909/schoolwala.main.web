@@ -29,4 +29,9 @@ class Feedback extends Model
     {
         return $this->belongsTo(Video::class, 'video_id');
     }
+
+    public function class()
+    {
+        return $this->belongsTo(Classes::class, 'class_id');
+    }
 }

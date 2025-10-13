@@ -71,23 +71,24 @@
 
         <!-- Student Search Filter -->
         <div class="col-lg-12 mb-4">
-          <form action="">
-            <div class="input-group">
-              <label for="" class="input-group-text">
-                Choose Class</label>
-              <select name="" class="form-select" id="">
-                <option value="1">Class 1</option>
-                <option value="2">Class 2</option>
-                <option value="3">Class 3</option>
-                <option value="4">Class 4</option>
-                <option value="5">Class 5</option>
+          <form action="{{ route('admin.admin-students') }}" method="GET">
+            <div class="input-group mb-3">
+              <label for="class_id" class="input-group-text">Choose Class</label>
+              <select name="class_id" id="class_id" class="form-select">
+                <option value="">All Classes</option>
+                @foreach($classes as $class)
+                <option value="{{ $class->id }}" {{ isset($classId) && $classId == $class->id ? 'selected' : '' }}>
+                  {{ $class->name }}
+                </option>
+                @endforeach
               </select>
 
-              <button class="btn btn-primary">Search</button>
+              <button class="btn btn-primary" type="submit">Search</button>
               &nbsp;&nbsp;
-              <button class="btn btn-info">Export</button>
+              <a href="{{ route('admin.admin-students') }}" class="btn btn-info">Reset</a>
             </div>
           </form>
+
         </div>
 
         <div class="col-lg-12">
@@ -96,7 +97,6 @@
               <thead>
                 <tr>
                   <th>SL</th>
-                  <th>Profile</th>
                   <th>STU ID</th>
                   <th>STU Type</th>
                   <th>Student Name</th>
@@ -108,58 +108,103 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($students as $student)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{$loop->iteration}}</strong>
                   </td>
                   <td>
-                    <img
-                      src="{{ asset('./admin/assets/img/avatars/1.png') }}"
-                      class="w-px-40 h-auto rounded-circle" />
+                    <span class="badge bg-label-danger">{{$student->student_id}}</span>
+                  </td>
+                  <td style="text-transform: capitalize;">{{$student->type}}</td>
+                  <td>{{$student->student_name}}</td>
+                  <td>
+                    <span class="badge bg-label-primary">Age: {{$student->age}}</span>
                   </td>
                   <td>
-                    <span class="badge bg-label-danger">25-SW-CLASS8-01</span>
+                    <span class="badge bg-label-warning">{{ $student->classes->name ?? '-' }}</span>
                   </td>
-                  <td>Regular</td>
-                  <td>Xyz Mnp</td>
+                  <td>{{$student->parent_name}}</td>
                   <td>
-                    <span class="badge bg-label-primary">Age: 8</span>
-                  </td>
-                  <td>
-                    <span class="badge bg-label-warning">Class 8</span>
-                  </td>
-                  <td>MNP</td>
-                  <td>
-                    <p class="m-0 p-0">xyz@gmail.com</p>
-                    <p class="m-0 p-0">+91 123456789</p>
+                    <p class="m-0 p-0">{{$student->email}}</p>
+                    <p class="m-0 p-0">{{$student->mobile}}</p>
                   </td>
 
                   <td>
                     <div class="row g-2">
+                      @if($student->type == 'regular')
                       <button
                         type="button"
-                        class="btn btn-info">
-                        Add to Waver
+                        class="btn btn-info"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalTypeChange{{ $student->id }}">
+                        Convert to Waiver
                       </button>
+
+                      @else
+
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#backDropModalTypeChangeRegular{{ $student->id }}">
+                        Convert to Regular
+                      </button>
+
+                      @endif
+
                       <button
                         type="button"
                         class="btn btn-warning"
                         data-bs-toggle="modal"
-                        data-bs-target="#backDropModalEditClass">
+                        data-bs-target="#backDropModalEditClass{{ $student->id }}">
                         Edit
                       </button>
                       <button
                         class="btn btn-danger"
                         type="button"
                         data-bs-toggle="modal"
-                        data-bs-target="#backDropModalDeleteClass">
+                        data-bs-target="#backDropModalDeleteClass{{ $student->id }}">
                         Delete
                       </button>
 
                     </div>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
+              <!-- Pagination -->
+              <tfoot>
+                <tr>
+                  <td colspan="10">
+                    <div class="d-flex justify-content-center">
+                      <div class="d-flex justify-content-center align-items-center mt-3">
+                        @if ($students->onFirstPage())
+                        <button class="btn btn-secondary me-2" disabled>Prev</button>
+                        @else
+                        <a href="{{ $students->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                        @endif
+
+                        <form action="" method="GET" class="d-flex align-items-center">
+                          <input type="number" name="page" value="{{ $students->currentPage() }}"
+                            min="1" max="{{ $students->lastPage() }}"
+                            class="form-control text-center me-1" style="width: 70px;"
+                            onchange="this.form.submit()" readonly>
+
+                          <span class="mx-1">/</span>
+                          <input type="text" readonly value="{{ $students->lastPage() }}"
+                            class="form-control text-center ms-1" style="width: 70px;">
+                        </form>
+
+                        @if ($students->hasMorePages())
+                        <a href="{{ $students->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                        @else
+                        <button class="btn btn-secondary ms-2" disabled>Next</button>
+                        @endif
+                      </div>
+                    </div>
+                  </td>
+                </tr>
             </table>
           </div>
         </div>
@@ -175,219 +220,187 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-students.add') }}">
+      @csrf
       <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Add Student
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
+        <h5 class="modal-title">Add Student</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body">
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Profile Image</label>
-            <input type="file" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Student Type</label>
-            <select name="" id="" class="form-select">
-              <option value="regular">Regular</option>
-              <option value="waver">Waver</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Parent's Name</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student's Name</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Email ID</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Mobile</label>
-            <input type="text" class="form-control" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student's Age</label>
-            <input type="text" class="form-control" />
-          </div>
-
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <label class="form-label">Choose Student Type</label>
+            <select name="type" class="form-select">
+              <option value="regular" {{ old('type') == 'regular' ? 'selected' : '' }}>Regular</option>
+              <option value="waiver" {{ old('type') == 'waiver' ? 'selected' : '' }}>Waiver</option>
             </select>
           </div>
         </div>
 
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Password</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Parent's Name</label>
+            <input type="text" name="parent_name" class="form-control" value="{{ old('parent_name') }}" />
           </div>
-
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Confirm Password</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Student's Name</label>
+            <input type="text" name="student_name" class="form-control" value="{{ old('student_name') }}" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label class="form-label">Email ID</label>
+            <input type="text" name="email" class="form-control" value="{{ old('email') }}" />
+          </div>
+          <div class="col mb-3">
+            <label class="form-label">Mobile</label>
+            <input type="text" name="mobile" class="form-control" value="{{ old('mobile') }}" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label class="form-label">Student's Age</label>
+            <input type="text" name="age" class="form-control" value="{{ old('age') }}" />
+          </div>
+          <div class="col mb-3">
+            <label class="form-label">Choose Class</label>
+            <select name="class_id" class="form-select">
+              <option value="" selected disabled>Select Class</option>
+              @foreach($classes as $class)
+              <option value="{{ $class->id }}" {{ old('class_id') == $class->id ? 'selected' : '' }}>
+                {{ $class->name }}
+              </option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" />
+          </div>
+          <div class="col mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password_confirmation" class="form-control" />
           </div>
         </div>
       </div>
+
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
+
   </div>
 </div>
 
 <!-- Edit Student Modal -->
-<div
-  class="modal fade"
-  id="backDropModalEditClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
+@foreach ($students as $student)
+<div class="modal fade" id="backDropModalEditClass{{ $student->id }}" data-bs-backdrop="static" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-students.edit', $student->id) }}">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Edit Student
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
+        <h5 class="modal-title">Edit Student</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body">
+        {{-- TYPE --}}
         <div class="row">
           <div class="col mb-3">
-            <img
-              src="./assets/img/avatars/1.png"
-              class="w-px-100 h-auto rounded-circle"
-              alt="" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Profile Image</label>
-            <input type="file" class="form-control" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Student Type</label>
-            <select name="" id="" class="form-select">
-              <option value="regular">Regular</option>
-              <option value="waver">Waver</option>
+            <label class="form-label">Choose Student Type</label>
+            <select name="type" class="form-select">
+              <option value="regular" {{ $student->type == 'regular' ? 'selected' : '' }}>Regular</option>
+              <option value="waiver" {{ $student->type == 'waiver' ? 'selected' : '' }}>Waiver</option>
             </select>
           </div>
         </div>
 
+        {{-- PARENT + STUDENT NAME --}}
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Parent's Name</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Parent's Name</label>
+            <input type="text" name="parent_name" class="form-control" value="{{ old('parent_name', $student->parent_name) }}" />
           </div>
-
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student's Name</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Student's Name</label>
+            <input type="text" name="student_name" class="form-control" value="{{ old('student_name', $student->student_name) }}" />
           </div>
         </div>
 
+        {{-- EMAIL + MOBILE --}}
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Email ID</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Email ID</label>
+            <input type="text" name="email" class="form-control" value="{{ old('email', $student->email) }}" />
           </div>
-
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Mobile</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Mobile</label>
+            <input type="text" name="mobile" class="form-control" value="{{ old('mobile', $student->mobile) }}" />
           </div>
         </div>
 
+        {{-- AGE + CLASS --}}
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Student's Age</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Student's Age</label>
+            <input type="text" name="age" class="form-control" value="{{ old('age', $student->age) }}" />
           </div>
-
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <label class="form-label">Choose Class</label>
+            <select name="class_id" class="form-select">
+              @foreach($classes as $class)
+              <option value="{{ $class->id }}" {{ $student->class_id == $class->id ? 'selected' : '' }}>
+                {{ $class->name }}
+              </option>
+              @endforeach
             </select>
           </div>
         </div>
 
+        {{-- PASSWORD --}}
         <div class="row">
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Password</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current" />
           </div>
-
           <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Confirm Password</label>
-            <input type="text" class="form-control" />
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password_confirmation" class="form-control" />
           </div>
         </div>
       </div>
+
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Update</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
+
 
 <!-- Delete Student Modal -->
+@foreach ($students as $student)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $student->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-students.delete', $student->id)}}">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Student
@@ -403,7 +416,7 @@
           <div class="col mb-3">
             <p>
               Are you sure you want to delete this student
-              <span class="text-danger">25-SW-CLASS8-01</span>?
+              <span class="text-danger">{{ $student->student_id }}</span>?
             </p>
           </div>
         </div>
@@ -415,11 +428,103 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
+
+
+<!-- Student Type Change into Waiver Modal -->
+@foreach ($students as $student)
+<div
+  class="modal fade"
+  id="backDropModalTypeChange{{ $student->id }}"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-students.type-waiver', $student->id)}}">
+      @csrf
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Change Type of Student
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <p>
+              Are you sure you want to change the type of this student
+              <span class="text-danger">{{ $student->student_id }}</span>?
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-danger">Yes, Convert to Waiver</button>
+      </div>
+    </form>
+  </div>
+</div>
+@endforeach
+
+<!-- Student Type Change into Regular Modal -->
+@foreach ($students as $student)
+<div
+  class="modal fade"
+  id="backDropModalTypeChangeRegular{{ $student->id }}"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-students.type-regular', $student->id)}}">
+      @csrf
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Change Type of Student
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <p>
+              Are you sure you want to change the type of this student
+              <span class="text-danger">{{ $student->student_id }}</span>?
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-danger">Yes, Convert to Regular</button>
+      </div>
+    </form>
+  </div>
+</div>
+@endforeach
 
 <!-- Add Button -->
 <a

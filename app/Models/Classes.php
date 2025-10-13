@@ -43,4 +43,14 @@ class Classes extends Model
     {
         return $this->hasMany(WaverRequest::class, 'class_id');
     }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class, 'class_id');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'class_id');
+    }
 }
