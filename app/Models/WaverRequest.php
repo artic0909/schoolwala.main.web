@@ -22,4 +22,9 @@ class WaverRequest extends Model
     {
         return $this->belongsTo(Classes::class);
     }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class, 'email', 'email');
+    }
 }

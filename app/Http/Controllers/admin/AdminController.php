@@ -16,6 +16,7 @@ use App\Models\StoryTag;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Video;
+use App\Models\WaverRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -1364,7 +1365,20 @@ class AdminController extends Controller
     public function adminWaverRequestView()
     {
 
-        return view('admin.admin-wavers-request');
+        $waverRequests = WaverRequest::with('class')->orderBy('id', 'desc')->paginate(8);
+
+        return view('admin.admin-wavers-request', compact('waverRequests'));
+    }
+
+    public function adminWaverRequestDelete($id)
+    {
+        try {
+            $waverRequest = WaverRequest::findOrFail($id);
+            $waverRequest->delete();
+            return redirect()->back()->with('success', 'Waver request deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
     }
     // Waver End ==========================================================================================================================>
 

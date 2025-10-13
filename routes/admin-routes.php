@@ -142,6 +142,7 @@ Route::prefix('admin')->group(function () {
         // Waver Routes Start =========================================================================================================================>
         Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
         Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
+        Route::delete('/admin-wavers-request/delete/{id}', [AdminController::class, 'adminWaverRequestDelete'])->name('admin.admin-wavers-request.delete');
         // Waver Routes End ==========================================================================================================================>
 
     });

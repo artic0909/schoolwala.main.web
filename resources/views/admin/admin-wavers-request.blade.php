@@ -54,10 +54,10 @@
         <div class="col-sm-7">
           <div class="card-body">
             <h5 class="card-title text-primary">
-              List of Waver Requests !
+              List of Waiver Requests !
             </h5>
             <p class="mb-4">
-              You can <strong>see/ delete</strong> waver requests
+              You can <strong>see/ delete</strong> waiver requests
             </p>
           </div>
         </div>
@@ -87,37 +87,38 @@
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach ($waverRequests as $requestt)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
 
                   <td>
                     <p class="m-0 p-0 badge bg-label-info">
-                      01-01-2025
+                      {{ $requestt->created_at->format('d M, Y | h:i A') }}
                     </p>
                   </td>
 
                   <td>
-                    <p class="m-0 p-0">
-                      <strong>STU Name:</strong> Xyx Mnp
+                    <p class="m-0 p-0" style="text-transform: capitalize;">
+                      <strong>STU Name:</strong> {{ $requestt->c_name }}
                     </p>
-                    <p class="m-0 p-0">
-                      <strong>PRNT Name:</strong> Xyx Mnp
+                    <p class="m-0 p-0" style="text-transform: capitalize;">
+                      <strong>PRNT Name:</strong> {{ $requestt->p_name }}
                     </p>
                   </td>
 
-                  <td>Age: 7</td>
+                  <td>Age: {{ $requestt->c_age }}</td>
 
                   <td>
-                    <span class="badge bg-label-primary">Class 8</span>
+                    <span class="badge bg-label-primary">{{ $requestt->class->name }}</span>
                   </td>
                   <td>
                     <p class="m-0 p-0">
-                      <strong>Email:</strong> xyz@gmail.com
+                      <strong>Email:</strong> {{ $requestt->email }}
                     </p>
                     <p class="m-0 p-0">
-                      <strong>Mobile:</strong> +91 1234567890
+                      <strong>Mobile:</strong> {{ $requestt->mobile }}
                     </p>
                   </td>
 
@@ -126,7 +127,7 @@
                       class="btn btn-primary"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalAddress">
+                      data-bs-target="#backDropModalAddress{{ $requestt->id }}">
                       Address
                     </button>
                   </td>
@@ -140,12 +141,45 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $requestt->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
+
+              <!-- Pagination -->
+              <tfoot>
+                <tr>
+                  <td colspan="8">
+                    <div class="d-flex justify-content-center align-items-center mt-3">
+                      @if ($waverRequests->onFirstPage())
+                      <button class="btn btn-secondary me-2" disabled>Prev</button>
+                      @else
+                      <a href="{{ $waverRequests->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                      @endif
+
+                      <form action="" method="GET" class="d-flex align-items-center">
+                        <input type="number" name="page" value="{{ $waverRequests->currentPage() }}"
+                          min="1" max="{{ $waverRequests->lastPage() }}"
+                          class="form-control text-center me-1" style="width: 70px;"
+                          onchange="this.form.submit()" readonly>
+
+                        <span class="mx-1">/</span>
+                        <input type="text" readonly value="{{ $waverRequests->lastPage() }}"
+                          class="form-control text-center ms-1" style="width: 70px;">
+                      </form>
+
+                      @if ($waverRequests->hasMorePages())
+                      <a href="{{ $waverRequests->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                      @else
+                      <button class="btn btn-secondary ms-2" disabled>Next</button>
+                      @endif
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -155,9 +189,10 @@
 </div>
 
 <!-- Address View Modal -->
+@foreach ($waverRequests as $requestt)
 <div
   class="modal fade"
-  id="backDropModalAddress"
+  id="backDropModalAddress{{ $requestt->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog">
@@ -176,10 +211,9 @@
         <div class="row">
           <div class="col mb-3">
             <p>
-              <strong><i class="bx bx-mail-send"></i> Email: xyz@gmail.com</strong>
+              <strong><i class="bx bx-mail-send"></i> Email: {{ $requestt->email }}</strong>
               <br />
-              <i class="bx bx-map"></i> <strong>Address:</strong> Lorem ipsum dolor sit amet consectetur adipisicing
-              elit. Quisquam, quae?
+              <i class="bx bx-map"></i> <strong>Address:</strong> {{ $requestt->address }}
             </p>
           </div>
         </div>
@@ -195,15 +229,20 @@
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Waver Request Modal -->
+@foreach ($waverRequests as $requestt)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $requestt->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" method="POST" action="{{ route('admin.admin-wavers-request.delete', $requestt->id) }}">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Request
@@ -219,7 +258,7 @@
           <div class="col mb-3">
             <p>
               Are you sure you want to delete this request
-              <span class="text-danger">Email ID | Mobile</span>?
+              <span class="text-danger">{{ $requestt->email }} | {{ $requestt->mobile }}</span>?
             </p>
           </div>
         </div>
@@ -231,10 +270,11 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 @endsection
