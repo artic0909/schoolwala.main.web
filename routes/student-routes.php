@@ -85,6 +85,7 @@ Route::prefix('student')->group(function () {
 
         // My Class Content
         Route::get('/my-class-content/{classId}/{subjectId}', [StudentController::class, 'myClassContent'])->name('student.my-class-content');
+        Route::get('/my-payment/{classId}/{subjectId}', [StudentController::class, 'myPayment'])->name('student.my-payment');
 
         // My Chapter Videos
         Route::get('/my-chapter-videos/{classId}/{subjectId}/{chapterId}', [StudentController::class, 'myChapterVideos'])->name('student.my-chapter-videos');

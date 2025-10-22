@@ -627,6 +627,23 @@ class StudentController extends Controller
         return view('my-class-content', compact('class', 'subject', 'profile'));
     }
 
+    public function myPayment($classId, $subjectId)
+    {
+        $class = Classes::with(['subjects.chapters.videos'])
+            ->where('id', $classId)
+            ->firstOrFail();
+
+        $subject = $class->subjects->find($subjectId);
+
+        $studentId = auth()->guard('student')->user()->id;
+        $profile = StudentProfile::firstOrCreate(
+            ['student_id' => $studentId],
+            ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+        );
+
+        return view('subscription.payment', compact('class', 'subject', 'profile'));
+    }
+
     public function myChapterVideos($classId, $subjectId, $chapterId)
     {
         $class = Classes::with(['subjects.chapters.videos'])

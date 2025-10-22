@@ -83,28 +83,36 @@
               <thead>
                 <tr>
                   <th>SL</th>
+                  <th>QR Image</th>
                   <th>Class Name</th>
                   <th>Fees Amount</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
+                @foreach($feeses as $fees)
                 <tr>
                   <td>
-                    <strong>1</strong>
+                    <strong>{{ $loop->iteration }}</strong>
                   </td>
 
                   <td>
-                    <span class="badge bg-label-primary">Class 8</span>
+                    @if($fees->qrimage)
+                    <img src="{{ asset($fees->qrimage) }}" alt="QR Code" width="120">
+                    @endif
                   </td>
-                  <td>89.00</td>
+
+                  <td>
+                    <span class="badge bg-label-primary">{{$fees->class->name}}</span>
+                  </td>
+                  <td>{{$fees->amount}}</td>
 
                   <td>
                     <button
                       type="button"
                       class="btn btn-warning"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalEditClass">
+                      data-bs-target="#backDropModalEditClass{{ $fees->id }}">
                       Edit
                     </button>
                     &nbsp;
@@ -112,11 +120,12 @@
                       class="btn btn-danger"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#backDropModalDeleteClass">
+                      data-bs-target="#backDropModalDeleteClass{{ $fees->id }}">
                       Delete
                     </button>
                   </td>
                 </tr>
+                @endforeach
               </tbody>
             </table>
           </div>
@@ -133,7 +142,8 @@
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-tuition-fees.add') }}" method="POST" enctype="multipart/form-data">
+      @csrf
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Add Tuition Fees
@@ -148,12 +158,11 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <select name="class_id" id="class_id" class="form-select">
+              <option value="" selected>Choose Class</option>
+              @foreach($classes as $class)
+              <option value="{{ $class->id }}">{{ $class->name }}</option>
+              @endforeach
             </select>
           </div>
         </div>
@@ -161,7 +170,14 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="amount" id="amount" class="form-control" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">QR Code</label>
+            <input type="file" name="qrimage" id="qrimage" class="form-control" />
           </div>
         </div>
       </div>
@@ -173,20 +189,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+
       </div>
     </form>
   </div>
 </div>
 
 <!-- Edit Tuition Fees Modal -->
+@foreach($feeses as $fees)
 <div
   class="modal fade"
-  id="backDropModalEditClass"
+  id="backDropModalEditClass{{ $fees->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-tuition-fees.edit', $fees->id) }}" method="POST" enctype="multipart/form-data">
+      @csrf
+      @method('PUT')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Edit Tuition Fees
@@ -201,12 +222,14 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Choose Class</label>
-            <select name="" id="" class="form-select">
-              <option value="1">Class 1</option>
-              <option value="2">Class 2</option>
-              <option value="3">Class 3</option>
-              <option value="4">Class 4</option>
-              <option value="5">Class 5</option>
+            <select name="class_id" id="class_id" class="form-select">
+              @if($fees->class)
+              <option value="{{ $fees->class->id }}" selected>{{ $fees->class->name }}</option>
+
+              @foreach($classes as $class)
+              <option value="{{ $class->id }}">{{ $class->name }}</option>
+              @endforeach
+              @endif
             </select>
           </div>
         </div>
@@ -214,9 +237,18 @@
         <div class="row">
           <div class="col mb-3">
             <label for="nameBackdrop" class="form-label">Fees Amount</label>
-            <input type="text" class="form-control" />
+            <input type="number" name="amount" id="amount" value="{{$fees->amount}}" class="form-control" />
           </div>
         </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">QR Code</label>
+            <input type="file" name="qrimage" id="qrimage" class="form-control" />
+          </div>
+        </div>
+
+
       </div>
       <div class="modal-footer">
         <button
@@ -225,20 +257,25 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-primary">Save</button>
+        <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Delete Tuition Fees Modal -->
+@foreach($feeses as $fees)
 <div
   class="modal fade"
-  id="backDropModalDeleteClass"
+  id="backDropModalDeleteClass{{ $fees->id }}"
   data-bs-backdrop="static"
   tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content">
+    <form class="modal-content" action="{{ route('admin.admin-tuition-fees.delete', $fees->id) }}" method="POST" enctype="multipart/form-data">
+      @csrf
+      @method('DELETE')
+
       <div class="modal-header">
         <h5 class="modal-title" id="backDropModalTitle">
           Delete Tuition Fees
@@ -254,7 +291,7 @@
           <div class="col mb-3">
             <p>
               Are you sure you want to delete this tuition fees
-              <span class="text-danger">Class 8 Fees: 89.00</span>?
+              <span class="text-danger">{{ $fees->class->name }} Fees: {{ $fees->amount }}</span>?
             </p>
           </div>
         </div>
@@ -266,11 +303,12 @@
           data-bs-dismiss="modal">
           Close
         </button>
-        <button type="button" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
     </form>
   </div>
 </div>
+@endforeach
 
 <!-- Add Button -->
 <a

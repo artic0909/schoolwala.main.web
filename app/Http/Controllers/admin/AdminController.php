@@ -12,6 +12,7 @@ use App\Models\ContactUs;
 use App\Models\Faculty;
 use App\Models\FAQ;
 use App\Models\Feedback;
+use App\Models\Fees;
 use App\Models\Story;
 use App\Models\StoryTag;
 use App\Models\Student;
@@ -1337,9 +1338,96 @@ class AdminController extends Controller
 
     public function adminTuitionFeesView()
     {
+        $classes = Classes::all();
 
-        return view('admin.admin-tuition-fees');
+        $feeses = Fees::with('class')->get();
+
+        return view('admin.admin-tuition-fees', compact('classes', 'feeses'));
     }
+
+    public function adminTuitionFeesAdd(Request $request)
+    {
+        try {
+            $request->validate([
+                'class_id' => 'required|exists:classes,id',
+                'amount' => 'required|numeric',
+                'qrimage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            $qrimagePath = null;
+
+            // Handle QR image upload
+            if ($request->hasFile('qrimage')) {
+                $file = $request->file('qrimage');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/fees_qr'), $filename);
+                $qrimagePath = 'uploads/fees_qr/' . $filename;
+            }
+
+            Fees::create([
+                'class_id' => $request->class_id,
+                'amount' => $request->amount,
+                'qrimage' => $qrimagePath,
+            ]);
+
+            return redirect()->back()->with('success', 'Tuition fees added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminTuitionFeesUpdate(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'class_id' => 'required|exists:classes,id',
+                'amount' => 'required|numeric',
+                'qrimage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            ]);
+
+            $fees = Fees::findOrFail($id);
+
+            // Handle QR image update
+            if ($request->hasFile('qrimage')) {
+                // Delete old image if it exists
+                if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
+                    unlink(public_path($fees->qrimage));
+                }
+
+                $file = $request->file('qrimage');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/fees_qr'), $filename);
+                $fees->qrimage = 'uploads/fees_qr/' . $filename;
+            }
+
+            $fees->class_id = $request->class_id;
+            $fees->amount = $request->amount;
+            $fees->save();
+
+            return redirect()->back()->with('success', 'Tuition fees updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminTuitionFeesDelete($id)
+    {
+        try {
+            $fees = Fees::findOrFail($id);
+
+            // Delete QR image if exists
+            if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
+                unlink(public_path($fees->qrimage));
+            }
+
+            $fees->delete();
+            return redirect()->back()->with('success', 'Tuition fees deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
 
     public function adminFeesReportView()
     {
@@ -1412,5 +1500,8 @@ class AdminController extends Controller
         }
     }
     // Waver End ==========================================================================================================================>
+
+
+
 
 }

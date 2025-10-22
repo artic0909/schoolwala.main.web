@@ -134,6 +134,10 @@ Route::prefix('admin')->group(function () {
 
 
         Route::get('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesView'])->name('admin.admin-tuition-fees');
+        Route::post('/admin-tuition-fees', [AdminController::class, 'adminTuitionFeesAdd'])->name('admin.admin-tuition-fees.add');
+        Route::put('/admin-tuition-fees/{id}', [AdminController::class, 'adminTuitionFeesUpdate'])->name('admin.admin-tuition-fees.edit');
+        Route::delete('/admin-tuition-fees/{id}', [AdminController::class, 'adminTuitionFeesDelete'])->name('admin.admin-tuition-fees.delete');
+
         Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
         // Students Related Route End ==========================================================================================================================>
 
@@ -151,6 +155,10 @@ Route::prefix('admin')->group(function () {
         Route::put('/admin-enquiry/reply/{id}', [AdminController::class, 'adminEnquiryReply'])->name('admin.admin-enquiry.reply');
         Route::delete('/admin-enquiry/delete/{id}', [AdminController::class, 'adminEnquiryDelete'])->name('admin.admin-enquiry.delete');
         // Enquiry Routes End ==========================================================================================================================>
+
+
+        // Fees Collection Routes Start =========================================================================================================================>
+        
 
 
     });

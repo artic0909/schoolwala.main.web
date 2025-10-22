@@ -119,16 +119,57 @@
                             <i class="fas fa-video"></i> {{$chapter->videos->count()}} videos
                         </div>
                         <!-- <div class="duration"><i class="fas fa-clock"></i> 45 min</div> -->
+
+                        @php
+                        $student = Auth::guard('student')->user();
+
+                        // Find subscriber record for this student, class & fees
+                        $subscriber = \App\Models\Subscribers::where('student_id', $student->id)
+                        ->where('class_id', $class->id)
+                        ->where('fees_id', $chapter->fees_id ?? null)
+                        ->first();
+                        @endphp
+
+                        @if($student->type === 'waiver')
+                        {{-- Case 1: Waiver student --}}
                         <a
                             href="{{ route('student.my-chapter-videos', [
-        'classId' => $class->id,
-        'subjectId' => $subject->id,
-        'chapterId' => $chapter->id
-    ]) }}"
+            'classId' => $class->id,
+            'subjectId' => $subject->id,
+            'chapterId' => $chapter->id
+        ]) }}"
                             class="play-btn"
                             style="text-decoration: none">
                             <i class="fas fa-play"></i>
                         </a>
+
+                        @elseif($student->type === 'regular' && $subscriber && $subscriber->status === 'active')
+                        {{-- Case 2: Regular student with active subscription --}}
+                        <a
+                            href="{{ route('student.my-chapter-videos', [
+            'classId' => $class->id,
+            'subjectId' => $subject->id,
+            'chapterId' => $chapter->id
+        ]) }}"
+                            class="play-btn"
+                            style="text-decoration: none">
+                            <i class="fas fa-play"></i>
+                        </a>
+
+                        @elseif($student->type === 'regular' && (!$subscriber || $subscriber->status === 'inactive'))
+                        {{-- Case 3 & 4: Regular student with no subscription or inactive subscription --}}
+                        <a
+                            href="{{ route('student.my-payment', [
+            'classId' => $class->id,
+            'subjectId' => $subject->id,
+            'chapterId' => $chapter->id
+        ]) }}"
+                            class="play-btn"
+                            style="text-decoration: none">
+                            <i class="fas fa-play"></i>
+                        </a>
+                        @endif
+
                     </div>
                 </li>
                 @endforeach

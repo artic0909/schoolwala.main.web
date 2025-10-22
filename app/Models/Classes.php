@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use NunoMaduro\Collision\Adapters\Phpunit\Subscribers\Subscriber;
 
 class Classes extends Model
 {
@@ -52,5 +53,15 @@ class Classes extends Model
     public function students()
     {
         return $this->hasMany(Student::class, 'class_id');
+    }
+
+    public function fees()
+    {
+        return $this->hasMany(Fees::class, 'class_id');
+    }
+
+    public function subscribers()
+    {
+        return $this->hasMany(Subscriber::class, 'class_id');
     }
 }

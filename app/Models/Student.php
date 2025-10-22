@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use NunoMaduro\Collision\Adapters\Phpunit\Subscribers\Subscriber;
 
 class Student extends Authenticatable
 {
@@ -64,5 +65,10 @@ class Student extends Authenticatable
     public function classes()
     {
         return $this->belongsTo(Classes::class, 'class_id');
+    }
+
+    public function subscribers()
+    {
+        return $this->hasMany(Subscriber::class);
     }
 }
