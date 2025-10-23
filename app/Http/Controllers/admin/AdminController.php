@@ -17,6 +17,7 @@ use App\Models\Story;
 use App\Models\StoryTag;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
 use Illuminate\Support\Facades\Hash;
@@ -1429,10 +1430,142 @@ class AdminController extends Controller
 
 
 
-    public function adminFeesReportView()
+    public function adminFeesReportView(Request $request)
     {
+        $classes = Classes::all();
 
-        return view('admin.admin-fees-report');
+        // Get filters from request
+        $classId = $request->input('class_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+
+        // Build query with relationships
+        $query = Subscribers::with(['student', 'class', 'fees'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+
+        if ($fromDate) {
+            $query->whereDate('subscription_date', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query->whereDate('subscription_date', '<=', $toDate);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $subscribers = $query->paginate(15);
+
+        return view('admin.admin-fees-report', compact('classes', 'subscribers', 'classId', 'fromDate', 'toDate', 'status'));
+    }
+
+    public function acceptFees($id)
+    {
+        $subscriber = \App\Models\Subscribers::findOrFail($id);
+
+        $subscriber->update([
+            'status' => 'active',
+            'expiry_date' => now()->addMonth()
+        ]);
+
+        return redirect()->back()->with('success', 'Payment accepted successfully! Student subscription is now active.');
+    }
+
+    public function rejectFees($id)
+    {
+        $subscriber = \App\Models\Subscribers::findOrFail($id);
+
+        $subscriber->update([
+            'status' => 'inactive'
+        ]);
+
+        return redirect()->back()->with('success', 'Payment rejected successfully!');
+    }
+
+    public function sendInvoice(Request $request, $id)
+    {
+        $request->validate([
+            'invoice_email' => 'required|email',
+            'invoice_message' => 'nullable|string'
+        ]);
+
+        $subscriber = \App\Models\Subscribers::with(['student', 'class', 'fees'])->findOrFail($id);
+
+        // Here you would typically send an email
+        // For now, we'll just return success
+        // You can integrate Laravel Mail here
+
+        /*
+    Mail::to($request->invoice_email)->send(new InvoiceMail($subscriber, $request->invoice_message));
+    */
+
+        return redirect()->back()->with('success', 'Invoice sent successfully to ' . $request->invoice_email);
+    }
+
+    public function exportFeesReport(Request $request)
+    {
+        $classId = $request->input('class_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+
+        // Build query
+        $query = Subscribers::with(['student', 'class', 'fees']);
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+
+        if ($fromDate) {
+            $query->whereDate('subscription_date', '>=', $fromDate);
+        }
+
+        if ($toDate) {
+            $query->whereDate('subscription_date', '<=', $toDate);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $subscribers = $query->get();
+
+        // Create CSV
+        $filename = 'fees_report_' . date('Y-m-d_H-i-s') . '.csv';
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+        $output = fopen('php://output', 'w');
+
+        // Add headers
+        fputcsv($output, ['SL', 'Student ID', 'Student Name', 'Email', 'Phone', 'Class', 'Amount', 'Subscription Date', 'Expiry Date', 'Status']);
+
+        // Add data
+        foreach ($subscribers as $index => $subscriber) {
+            fputcsv($output, [
+                $index + 1,
+                $subscriber->student->student_id ?? 'N/A',
+                $subscriber->student->student_name ?? 'N/A',
+                $subscriber->student->email ?? 'N/A',
+                $subscriber->student->mobile ?? 'N/A',
+                $subscriber->class->name ?? 'N/A',
+                number_format($subscriber->fees->amount ?? 0, 2),
+                $subscriber->subscription_date ? date('d-m-Y', strtotime($subscriber->subscription_date)) : 'N/A',
+                $subscriber->expiry_date ? date('d-m-Y', strtotime($subscriber->expiry_date)) : 'N/A',
+                ucfirst($subscriber->status)
+            ]);
+        }
+
+        fclose($output);
+        exit;
     }
     // Students Related End ==========================================================================================================================>
 

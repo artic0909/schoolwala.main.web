@@ -17,6 +17,7 @@ use App\Models\Student;
 use App\Models\StudentProfile;
 use App\Models\StudentTest;
 use App\Models\Subject;
+use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
 use Illuminate\Support\Facades\Auth;
@@ -513,7 +514,7 @@ class StudentController extends Controller
     {
         $abouts = AboutUs::all();
         $faculties = Faculty::all();
-        
+
         if (auth()->guard('student')->check()) {
             $studentId = auth()->guard('student')->user()->id;
 
@@ -626,22 +627,98 @@ class StudentController extends Controller
 
         return view('my-class-content', compact('class', 'subject', 'profile'));
     }
-
-    public function myPayment($classId, $subjectId)
+    
+    public function myPayment($classId, $subjectId, $chapterId = null)
     {
-        $class = Classes::with(['subjects.chapters.videos'])
+        $student = auth()->guard('student')->user();
+
+        $class = Classes::with(['subjects.chapters.videos', 'fees'])
             ->where('id', $classId)
             ->firstOrFail();
 
         $subject = $class->subjects->find($subjectId);
 
-        $studentId = auth()->guard('student')->user()->id;
+        if (!$subject) {
+            abort(404, 'Subject not found');
+        }
+
+        // Get chapter if chapterId is provided
+        $chapter = null;
+        if ($chapterId) {
+            $chapter = $subject->chapters->find($chapterId);
+        }
+
+        // Fix: Get the FIRST fee record, not the collection
+        $fees = $class->fees->first(); // Changed from $class->fees
+
+        if (!$fees) {
+            return redirect()->back()->with('error', 'No fees information available for this class.');
+        }
+
         $profile = StudentProfile::firstOrCreate(
-            ['student_id' => $studentId],
+            ['student_id' => $student->id],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
         );
 
-        return view('subscription.payment', compact('class', 'subject', 'profile'));
+        return view('subscription.payment', compact('class', 'subject', 'profile', 'student', 'fees', 'chapter'));
+    }
+
+    public function storePayment(Request $request)
+    {
+        $request->validate([
+            'student_name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'class_id' => 'required|exists:classes,id',
+            'fees_id' => 'required|exists:fees,id',
+            'subject_id' => 'required|exists:subjects,id',
+            'receipt' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $student = auth()->guard('student')->user();
+
+        // Handle file upload
+        $receiptPath = null;
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+            $filename = time() . '_' . $student->id . '.' . $file->getClientOriginalExtension();
+            $receiptPath = $file->storeAs('receipts', $filename, 'public');
+        }
+
+        // Check if subscriber already exists
+        $existingSubscriber = \App\Models\Subscribers::where('student_id', $student->id)
+            ->where('class_id', $request->class_id)
+            ->where('fees_id', $request->fees_id)
+            ->first();
+
+        if ($existingSubscriber) {
+            // Update existing subscriber
+            $existingSubscriber->update([
+                'reciptimage' => $receiptPath,
+                'subscription_date' => now(),
+                'status' => 'pending' // Pending admin verification
+            ]);
+
+            $message = 'Payment receipt updated successfully! Your subscription will be activated after admin verification.';
+        } else {
+            // Create new subscriber record
+            Subscribers::create([
+                'student_id' => $student->id,
+                'class_id' => $request->class_id,
+                'fees_id' => $request->fees_id,
+                'reciptimage' => $receiptPath,
+                'subscription_date' => now(),
+                'expiry_date' => now()->addMonth(),
+                'status' => 'pending' // Pending admin verification
+            ]);
+
+            $message = 'Payment submitted successfully! Your subscription will be activated after admin verification.';
+        }
+
+        return redirect()->route('student.my-class-content', [
+            'classId' => $request->class_id,
+            'subjectId' => $request->subject_id
+        ])->with('success', $message);
     }
 
     public function myChapterVideos($classId, $subjectId, $chapterId)

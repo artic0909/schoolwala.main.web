@@ -139,6 +139,10 @@ Route::prefix('admin')->group(function () {
         Route::delete('/admin-tuition-fees/{id}', [AdminController::class, 'adminTuitionFeesDelete'])->name('admin.admin-tuition-fees.delete');
 
         Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
+        Route::post('/admin/fees/accept/{id}', [AdminController::class, 'acceptFees'])->name('admin.accept-fees');
+        Route::post('/admin/fees/reject/{id}', [AdminController::class, 'rejectFees'])->name('admin.reject-fees');
+        Route::post('/admin/fees/send-invoice/{id}', [AdminController::class, 'sendInvoice'])->name('admin.send-invoice');
+        Route::get('/admin/fees-report/export', [AdminController::class, 'exportFeesReport'])->name('admin.export-fees-report');
         // Students Related Route End ==========================================================================================================================>
 
 
@@ -158,7 +162,7 @@ Route::prefix('admin')->group(function () {
 
 
         // Fees Collection Routes Start =========================================================================================================================>
-        
+
 
 
     });

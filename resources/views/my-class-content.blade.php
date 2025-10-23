@@ -126,7 +126,7 @@
                         // Find subscriber record for this student, class & fees
                         $subscriber = \App\Models\Subscribers::where('student_id', $student->id)
                         ->where('class_id', $class->id)
-                        ->where('fees_id', $chapter->fees_id ?? null)
+                        ->where('status', 'active') // Only get active subscriptions
                         ->first();
                         @endphp
 
