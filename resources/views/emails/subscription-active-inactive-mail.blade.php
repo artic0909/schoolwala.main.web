@@ -228,25 +228,15 @@
                 
                 <div class="detail-row">
                     <span class="detail-label">Activated On:</span>
-                    <span class="detail-value">{{ $subscription_date->format('F j, Y') }}</span>
+                    <span class="detail-value">{{ $subscription_date }}</span>
                 </div>
                 
                 <div class="detail-row">
                     <span class="detail-label">Valid Until:</span>
-                    <span class="detail-value">{{ $expiry_date->format('F j, Y') }}</span>
+                    <span class="detail-value">{{ $expiry_date }}</span>
                 </div>
             </div>
             
-            <div class="next-steps">
-                <h3>🚀 Start Learning Now!</h3>
-                <p>You now have full access to all course materials, videos, quizzes, and assignments.</p>
-                
-                <div style="text-align: center; margin: 20px 0;">
-                    <a href="{{ route('student.my-class-content', ['classId' => $class_id, 'subjectId' => $subject_id]) }}" class="action-button">
-                        🎓 Access Your Class
-                    </a>
-                </div>
-            </div>
             
             <!-- Inactive Status Banner -->
             @elseif($status == 'inactive')
@@ -285,7 +275,7 @@
                 
                 <div class="detail-row">
                     <span class="detail-label">Submission Date:</span>
-                    <span class="detail-value">{{ $subscription_date->format('F j, Y') }}</span>
+                    <span class="detail-value">{{ $subscription_date }}</span>
                 </div>
             </div>
             
@@ -297,15 +287,6 @@
                     <li>Incorrect payment amount</li>
                     <li>Missing transaction details</li>
                 </ul>
-                
-                <div style="text-align: center; margin: 20px 0;">
-                    <a href="{{ route('student.payment.form', ['classId' => $class_id, 'subjectId' => $subject_id]) }}" class="action-button">
-                        🔄 Resubmit Payment
-                    </a>
-                    <a href="mailto:support@schoolwala.info" class="action-button">
-                        📞 Contact Support
-                    </a>
-                </div>
             </div>
             @endif
             
@@ -322,12 +303,7 @@
         </div>
         
         <div class="footer">
-            <div class="footer-links">
-                <a href="https://schoolwala.info">Visit Our Website</a> | 
-                <a href="https://schoolwala.info/help">Help Center</a> | 
-                <a href="https://schoolwala.info/contact">Contact Support</a>
-            </div>
-            <p style="margin-top: 15px; font-size: 14px;">&copy; 2023 Schoolwala. All rights reserved.</p>
+            <p style="margin-top: 15px; font-size: 14px;">&copy; 2025 Schoolwala. All rights reserved.</p>
         </div>
     </div>
 </body>

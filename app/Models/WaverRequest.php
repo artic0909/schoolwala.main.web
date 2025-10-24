@@ -16,6 +16,9 @@ class WaverRequest extends Model
         'email',
         'mobile',
         'address',
+        'mail_status',
+        'status',
+
     ];
 
     public function class()

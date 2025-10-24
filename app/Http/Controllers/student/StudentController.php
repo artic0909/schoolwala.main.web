@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Mail\EnquiryRecieved;
 use App\Mail\EnquirySend;
 use App\Mail\Registration;
+use App\Mail\SubscriptionMail;
+use App\Mail\SubscriptionMailFromStudent;
 use App\Mail\WaiverReceived;
 use App\Models\AboutUs;
 use App\Models\Chapter;
@@ -704,7 +706,7 @@ class StudentController extends Controller
         }
 
         // Check if subscriber already exists
-        $existingSubscriber = \App\Models\Subscribers::where('student_id', $student->id)
+        $existingSubscriber = Subscribers::where('student_id', $student->id)
             ->where('class_id', $request->class_id)
             ->where('fees_id', $request->fees_id)
             ->first();
@@ -727,10 +729,25 @@ class StudentController extends Controller
                 'reciptimage' => $receiptPath,
                 'subscription_date' => now(),
                 'expiry_date' => now()->addMonth(),
-                'status' => 'pending' // Pending admin verification
+                'status' => 'pending'
             ]);
 
             $message = 'Payment submitted successfully! Your subscription will be activated after admin verification.';
+
+            // Send email to admin
+            $fee = \App\Models\Fees::find($request->fees_id);
+            Mail::to('saklindeveloper@gmail.com')
+            ->cc($student->email)
+            ->send(new SubscriptionMailFromStudent([
+                'student_name' => $request->student_name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'class_id' => $request->class_id,
+                'fees_id' => $request->fees_id,
+                'amount' => $fee->amount,
+                'subject_id' => $request->subject_id,
+                'receipt' => $receiptPath
+            ]));
         }
 
         return redirect()->route('student.my-class-content', [

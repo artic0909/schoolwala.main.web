@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\InvoiceMail;
+use App\Mail\SubscriptionActivateInactiveMail;
+use App\Mail\WaiverAcceptMail;
 use App\Mail\WaiverMailBack;
+use App\Mail\WaiverRejectMail;
 use App\Models\AboutUs;
 use App\Models\Admin;
 use App\Models\Chapter;
@@ -21,6 +25,7 @@ use App\Models\Subject;
 use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -1468,6 +1473,7 @@ class AdminController extends Controller
         return view('admin.admin-fees-report', compact('classes', 'subscribers', 'classId', 'fromDate', 'toDate', 'status'));
     }
 
+    // In acceptFees method
     public function acceptFees($id)
     {
         $subscriber = \App\Models\Subscribers::findOrFail($id);
@@ -1477,9 +1483,21 @@ class AdminController extends Controller
             'expiry_date' => now()->addMonth()
         ]);
 
+        // Send acceptance email
+        Mail::to($subscriber->student->email)->send(new SubscriptionActivateInactiveMail([
+            'status' => 'active',
+            'student_name' => $subscriber->student->name,
+            'class_name' => $subscriber->class->name,
+            'class_id' => $subscriber->class_id,
+            'subject_id' => $subscriber->subject_id,
+            'subscription_date' => $subscriber->subscription_date,
+            'expiry_date' => $subscriber->expiry_date
+        ]));
+
         return redirect()->back()->with('success', 'Payment accepted successfully! Student subscription is now active.');
     }
 
+    // In rejectFees method
     public function rejectFees($id)
     {
         $subscriber = \App\Models\Subscribers::findOrFail($id);
@@ -1488,29 +1506,19 @@ class AdminController extends Controller
             'status' => 'inactive'
         ]);
 
+        // Send rejection email
+        Mail::to($subscriber->student->email)->send(new SubscriptionActivateInactiveMail([
+            'status' => 'inactive',
+            'student_name' => $subscriber->student->name,
+            'class_name' => $subscriber->class->name,
+            'class_id' => $subscriber->class_id,
+            'subject_id' => $subscriber->subject_id,
+            'subscription_date' => $subscriber->subscription_date
+        ]));
+
         return redirect()->back()->with('success', 'Payment rejected successfully!');
     }
-
-    public function sendInvoice(Request $request, $id)
-    {
-        $request->validate([
-            'invoice_email' => 'required|email',
-            'invoice_message' => 'nullable|string'
-        ]);
-
-        $subscriber = \App\Models\Subscribers::with(['student', 'class', 'fees'])->findOrFail($id);
-
-        // Here you would typically send an email
-        // For now, we'll just return success
-        // You can integrate Laravel Mail here
-
-        /*
-    Mail::to($request->invoice_email)->send(new InvoiceMail($subscriber, $request->invoice_message));
-    */
-
-        return redirect()->back()->with('success', 'Invoice sent successfully to ' . $request->invoice_email);
-    }
-
+    
     public function exportFeesReport(Request $request)
     {
         $classId = $request->input('class_id');
@@ -1626,7 +1634,6 @@ class AdminController extends Controller
 
     public function adminWaiverMailBack($id)
     {
-
         $waiver = WaverRequest::findOrFail($id);
 
         $data = [
@@ -1636,17 +1643,56 @@ class AdminController extends Controller
             'messageContent' => 'We have reviewed your waiver request and it has been approved!',
         ];
 
+        // Send mail
         Mail::to($waiver->email)->send(new WaiverMailBack($data));
+
+        // Update mail_status after sending mail
+        $waiver->update(['mail_status' => 1]);
 
         return back()->with('success', 'Waiver mail sent successfully to parent!');
     }
 
-    public function adminWaiverAccept(){
 
+    public function adminWaiverAccept(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:4',
+        ]);
+
+        $waiver = WaverRequest::findOrFail($id);
+
+        $data = [
+            'email' => $waiver->email,
+            'p_name' => $waiver->p_name,
+            'c_name' => $waiver->c_name,
+            'class_name' => Classes::find($waiver->class_id)->name ?? 'Unknown Class',
+            'password' => $request->password,
+        ];
+
+        Mail::to($waiver->email)->send(new WaiverAcceptMail($data));
+
+        // Update status after sending mail
+        $waiver->update(['status' => 'accepted']);
+
+        return back()->with('success', 'Waiver acceptance email sent successfully!');
     }
-    
-    public function adminWaiverReject(){
-        
+
+
+    public function adminWaiverReject(Request $request, $id)
+    {
+        $waiver = WaverRequest::findOrFail($id);
+
+        $data = [
+            'p_name' => $waiver->p_name,
+            'c_name' => $waiver->c_name,
+            'email'  => $waiver->email,
+        ];
+
+        Mail::to($waiver->email)->send(new WaiverRejectMail($data));
+
+        $waiver->update(['status' => 'rejected']);
+
+        return back()->with('success', 'Waiver rejection email sent successfully!');
     }
 
     public function adminWaverRequestDelete($id)

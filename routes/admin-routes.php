@@ -141,7 +141,6 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin-fees-report', [AdminController::class, 'adminFeesReportView'])->name('admin.admin-fees-report');
         Route::post('/admin/fees/accept/{id}', [AdminController::class, 'acceptFees'])->name('admin.accept-fees');
         Route::post('/admin/fees/reject/{id}', [AdminController::class, 'rejectFees'])->name('admin.reject-fees');
-        Route::post('/admin/fees/send-invoice/{id}', [AdminController::class, 'sendInvoice'])->name('admin.send-invoice');
         Route::get('/admin/fees-report/export', [AdminController::class, 'exportFeesReport'])->name('admin.export-fees-report');
         // Students Related Route End ==========================================================================================================================>
 
@@ -154,6 +153,10 @@ Route::prefix('admin')->group(function () {
 
         // waiver mail back routes
         Route::get('/admin-waiver-mail-back/{id}', [AdminController::class, 'adminWaiverMailBack'])->name('admin.admin-waiver-mail-back');
+        Route::post('/admin-waiver-accept/{id}', [AdminController::class, 'adminWaiverAccept'])->name('admin.waiver.accept');
+        Route::post('/admin-waiver-reject/{id}', [AdminController::class, 'adminWaiverReject'])->name('admin.waiver.reject');
+
+
 
 
         // Waver Routes End ==========================================================================================================================>

@@ -96,6 +96,8 @@
                   <td>
                     <p class="m-0 p-0 badge bg-label-info">
                       {{ $requestt->created_at->format('d M, Y | h:i A') }}
+                      <br>
+                      <span class="badge bg-accent text-dark">Status: {{ $requestt->status }}</span>
                     </p>
                   </td>
 
@@ -133,11 +135,36 @@
                   </td>
 
                   <td>
+                    @if ($requestt->mail_status == 0)
                     <a href="{{ route('admin.admin-waiver-mail-back', $requestt->id) }}"
                       class="btn btn-info text-white">
                       Mail Back
                     </a>
-                    
+                    @else
+                    <a href="{{ route('admin.admin-waiver-mail-back', $requestt->id) }}"
+                      class="btn btn-warning text-white">
+                      Send Again
+                    </a>
+
+                    @if ($requestt->status == 'pending')
+                    <!-- modal -->
+                    <button
+                      class="btn btn-success text-white" type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#backDropModalAcceptClass{{ $requestt->id }}">
+                      ✔
+                    </button>
+
+                    <!-- modal -->
+                    <button
+                      class="btn btn-danger text-white"
+                      data-bs-toggle="modal"
+                      data-bs-target="#backDropModalRejectClass{{ $requestt->id }}">
+                      X
+                    </button>
+                    @endif
+                    @endif
+
 
                     &nbsp;
                     <button
@@ -274,6 +301,100 @@
           Close
         </button>
         <button type="submit" class="btn btn-danger">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+@endforeach
+
+<!-- Accept Waver Request Modal -->
+@foreach ($waverRequests as $requestt)
+<div
+  class="modal fade"
+  id="backDropModalAcceptClass{{ $requestt->id }}"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="POST" action="{{ route('admin.waiver.accept', $requestt->id) }}">
+      @csrf
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Accept Request
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <div class="form-group">
+              <label for="nameBackdrop">Email</label>
+              <input type="email" name="email" value="{{ $requestt->email }}" class="form-control" placeholder="Enter Waiver Account Email" readonly />
+            </div>
+            <div class="form-group">
+              <label for="nameBackdrop">Password</label>
+              <input type="text" name="password" class="form-control" placeholder="Enter Waiver Account Password" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-success">Accept</button>
+      </div>
+    </form>
+  </div>
+</div>
+@endforeach
+
+<!-- Reject Waver Request Modal -->
+@foreach ($waverRequests as $requestt)
+<div
+  class="modal fade"
+  id="backDropModalRejectClass{{ $requestt->id }}"
+  data-bs-backdrop="static"
+  tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="POST" action="{{ route('admin.waiver.reject', $requestt->id) }}">
+      @csrf
+
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">
+          Reject Request
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <p>
+              Are you sure you want to reject this request
+              <span class="text-danger">{{ $requestt->email }} | {{ $requestt->mobile }}</span>?
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal">
+          Close
+        </button>
+        <button type="submit" class="btn btn-danger">Reject</button>
       </div>
     </form>
   </div>

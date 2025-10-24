@@ -234,14 +234,6 @@
                         </button>
                       </form>
                       @endif
-
-                      <!-- Send Invoice Button -->
-                      <button class="btn btn-sm btn-info"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#invoiceModal{{ $subscriber->id }}">
-                        <i class="bx bx-envelope"></i> Invoice
-                      </button>
                     </div>
                   </td>
                 </tr>
@@ -316,45 +308,6 @@
                   </div>
                 </div>
 
-                <!-- Send Invoice Modal -->
-                <div class="modal fade" id="invoiceModal{{ $subscriber->id }}" tabindex="-1" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <form action="{{ route('admin.send-invoice', $subscriber->id) }}" method="POST">
-                        @csrf
-                        <div class="modal-header">
-                          <h5 class="modal-title">Send Invoice</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                          <div class="mb-3">
-                            <label for="invoice_email{{ $subscriber->id }}" class="form-label">Email Address</label>
-                            <input type="email"
-                              class="form-control"
-                              id="invoice_email{{ $subscriber->id }}"
-                              name="invoice_email"
-                              value="{{ $subscriber->student->email ?? '' }}"
-                              required>
-                          </div>
-                          <div class="mb-3">
-                            <label for="invoice_message{{ $subscriber->id }}" class="form-label">Message (Optional)</label>
-                            <textarea class="form-control"
-                              id="invoice_message{{ $subscriber->id }}"
-                              name="invoice_message"
-                              rows="3"
-                              placeholder="Add a custom message..."></textarea>
-                          </div>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-info">
-                            <i class="bx bx-send"></i> Send Invoice
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
 
                 @empty
                 <tr>
