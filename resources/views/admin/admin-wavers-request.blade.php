@@ -133,9 +133,12 @@
                   </td>
 
                   <td>
-                    <button class="btn btn-info" type="button">
+                    <a href="{{ route('admin.admin-waiver-mail-back', $requestt->id) }}"
+                      class="btn btn-info text-white">
                       Mail Back
-                    </button>
+                    </a>
+                    
+
                     &nbsp;
                     <button
                       class="btn btn-danger"

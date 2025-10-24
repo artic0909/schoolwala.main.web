@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WaiverMailBack;
 use App\Models\AboutUs;
 use App\Models\Admin;
 use App\Models\Chapter;
@@ -27,6 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -1620,6 +1622,31 @@ class AdminController extends Controller
         $waverRequests = WaverRequest::with('class')->orderBy('id', 'desc')->paginate(8);
 
         return view('admin.admin-wavers-request', compact('waverRequests'));
+    }
+
+    public function adminWaiverMailBack($id)
+    {
+
+        $waiver = WaverRequest::findOrFail($id);
+
+        $data = [
+            'p_name' => $waiver->p_name,
+            'c_name' => $waiver->c_name,
+            'email' => $waiver->email,
+            'messageContent' => 'We have reviewed your waiver request and it has been approved!',
+        ];
+
+        Mail::to($waiver->email)->send(new WaiverMailBack($data));
+
+        return back()->with('success', 'Waiver mail sent successfully to parent!');
+    }
+
+    public function adminWaiverAccept(){
+
+    }
+    
+    public function adminWaiverReject(){
+        
     }
 
     public function adminWaverRequestDelete($id)

@@ -151,6 +151,11 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin-waver-profiles', [AdminController::class, 'adminWaverProfilesView'])->name('admin.admin-waver-profiles');
         Route::get('/admin-wavers-request', [AdminController::class, 'adminWaverRequestView'])->name('admin.admin-wavers-request');
         Route::delete('/admin-wavers-request/delete/{id}', [AdminController::class, 'adminWaverRequestDelete'])->name('admin.admin-wavers-request.delete');
+
+        // waiver mail back routes
+        Route::get('/admin-waiver-mail-back/{id}', [AdminController::class, 'adminWaiverMailBack'])->name('admin.admin-waiver-mail-back');
+
+
         // Waver Routes End ==========================================================================================================================>
 
 

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Additional Information Request - Schoolwala</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #f9f6ff;
+            color: #5a4a7a;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8a6de9 0%, #6c5ce7 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom-left-radius: 50% 20%;
+            border-bottom-right-radius: 50% 20%;
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #e6e1ff;
+            font-size: 18px;
+            margin: 0;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .title {
+            text-align: center;
+            color: #6c5ce7;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: #6c5ce7;
+            margin-bottom: 20px;
+        }
+        
+        .message-box {
+            background-color: #f0edff;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .info-request {
+            background-color: #fff9e6;
+            border: 2px dashed #ff9f43;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-request h3 {
+            color: #ff9f43;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-request h3 .icon {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: white;
+            border-radius: 10px;
+            border-left: 4px solid #6c5ce7;
+        }
+        
+        .info-item .label {
+            font-weight: bold;
+            color: #6c5ce7;
+            margin-bottom: 5px;
+        }
+        
+        .info-item .description {
+            font-size: 14px;
+            color: #5a4a7a;
+            margin-top: 5px;
+        }
+        
+        .response-options {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #e6f7ff;
+            border-radius: 15px;
+        }
+        
+        .response-button {
+            display: inline-block;
+            background-color: #ff9f43;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 10px rgba(255, 159, 67, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .response-button:hover {
+            background-color: #ffaf60;
+            transform: translateY(-3px);
+        }
+        
+        .assurance {
+            text-align: center;
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f0fff0;
+            border-radius: 10px;
+            border: 1px solid #a0e0a0;
+        }
+        
+        .contact-info {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f0edff;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .footer {
+            background-color: #6c5ce7;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-top-left-radius: 50% 20%;
+            border-top-right-radius: 50% 20%;
+        }
+        
+        .footer-links a {
+            color: #e6e1ff;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">Schoolwala</div>
+            <p class="tagline">Your Free Education Access Request</p>
+        </div>
+        
+        <div class="content">
+            <h2 class="title">🌟 Additional Information Request 🌟</h2>
+            
+            <div class="greeting">
+                Dear {{ $p_name }},
+            </div>
+            
+            <div class="message-box">
+                <p>Thank you for your interest in Schoolwala's free education program for <strong>{{ $c_name }}</strong>!</p>
+                
+                <p>We've received your waiver application and we're genuinely impressed by your commitment to your child's education.</p>
+                
+                <p>To help us better understand your situation and fairly evaluate your request for free access to our educational portal, we kindly ask you to provide some additional information about your family circumstances.</p>
+            </div>
+            
+            <div class="info-request">
+                <h3>
+                    <span class="icon">📋</span>
+                    Information We Need
+                </h3>
+                
+                <p>Please help us understand your situation by providing details about:</p>
+                
+                <div class="info-item">
+                    <div class="label">👨‍👩‍👧‍👦 Family Composition</div>
+                    <p>Number of family members, ages of children, and anyone dependent on your income</p>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">💼 Employment & Income Status</div>
+                    <p>Current employment situation of parents/guardians and approximate monthly household income</p>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">🏠 Living Situation</div>
+                    <p>Type of housing, ownership/rental status, and any special circumstances</p>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">🎓 Educational Background</div>
+                    <p>Parents' education levels and any special educational needs for your children</p>
+                </div>
+                
+                <div class="info-item">
+                    <div class="label">💝 Special Circumstances</div>
+                    <p>Any challenges your family is facing that we should consider (health issues, single-parent household, recent job loss, etc.)</p>
+                </div>
+            </div>
+            
+            <div class="response-options">
+                <h3 style="color: #6c5ce7; margin-top: 0;">How to Respond</h3>
+                <p>You can provide this information by:</p>
+                
+                <div style="margin: 20px 0;">
+                    <a href="mailto:saklindeveloper@gmail.com" class="response-button">
+                        📧 Email Us Directly
+                    </a>
+                </div>
+                
+                <p style="font-size: 14px; margin-top: 15px;">
+                    <strong>Deadline:</strong> Please respond within 7 days to ensure your application is considered
+                </p>
+            </div>
+            
+            <div class="assurance">
+                <h3 style="color: #4CAF50; margin-top: 0;">🔒 Your Privacy Matters</h3>
+                <p>All information you provide will be kept strictly confidential and used solely for evaluating your waiver request. We understand this is sensitive information and we treat it with the utmost respect and discretion.</p>
+            </div>
+            
+            <div class="contact-info">
+                <p><strong>Need help or have questions?</strong></p>
+                <p>📞 Call us: (123) 456-7890 | 📧 Email: waivers@schoolwala.info</p>
+                <p>Our friendly team is here to assist you through this process!</p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <p>We believe every child deserves quality education, and we're committed to helping families like yours.</p>
+                <p style="color: #6c5ce7; font-weight: bold;">The Schoolwala Team 🌈</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-links">
+                <a href="www.schoolwala.info">Website</a> | 
+                <a href="www.schoolwala.info">Privacy Policy</a> | 
+                <a href="www.schoolwala.info">Contact Us</a>
+            </div>
+            <p style="margin-top: 15px; font-size: 14px;">&copy; 2025 Schoolwala. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

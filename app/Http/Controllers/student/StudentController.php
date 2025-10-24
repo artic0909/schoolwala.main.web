@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\student;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EnquiryRecieved;
+use App\Mail\EnquirySend;
+use App\Mail\Registration;
+use App\Mail\WaiverReceived;
 use App\Models\AboutUs;
 use App\Models\Chapter;
 use App\Models\Classes;
@@ -254,7 +258,7 @@ class StudentController extends Controller
             $studentId = "{$year}-{$prefix}-{$className}-{$nextNumber}";
 
             // ----- CREATE STUDENT -----
-            Student::create([
+            $student = Student::create([
                 'class_id'     => $request->class_id,
                 'student_id'   => $studentId,
                 'student_name' => $request->student_name,
@@ -264,6 +268,10 @@ class StudentController extends Controller
                 'age'          => $request->age,
                 'password'     => Hash::make($request->password),
             ]);
+
+            // MAIL TO STUDENT
+            Mail::to($student->email)->send(new Registration($student));
+
 
             return redirect()->route('student.student-login')
                 ->with('success', 'Student registered successfully!');
@@ -478,6 +486,13 @@ class StudentController extends Controller
 
             ContactUs::create($validated);
 
+            // Mail to admin
+            Mail::to('saklindeveloper@gmail.com')->send(new EnquirySend($validated));
+
+            // Mail to email
+            Mail::to($validated['email'])->send(new EnquiryRecieved($validated));
+
+
             return back()->with('success', 'Your message has been sent successfully!');
         } catch (\Exception $e) {
             return back()->with('error', 'Something went wrong. Please try again later.');
@@ -499,6 +514,9 @@ class StudentController extends Controller
             ]);
 
             WaverRequest::create($validated);
+            // Mail to admin
+            Mail::to('saklindeveloper@gmail.com')->send(new WaiverReceived($validated));
+            
             return back()->with('success', 'Your waiver request has been submitted successfully!');
         } catch (\Exception $e) {
 
@@ -627,7 +645,7 @@ class StudentController extends Controller
 
         return view('my-class-content', compact('class', 'subject', 'profile'));
     }
-    
+
     public function myPayment($classId, $subjectId, $chapterId = null)
     {
         $student = auth()->guard('student')->user();
