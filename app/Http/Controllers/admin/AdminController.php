@@ -901,7 +901,7 @@ class AdminController extends Controller
             $request->validate([
                 'class_id'   => 'required|exists:classes,id',
                 'subject_id' => 'required|exists:subjects,id',
-                'name'       => 'required|string|max:255|unique:chapters,name',
+                'name'       => 'required|string|max:255',
             ]);
 
             $chapter = new Chapter();
@@ -923,7 +923,7 @@ class AdminController extends Controller
             $request->validate([
                 'class_id'   => 'required|exists:classes,id',
                 'subject_id' => 'required|exists:subjects,id',
-                'name'       => 'required|string|max:255|unique:chapters,name,' . $id,
+                'name'       => 'required|string|max:255',
             ]);
 
             $chapter = Chapter::findOrFail($id);
