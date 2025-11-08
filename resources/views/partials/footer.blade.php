@@ -39,7 +39,7 @@
             </div>
             <div>
               <div class="brand-name">Schoolwala</div>
-              <div class="tagline">Making learning delightful</div>
+              <div class="tagline">Education For All</div>
             </div>
           </div>
 

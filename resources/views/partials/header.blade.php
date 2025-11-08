@@ -11,7 +11,7 @@ $currentRoute = request()->path();
       </div>
       <div>
         <div class="brand-name">Schoolwala</div>
-        <small>Fun tuition for curious kids</small>
+        <small>Education For All</small>
       </div>
     </a>
 
