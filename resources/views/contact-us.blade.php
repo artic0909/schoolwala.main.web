@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contact Us - Fun Learning for Kids')
+@section('title', 'Contact Us - FEducation For All')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/about-us.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/contact.css') }}" />
