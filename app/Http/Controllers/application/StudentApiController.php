@@ -18,7 +18,7 @@ class StudentApiController extends AppController
     public function getProfile(Request $request)
     {
         $student = $request->user();
-        
+
         $profile = StudentProfile::firstOrCreate(
             ['student_id' => $student->id],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
@@ -39,7 +39,7 @@ class StudentApiController extends AppController
     public function updateProfile(Request $request)
     {
         $student = $request->user();
-        
+
         // Handle basic info update
         if ($request->has('student_name')) {
             $student->student_name = $request->student_name;
@@ -48,7 +48,7 @@ class StudentApiController extends AppController
 
         // Handle Profile Image/Icon
         $profile = StudentProfile::firstOrCreate(['student_id' => $student->id]);
-        
+
         if ($request->hasFile('profile_image')) {
             $path = $request->file('profile_image')->store('profile_images', 'public');
             $profile->profile_image = $path;
@@ -95,10 +95,10 @@ class StudentApiController extends AppController
     public function getMyClass(Request $request)
     {
         $student = $request->user();
-        $class = Classes::with(['subjects'])->find($student->class_id);
+        $class = Classes::with(['subjects', 'fees'])->find($student->class_id);
 
         if (!$class) {
-             return $this->sendError('Class not found assigned to student.', [], 404);
+            return $this->sendError('Class not found assigned to student.', [], 404);
         }
 
         return $this->sendResponse($class, 'Class curriculum retrieved.');
@@ -109,9 +109,11 @@ class StudentApiController extends AppController
      */
     public function getSubjectChapters($subjectId)
     {
-        $subject = \App\Models\Subject::with(['chapters' => function($q) {
-            $q->withCount('videos');
-        }])->find($subjectId);
+        $subject = \App\Models\Subject::with([
+            'chapters' => function ($q) {
+                $q->withCount('videos');
+            }
+        ])->find($subjectId);
 
         if (!$subject) {
             return $this->sendError('Subject not found.', [], 404);
@@ -171,7 +173,7 @@ class StudentApiController extends AppController
     {
         $request->validate([
             'email' => 'required|email',
-            'otp'   => 'required|digits:6',
+            'otp' => 'required|digits:6',
         ]);
 
         $record = \App\Models\PasswordReset::where('email', $request->email)
@@ -195,8 +197,8 @@ class StudentApiController extends AppController
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
-            'otp'      => 'required|digits:6',
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
@@ -206,7 +208,7 @@ class StudentApiController extends AppController
             ->first();
 
         if (!$record || $record->expires_at->isPast()) {
-             return $this->sendError('Invalid or expired OTP.', [], 400);
+            return $this->sendError('Invalid or expired OTP.', [], 400);
         }
 
         $student = \App\Models\Student::where('email', $request->email)->firstOrFail();
@@ -253,17 +255,17 @@ class StudentApiController extends AppController
         try {
             $validated = $request->validate([
                 'class_id' => 'required|exists:classes,id',
-                'p_name'   => 'required|string|max:255',
-                'c_name'   => 'required|string|max:255',
-                'c_age'    => 'required|integer',
-                'email'    => 'required|email|max:255',
-                'mobile'   => 'required|string|max:15',
-                'address'  => 'required|string',
+                'p_name' => 'required|string|max:255',
+                'c_name' => 'required|string|max:255',
+                'c_age' => 'required|integer',
+                'email' => 'required|email|max:255',
+                'mobile' => 'required|string|max:15',
+                'address' => 'required|string',
             ]);
 
             \App\Models\WaverRequest::create($validated);
             Mail::to('saklindeveloper@gmail.com')->send(new \App\Mail\WaiverReceived($validated));
-            
+
             return $this->sendResponse([], 'Your waiver request has been submitted successfully!');
         } catch (\Exception $e) {
             return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
@@ -324,17 +326,17 @@ class StudentApiController extends AppController
 
             $fee = \App\Models\Fees::find($request->fees_id);
             Mail::to('saklindeveloper@gmail.com')
-            ->cc($student->email)
-            ->send(new \App\Mail\SubscriptionMailFromStudent([
-                'student_name' => $request->student_name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'class_id' => $request->class_id,
-                'fees_id' => $request->fees_id,
-                'amount' => $fee->amount,
-                'subject_id' => $request->subject_id,
-                'receipt' => $receiptPath
-            ]));
+                ->cc($student->email)
+                ->send(new \App\Mail\SubscriptionMailFromStudent([
+                    'student_name' => $request->student_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'class_id' => $request->class_id,
+                    'fees_id' => $request->fees_id,
+                    'amount' => $fee->amount,
+                    'subject_id' => $request->subject_id,
+                    'receipt' => $receiptPath
+                ]));
         }
 
         return $this->sendResponse([], $message);
@@ -350,7 +352,7 @@ class StudentApiController extends AppController
     public function getVideoDetails($chapterId, $videoId)
     {
         $video = \App\Models\Video::where('chapter_id', $chapterId)->findOrFail($videoId);
-        
+
         $feedbacks = Feedback::where('video_id', $videoId)
             ->with('student')
             ->orderBy('id', 'desc')
@@ -368,7 +370,7 @@ class StudentApiController extends AppController
     public function likeVideo(Request $request)
     {
         $request->validate(['video_id' => 'required|integer|exists:videos,id']);
-        
+
         $video = \App\Models\Video::findOrFail($request->video_id);
         $video->increment('likes');
 
@@ -411,8 +413,9 @@ class StudentApiController extends AppController
         $student = request()->user();
 
         // Helper to safe decode JSON
-        $forceJson = function($data) {
-            if (is_string($data)) return json_decode($data, true);
+        $forceJson = function ($data) {
+            if (is_string($data))
+                return json_decode($data, true);
             return $data;
         };
 
@@ -424,11 +427,13 @@ class StudentApiController extends AppController
         }
 
         foreach ($answers as &$ans) {
-           if (is_string($ans)) {
-               $decoded = json_decode($ans, true);
-               if (json_last_error() === JSON_ERROR_NONE) $ans = $decoded;
-               else $ans = array_map('trim', explode(',', $ans));
-           }
+            if (is_string($ans)) {
+                $decoded = json_decode($ans, true);
+                if (json_last_error() === JSON_ERROR_NONE)
+                    $ans = $decoded;
+                else
+                    $ans = array_map('trim', explode(',', $ans));
+            }
         }
 
         $submittedTest = \App\Models\StudentTest::where('student_id', $student->id)

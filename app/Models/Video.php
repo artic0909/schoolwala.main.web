@@ -31,11 +31,26 @@ class Video extends Model
     ];
 
     // Cast JSON fields to array automatically
+    // Cast JSON fields to array automatically
     protected $casts = [
         'questions' => 'array',
         'answers' => 'array',
         'correct_answers' => 'array',
+        'has_notes' => 'boolean',
+        'has_practice_test' => 'boolean',
     ];
+
+    protected $appends = ['has_notes', 'has_practice_test'];
+
+    public function getHasNotesAttribute()
+    {
+        return !empty($this->note_link);
+    }
+
+    public function getHasPracticeTestAttribute()
+    {
+        return !empty($this->questions) && count($this->questions) > 0;
+    }
 
     // Relationships
     public function class()
