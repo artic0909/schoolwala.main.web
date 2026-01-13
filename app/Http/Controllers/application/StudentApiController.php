@@ -9,6 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Student;
+use App\Models\Subject;
+use App\Models\Chapter;
+use App\Models\Video;
+use App\Models\Subscribers;
+use App\Models\Fees;
+use App\Models\ContactUs;
+use App\Models\WaverRequest;
+use App\Models\PasswordReset;
+use App\Models\StudentTest;
+use App\Mail\EnquirySend;
+use App\Mail\EnquiryRecieved;
+use App\Mail\WaiverReceived;
+use App\Mail\SubscriptionMailFromStudent;
 
 class StudentApiController extends AppController
 {
@@ -157,12 +170,45 @@ class StudentApiController extends AppController
     /**
      * Get Chapter Videos.
      */
-    public function getChapterVideos($chapterId)
+    /**
+     * Get Chapter Videos.
+     */
+    public function getChapterVideos(Request $request, $chapterId)
     {
+        $student = $request->user();
         $chapter = \App\Models\Chapter::with('videos')->find($chapterId);
 
         if (!$chapter) {
             return $this->sendError('Chapter not found.', [], 404);
+        }
+
+        // Determine if locked
+        // 1. Get all chapters for this subject to determine index
+        // Or simpler: We need to know if it's the first chapter. 
+        // Let's fetch the subject's chapters sorted by ID (or whatever default sort is) and find the index.
+        // Assuming ID sort for now as per `getSubjectChapters`.
+
+        $subject = \App\Models\Subject::with('chapters')->find($chapter->subject_id);
+        $chapters = $subject->chapters;
+        $chapterIndex = $chapters->search(function ($item) use ($chapterId) {
+            return $item->id == $chapterId;
+        });
+
+        // 2. Check subscription
+        $hasSubscription = \App\Models\Subscribers::where('student_id', $student->id)
+            ->where('class_id', $chapter->class_id) // Defaulting to chapter's class_id
+            ->where('status', 'approved')
+            ->where(function ($query) {
+                $query->whereNull('expiry_date')
+                    ->orWhere('expiry_date', '>=', now());
+            })
+            ->exists();
+
+        // 3. Enforce Lock
+        if ($chapterIndex !== 0 && !$hasSubscription) {
+            // Access Denied
+            // We can return a specific error code or empty videos
+            return $this->sendError('Access to this chapter is locked. Please upgrade to premium.', ['is_locked' => true], 403);
         }
 
         return $this->sendResponse($chapter, 'Chapter videos retrieved.');
