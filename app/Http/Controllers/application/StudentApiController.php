@@ -109,7 +109,9 @@ class StudentApiController extends AppController
      */
     public function getSubjectChapters($subjectId)
     {
-        $subject = \App\Models\Subject::with('chapters')->find($subjectId);
+        $subject = \App\Models\Subject::with(['chapters' => function($q) {
+            $q->withCount('videos');
+        }])->find($subjectId);
 
         if (!$subject) {
             return $this->sendError('Subject not found.', [], 404);
