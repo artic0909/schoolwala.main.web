@@ -223,12 +223,12 @@ class AdminController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'name'              => 'required|string|max:255',
-            'email'             => 'required|email|unique:faculties,email',
-            'mobile'            => 'required|string|max:15',
-            'image'             => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'about_fac'         => 'nullable|string',
-            'assigned_classes'  => 'required|array',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:faculties,email',
+            'mobile' => 'required|string|max:15',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'about_fac' => 'nullable|string',
+            'assigned_classes' => 'required|array',
             'assigned_classes.*' => 'exists:classes,id',
         ]);
 
@@ -242,7 +242,7 @@ class AdminController extends Controller
         try {
 
             $month = date('m');
-            $year  = date('y');
+            $year = date('y');
             $prefix = "{$month}{$year}-SW-FAC-";
 
 
@@ -266,12 +266,12 @@ class AdminController extends Controller
             }
 
             Faculty::create([
-                'fac_id'           => $facId,
-                'name'             => $request->name,
-                'email'            => $request->email,
-                'mobile'           => $request->mobile,
-                'about_fac'        => $request->about_fac,
-                'image'            => $imagePath,
+                'fac_id' => $facId,
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                'about_fac' => $request->about_fac,
+                'image' => $imagePath,
                 'assigned_classes' => $request->assigned_classes,
             ]);
 
@@ -548,19 +548,19 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'     => 'required|exists:classes,id',
+                'class_id' => 'required|exists:classes,id',
                 'story_tag_id' => 'required|exists:story_tags,id',
-                'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-                'name'         => 'required|string',
-                'feedback'     => 'required|string',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+                'name' => 'required|string',
+                'feedback' => 'required|string',
             ]);
 
             $story = Story::findOrFail($id);
 
-            $story->class_id     = $request->class_id;
+            $story->class_id = $request->class_id;
             $story->story_tag_id = $request->story_tag_id;
-            $story->name         = $request->name;
-            $story->feedback     = $request->feedback;
+            $story->name = $request->name;
+            $story->feedback = $request->feedback;
 
             // handle image upload
             if ($request->hasFile('image')) {
@@ -570,7 +570,7 @@ class AdminController extends Controller
                 }
 
                 // store new file
-                $imagePath   = $request->file('image')->store('stories', 'public');
+                $imagePath = $request->file('image')->store('stories', 'public');
                 $story->image = $imagePath;
             }
 
@@ -614,13 +614,13 @@ class AdminController extends Controller
         try {
             $request->validate([
                 'question' => 'required|string|max:500',
-                'answer'   => 'required|string',
+                'answer' => 'required|string',
             ]);
 
             $faq = new FAQ();
             $faq->question = $request->question;
-            $faq->answer   = $request->answer;
-            $faq->slug     = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
+            $faq->answer = $request->answer;
+            $faq->slug = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
             $faq->save();
 
             return redirect()->route('admin.admin-faq')
@@ -636,13 +636,13 @@ class AdminController extends Controller
         try {
             $request->validate([
                 'question' => 'required|string|max:500',
-                'answer'   => 'required|string',
+                'answer' => 'required|string',
             ]);
 
             $faq = FAQ::findOrFail($id);
             $faq->question = $request->question;
-            $faq->answer   = $request->answer;
-            $faq->slug     = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
+            $faq->answer = $request->answer;
+            $faq->slug = Str::slug(substr($request->question, 0, 50)) . '-' . uniqid();
             $faq->save();
 
             return redirect()->route('admin.admin-faq')
@@ -753,15 +753,15 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'  => 'required|exists:classes,id',
-                'question'  => 'required|string|max:500',
-                'answer'    => 'required|string|max:2000',
+                'class_id' => 'required|exists:classes,id',
+                'question' => 'required|string|max:500',
+                'answer' => 'required|string|max:2000',
             ]);
 
             $faq = new ClassFAQ();
             $faq->class_id = $request->class_id;
             $faq->question = $request->question;
-            $faq->answer   = $request->answer;
+            $faq->answer = $request->answer;
             $faq->save();
 
             return redirect()->back()->with('success', 'FAQ added successfully!');
@@ -774,15 +774,15 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'  => 'required|exists:classes,id',
-                'question'  => 'required|string|max:500',
-                'answer'    => 'required|string|max:2000',
+                'class_id' => 'required|exists:classes,id',
+                'question' => 'required|string|max:500',
+                'answer' => 'required|string|max:2000',
             ]);
 
             $faq = ClassFAQ::findOrFail($id);
             $faq->class_id = $request->class_id;
             $faq->question = $request->question;
-            $faq->answer   = $request->answer;
+            $faq->answer = $request->answer;
             $faq->save();
 
             return redirect()->back()->with('success', 'FAQ updated successfully!');
@@ -819,18 +819,18 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'     => 'required|exists:classes,id',
-                'name'         => 'required|string|max:255',
+                'class_id' => 'required|exists:classes,id',
+                'name' => 'required|string|max:255',
                 'bg_color_txt' => 'required|string|max:50',
-                'icon_txt'     => 'required|string|max:100',
+                'icon_txt' => 'required|string|max:100',
             ]);
 
             $subject = new Subject();
-            $subject->class_id     = $request->class_id;
-            $subject->name         = $request->name;
+            $subject->class_id = $request->class_id;
+            $subject->name = $request->name;
             $subject->bg_color_txt = $request->bg_color_txt;
-            $subject->icon_txt     = $request->icon_txt;
-            $subject->slug         = Str::slug($request->name);
+            $subject->icon_txt = $request->icon_txt;
+            $subject->slug = Str::slug($request->name);
             $subject->save();
 
             return redirect()->back()->with('success', 'Subject added successfully!');
@@ -843,18 +843,18 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'     => 'required|exists:classes,id',
-                'name'         => 'required|string|max:255',
+                'class_id' => 'required|exists:classes,id',
+                'name' => 'required|string|max:255',
                 'bg_color_txt' => 'required|string|max:50',
-                'icon_txt'     => 'required|string|max:100',
+                'icon_txt' => 'required|string|max:100',
             ]);
 
             $subject = Subject::findOrFail($id);
-            $subject->class_id     = $request->class_id;
-            $subject->name         = $request->name;
+            $subject->class_id = $request->class_id;
+            $subject->name = $request->name;
             $subject->bg_color_txt = $request->bg_color_txt;
-            $subject->icon_txt     = $request->icon_txt;
-            $subject->slug         = Str::slug($request->name);
+            $subject->icon_txt = $request->icon_txt;
+            $subject->slug = Str::slug($request->name);
             $subject->save();
 
             return redirect()->back()->with('success', 'Subject updated successfully!');
@@ -899,16 +899,16 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'   => 'required|exists:classes,id',
+                'class_id' => 'required|exists:classes,id',
                 'subject_id' => 'required|exists:subjects,id',
-                'name'       => 'required|string|max:255',
+                'name' => 'required|string|max:255',
             ]);
 
             $chapter = new Chapter();
-            $chapter->class_id   = $request->class_id;
+            $chapter->class_id = $request->class_id;
             $chapter->subject_id = $request->subject_id;
-            $chapter->name       = $request->name;
-            $chapter->slug       = Str::slug($request->name);
+            $chapter->name = $request->name;
+            $chapter->slug = Str::slug($request->name);
             $chapter->save();
 
             return redirect()->back()->with('success', 'Chapter added successfully!');
@@ -921,16 +921,16 @@ class AdminController extends Controller
     {
         try {
             $request->validate([
-                'class_id'   => 'required|exists:classes,id',
+                'class_id' => 'required|exists:classes,id',
                 'subject_id' => 'required|exists:subjects,id',
-                'name'       => 'required|string|max:255',
+                'name' => 'required|string|max:255',
             ]);
 
             $chapter = Chapter::findOrFail($id);
-            $chapter->class_id   = $request->class_id;
+            $chapter->class_id = $request->class_id;
             $chapter->subject_id = $request->subject_id;
-            $chapter->name       = $request->name;
-            $chapter->slug       = Str::slug($request->name);
+            $chapter->name = $request->name;
+            $chapter->slug = Str::slug($request->name);
             $chapter->save();
 
             return redirect()->back()->with('success', 'Chapter updated successfully!');
@@ -1095,9 +1095,9 @@ class AdminController extends Controller
     {
         // Validate
         $request->validate([
-            'questions'        => 'array',
-            'answers'          => 'array',
-            'correct_answers'  => 'array',
+            'questions' => 'array',
+            'answers' => 'array',
+            'correct_answers' => 'array',
         ]);
 
         // Find video
@@ -1109,9 +1109,9 @@ class AdminController extends Controller
         $correct = array_filter($request->correct_answers ?? []);
 
         // Save as JSON
-        $video->questions        = json_encode(array_values($questions));
-        $video->answers          = json_encode(array_values($answers));
-        $video->correct_answers  = json_encode(array_values($correct));
+        $video->questions = json_encode(array_values($questions));
+        $video->answers = json_encode(array_values($answers));
+        $video->correct_answers = json_encode(array_values($correct));
 
         $video->save();
 
@@ -1189,7 +1189,7 @@ class AdminController extends Controller
             ]);
 
             // ----- AUTO GENERATE STUDENT ID -----
-            $year   = date('y'); // e.g., "25" for 2025
+            $year = date('y'); // e.g., "25" for 2025
             $prefix = "SW";
 
             // Get class name (e.g., "Class 8" → "CLASS8")
@@ -1250,7 +1250,7 @@ class AdminController extends Controller
             // Check if class_id changed
             if ($student->class_id != $request->class_id) {
                 // ----- AUTO GENERATE STUDENT ID ----- 
-                $year   = date('y'); // e.g., "25" for 2025
+                $year = date('y'); // e.g., "25" for 2025
                 $prefix = "SW";
 
                 $class = Classes::findOrFail($request->class_id);
@@ -1355,68 +1355,68 @@ class AdminController extends Controller
 
     public function adminTuitionFeesAdd(Request $request)
     {
-        try {
-            $request->validate([
-                'class_id' => 'required|exists:classes,id',
-                'amount' => 'required|numeric',
-                'qrimage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'amount' => 'required|numeric',
+            'qrimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-            $qrimagePath = null;
+        $qrimagePath = null;
 
-            // Handle QR image upload
-            if ($request->hasFile('qrimage')) {
-                $file = $request->file('qrimage');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/fees_qr'), $filename);
-                $qrimagePath = 'uploads/fees_qr/' . $filename;
-            }
+        if ($request->hasFile('qrimage')) {
+            $file = $request->file('qrimage');
 
-            Fees::create([
-                'class_id' => $request->class_id,
-                'amount' => $request->amount,
-                'qrimage' => $qrimagePath,
-            ]);
+            $filename = time() . '.' . $file->getClientOriginalExtension();
 
-            return redirect()->back()->with('success', 'Tuition fees added successfully!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+            // public/fees_qr folder e store
+            $file->move(public_path('fees_qr'), $filename);
+
+            // DB te SHORT path
+            $qrimagePath = 'fees_qr/' . $filename;
         }
+
+        Fees::create([
+            'class_id' => $request->class_id,
+            'amount' => $request->amount,
+            'qrimage' => $qrimagePath,
+        ]);
+
+        return back()->with('success', 'Fees added successfully');
     }
+
 
     public function adminTuitionFeesUpdate(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'class_id' => 'required|exists:classes,id',
-                'amount' => 'required|numeric',
-                'qrimage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'amount' => 'required|numeric',
+            'qrimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-            $fees = Fees::findOrFail($id);
+        $fees = Fees::findOrFail($id);
 
-            // Handle QR image update
-            if ($request->hasFile('qrimage')) {
-                // Delete old image if it exists
-                if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
-                    unlink(public_path($fees->qrimage));
-                }
+        if ($request->hasFile('qrimage')) {
 
-                $file = $request->file('qrimage');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('uploads/fees_qr'), $filename);
-                $fees->qrimage = 'uploads/fees_qr/' . $filename;
+            // old image delete
+            if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
+                unlink(public_path($fees->qrimage));
             }
 
-            $fees->class_id = $request->class_id;
-            $fees->amount = $request->amount;
-            $fees->save();
+            $file = $request->file('qrimage');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
 
-            return redirect()->back()->with('success', 'Tuition fees updated successfully!');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
+            $file->move(public_path('fees_qr'), $filename);
+
+            $fees->qrimage = 'fees_qr/' . $filename;
         }
+
+        $fees->class_id = $request->class_id;
+        $fees->amount = $request->amount;
+        $fees->save();
+
+        return back()->with('success', 'Fees updated successfully');
     }
+
 
     public function adminTuitionFeesDelete($id)
     {
@@ -1518,7 +1518,7 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Payment rejected successfully!');
     }
-    
+
     public function exportFeesReport(Request $request)
     {
         $classId = $request->input('class_id');
@@ -1685,7 +1685,7 @@ class AdminController extends Controller
         $data = [
             'p_name' => $waiver->p_name,
             'c_name' => $waiver->c_name,
-            'email'  => $waiver->email,
+            'email' => $waiver->email,
         ];
 
         Mail::to($waiver->email)->send(new WaiverRejectMail($data));
