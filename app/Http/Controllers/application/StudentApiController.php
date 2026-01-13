@@ -25,6 +25,25 @@ use App\Mail\SubscriptionMailFromStudent;
 
 class StudentApiController extends AppController
 {
+    // ===============================================================================================
+    // HELPER: Check if student has active subscription for a class
+    // ===============================================================================================
+    private function hasActiveSubscription($studentId, $classId)
+    {
+        return Subscribers::where('student_id', $studentId)
+            ->where('class_id', $classId)
+            ->where('status', 'approved')
+            ->where(function ($query) {
+                $query->whereNull('expiry_date')
+                    ->orWhere('expiry_date', '>=', now());
+            })
+            ->exists();
+    }
+
+    // ===============================================================================================
+    // PROFILE & AUTHENTICATION
+    // ===============================================================================================
+
     /**
      * Get Student Profile.
      */
@@ -53,13 +72,11 @@ class StudentApiController extends AppController
     {
         $student = $request->user();
 
-        // Handle basic info update
         if ($request->has('student_name')) {
             $student->student_name = $request->student_name;
             $student->save();
         }
 
-        // Handle Profile Image/Icon
         $profile = StudentProfile::firstOrCreate(['student_id' => $student->id]);
 
         if ($request->hasFile('profile_image')) {
@@ -102,322 +119,148 @@ class StudentApiController extends AppController
         return $this->sendResponse([], 'Password changed successfully.');
     }
 
+    // ===============================================================================================
+    // CLASS → SUBJECTS → CHAPTERS → VIDEOS HIERARCHY
+    // ===============================================================================================
+
     /**
-     * Get My Class Content (Subjects).
+     * Get My Class with Subjects (Class-wise structure).
+     * Returns the student's registered class with all subjects.
      */
     public function getMyClass(Request $request)
     {
         $student = $request->user();
-        $class = Classes::with(['subjects', 'fees'])->find($student->class_id);
+        
+        $class = Classes::with(['subjects' => function($query) {
+            $query->withCount('chapters');
+        }, 'fees'])
+        ->find($student->class_id);
 
         if (!$class) {
             return $this->sendError('Class not found assigned to student.', [], 404);
         }
 
-        return $this->sendResponse($class, 'Class curriculum retrieved.');
+        // Check if student has active subscription
+        $hasSubscription = $this->hasActiveSubscription($student->id, $class->id);
+
+        // Add subscription status to response
+        $class->has_active_subscription = $hasSubscription;
+
+        return $this->sendResponse($class, 'Class with subjects retrieved successfully.');
     }
 
     /**
-     * Get Chapters for a Subject.
-     */
-    /**
-     * Get Chapters for a Subject with Lock Status.
+     * Get Subject with Chapters (Subject-wise structure).
+     * Shows all chapters for a subject with lock status.
+     * First chapter is always FREE, rest require subscription.
      */
     public function getSubjectChapters(Request $request, $subjectId)
     {
         $student = $request->user();
 
-        $subject = \App\Models\Subject::with([
-            'chapters' => function ($q) {
-                $q->withCount('videos');
-            }
-        ])->find($subjectId);
+        $subject = Subject::with(['chapters' => function ($q) {
+            $q->withCount('videos')->orderBy('id', 'asc');
+        }])->find($subjectId);
 
         if (!$subject) {
             return $this->sendError('Subject not found.', [], 404);
         }
 
         // Check for active subscription
-        // Assuming subscription is for the class containing this subject
-        // We check if there is an approved or pending subscription that hasn't expired.
-        // Actually, usually only 'approved' gives access. 
-        // But for now let's check if a record exists and status is 'approved'.
+        $hasSubscription = $this->hasActiveSubscription($student->id, $subject->class_id);
 
-        $hasSubscription = \App\Models\Subscribers::where('student_id', $student->id)
-            ->where('class_id', $subject->class_id)
-            ->where('status', 'approved') // Only approved subscriptions unlock content
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now());
-            })
-            ->exists();
-
-        // Transform chapters to add is_locked flag
-        $subject->chapters->transform(function ($chapter, $key) use ($hasSubscription) {
-            // First chapter (index 0) is always FREE
-            if ($key === 0) {
-                $chapter->is_locked = false;
-            } else {
-                // Other chapters are locked unless user has subscription
-                $chapter->is_locked = !$hasSubscription;
-            }
-            return $chapter;
+        // Transform chapters to add lock status and index
+        $chapters = $subject->chapters->map(function ($chapter, $index) use ($hasSubscription) {
+            return [
+                'id' => $chapter->id,
+                'chapter_name' => $chapter->chapter_name,
+                'chapter_description' => $chapter->chapter_description,
+                'videos_count' => $chapter->videos_count,
+                'is_locked' => $index === 0 ? false : !$hasSubscription, // First chapter FREE
+                'chapter_index' => $index + 1
+            ];
         });
 
-        return $this->sendResponse($subject, 'Subject chapters retrieved.');
+        return $this->sendResponse([
+            'subject' => [
+                'id' => $subject->id,
+                'subject_name' => $subject->subject_name,
+                'subject_description' => $subject->subject_description,
+                'class_id' => $subject->class_id
+            ],
+            'chapters' => $chapters,
+            'has_subscription' => $hasSubscription,
+            'total_chapters' => $chapters->count(),
+            'unlocked_chapters' => $hasSubscription ? $chapters->count() : 1
+        ], 'Subject chapters retrieved successfully.');
     }
 
     /**
-     * Get Chapter Videos.
-     */
-    /**
-     * Get Chapter Videos.
+     * Get Chapter with Videos (Chapter-wise structure).
+     * Only accessible if:
+     * - It's the first chapter (FREE)
+     * - OR student has active subscription
      */
     public function getChapterVideos(Request $request, $chapterId)
     {
         $student = $request->user();
-        $chapter = \App\Models\Chapter::with('videos')->find($chapterId);
+        
+        $chapter = Chapter::with(['videos', 'subject'])->find($chapterId);
 
         if (!$chapter) {
             return $this->sendError('Chapter not found.', [], 404);
         }
 
-        // Determine if locked
-        // 1. Get all chapters for this subject to determine index
-        // Or simpler: We need to know if it's the first chapter. 
-        // Let's fetch the subject's chapters sorted by ID (or whatever default sort is) and find the index.
-        // Assuming ID sort for now as per `getSubjectChapters`.
+        // Get all chapters for this subject to determine if this is the first one
+        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
+            ->orderBy('id', 'asc')
+            ->pluck('id')
+            ->toArray();
+        
+        $chapterIndex = array_search($chapterId, $allChapters);
+        $isFirstChapter = ($chapterIndex === 0);
 
-        $subject = \App\Models\Subject::with('chapters')->find($chapter->subject_id);
-        $chapters = $subject->chapters;
-        $chapterIndex = $chapters->search(function ($item) use ($chapterId) {
-            return $item->id == $chapterId;
-        });
+        // Check subscription
+        $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
 
-        // 2. Check subscription
-        $hasSubscription = \App\Models\Subscribers::where('student_id', $student->id)
-            ->where('class_id', $chapter->class_id) // Defaulting to chapter's class_id
-            ->where('status', 'approved')
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now());
-            })
-            ->exists();
-
-        // 3. Enforce Lock
-        if ($chapterIndex !== 0 && !$hasSubscription) {
-            // Access Denied
-            // We can return a specific error code or empty videos
-            return $this->sendError('Access to this chapter is locked. Please upgrade to premium.', ['is_locked' => true], 403);
+        // Enforce access control
+        if (!$isFirstChapter && !$hasSubscription) {
+            return $this->sendError(
+                'This chapter is locked. Please subscribe to unlock all chapters.', 
+                [
+                    'is_locked' => true,
+                    'requires_subscription' => true,
+                    'chapter_index' => $chapterIndex + 1
+                ], 
+                403
+            );
         }
 
-        return $this->sendResponse($chapter, 'Chapter videos retrieved.');
-    }
-
-    // ===============================================================================================
-    // AUTHENTICATION & PASSWORD RECOVERY
-    // ===============================================================================================
-
-    /**
-     * Send OTP for Password Reset.
-     */
-    public function sendOTP(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-
-        $student = \App\Models\Student::where('email', $request->email)->first();
-
-        if (!$student) {
-            return $this->sendError('Email not found!', [], 404);
-        }
-
-        $otp = rand(100000, 999999);
-        \App\Models\PasswordReset::updateOrCreate(
-            ['email' => $student->email],
-            ['otp' => $otp, 'expires_at' => \Illuminate\Support\Carbon::now()->addMinutes(10)]
-        );
-
-        Mail::raw("Your OTP is: {$otp}", function ($message) use ($student) {
-            $message->to($student->email)->subject('Password Reset OTP');
-        });
-
-        return $this->sendResponse([], 'OTP sent to your email!');
-    }
-
-    /**
-     * Verify OTP.
-     */
-    public function verifyOTP(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-        ]);
-
-        $record = \App\Models\PasswordReset::where('email', $request->email)
-            ->where('otp', $request->otp)
-            ->first();
-
-        if (!$record) {
-            return $this->sendError('Invalid OTP!', [], 400);
-        }
-
-        if ($record->expires_at->isPast()) {
-            return $this->sendError('OTP has expired!', [], 400);
-        }
-
-        return $this->sendResponse([], 'OTP verified successfully.');
-    }
-
-    /**
-     * Reset Password.
-     */
-    public function resetPassword(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'otp' => 'required|digits:6',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        // Re-verify OTP to ensure security
-        $record = \App\Models\PasswordReset::where('email', $request->email)
-            ->where('otp', $request->otp)
-            ->first();
-
-        if (!$record || $record->expires_at->isPast()) {
-            return $this->sendError('Invalid or expired OTP.', [], 400);
-        }
-
-        $student = \App\Models\Student::where('email', $request->email)->firstOrFail();
-        $student->update(['password' => Hash::make($request->password)]);
-
-        $record->delete(); // Consume OTP
-
-        return $this->sendResponse([], 'Password reset successfully. Please login.');
-    }
-
-    // ===============================================================================================
-    // FORMS & REQUESTS
-    // ===============================================================================================
-
-    /**
-     * Submit Contact Us Query.
-     */
-    public function contactUsSubmit(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
-                'subject' => 'required|string',
-                'message' => 'required|string',
-            ]);
-
-            \App\Models\ContactUs::create($validated);
-
-            Mail::to('saklindeveloper@gmail.com')->send(new \App\Mail\EnquirySend($validated));
-            Mail::to($validated['email'])->send(new \App\Mail\EnquiryRecieved($validated));
-
-            return $this->sendResponse([], 'Your message has been sent successfully!');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Submit Waver Request.
-     */
-    public function waverRequestSubmit(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'class_id' => 'required|exists:classes,id',
-                'p_name' => 'required|string|max:255',
-                'c_name' => 'required|string|max:255',
-                'c_age' => 'required|integer',
-                'email' => 'required|email|max:255',
-                'mobile' => 'required|string|max:15',
-                'address' => 'required|string',
-            ]);
-
-            \App\Models\WaverRequest::create($validated);
-            Mail::to('saklindeveloper@gmail.com')->send(new \App\Mail\WaiverReceived($validated));
-
-            return $this->sendResponse([], 'Your waiver request has been submitted successfully!');
-        } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
-        }
-    }
-
-    // ===============================================================================================
-    // SUBSCRIPTION & PAYMENTS
-    // ===============================================================================================
-
-    /**
-     * Store Payment / Upload Receipt.
-     */
-    public function storePayment(Request $request)
-    {
-        $request->validate([
-            'student_name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'phone' => 'required|string|max:20',
-            'class_id' => 'required|exists:classes,id',
-            'fees_id' => 'required|exists:fees,id',
-            'subject_id' => 'required|exists:subjects,id',
-            'receipt' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $student = $request->user();
-
-        $receiptPath = null;
-        if ($request->hasFile('receipt')) {
-            $file = $request->file('receipt');
-            $filename = time() . '_' . $student->id . '.' . $file->getClientOriginalExtension();
-            $receiptPath = $file->storeAs('receipts', $filename, 'public');
-        }
-
-        $existingSubscriber = \App\Models\Subscribers::where('student_id', $student->id)
-            ->where('class_id', $request->class_id)
-            ->where('fees_id', $request->fees_id)
-            ->first();
-
-        if ($existingSubscriber) {
-            $existingSubscriber->update([
-                'reciptimage' => $receiptPath,
-                'subscription_date' => now(),
-                'status' => 'pending'
-            ]);
-            $message = 'Payment receipt updated successfully!';
-        } else {
-            \App\Models\Subscribers::create([
-                'student_id' => $student->id,
-                'class_id' => $request->class_id,
-                'fees_id' => $request->fees_id,
-                'reciptimage' => $receiptPath,
-                'subscription_date' => now(),
-                'expiry_date' => now()->addMonth(),
-                'status' => 'pending'
-            ]);
-            $message = 'Payment submitted successfully!';
-
-            $fee = \App\Models\Fees::find($request->fees_id);
-            Mail::to('saklindeveloper@gmail.com')
-                ->cc($student->email)
-                ->send(new \App\Mail\SubscriptionMailFromStudent([
-                    'student_name' => $request->student_name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'class_id' => $request->class_id,
-                    'fees_id' => $request->fees_id,
-                    'amount' => $fee->amount,
-                    'subject_id' => $request->subject_id,
-                    'receipt' => $receiptPath
-                ]));
-        }
-
-        return $this->sendResponse([], $message);
+        // Return videos with additional info
+        return $this->sendResponse([
+            'chapter' => [
+                'id' => $chapter->id,
+                'chapter_name' => $chapter->chapter_name,
+                'chapter_description' => $chapter->chapter_description,
+                'subject_id' => $chapter->subject_id,
+                'subject_name' => $chapter->subject->subject_name
+            ],
+            'videos' => $chapter->videos->map(function($video) {
+                return [
+                    'id' => $video->id,
+                    'video_title' => $video->video_title,
+                    'video_description' => $video->video_description,
+                    'video_url' => $video->video_url,
+                    'thumbnail' => $video->thumbnail,
+                    'duration' => $video->duration,
+                    'likes' => $video->likes ?? 0,
+                    'has_practice_test' => !empty($video->questions)
+                ];
+            }),
+            'is_locked' => false,
+            'is_first_chapter' => $isFirstChapter,
+            'chapter_index' => $chapterIndex + 1
+        ], 'Chapter videos retrieved successfully.');
     }
 
     // ===============================================================================================
@@ -426,10 +269,37 @@ class StudentApiController extends AppController
 
     /**
      * Get Video Details (Play).
+     * Check if video's chapter is accessible before showing details.
      */
-    public function getVideoDetails($chapterId, $videoId)
+    public function getVideoDetails(Request $request, $videoId)
     {
-        $video = \App\Models\Video::where('chapter_id', $chapterId)->findOrFail($videoId);
+        $student = $request->user();
+        
+        $video = Video::with(['chapter.subject'])->find($videoId);
+
+        if (!$video) {
+            return $this->sendError('Video not found.', [], 404);
+        }
+
+        $chapter = $video->chapter;
+        
+        // Check if chapter is accessible
+        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
+            ->orderBy('id', 'asc')
+            ->pluck('id')
+            ->toArray();
+        
+        $chapterIndex = array_search($chapter->id, $allChapters);
+        $isFirstChapter = ($chapterIndex === 0);
+        $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
+
+        if (!$isFirstChapter && !$hasSubscription) {
+            return $this->sendError(
+                'This video is locked. Please subscribe to access.', 
+                ['is_locked' => true], 
+                403
+            );
+        }
 
         $feedbacks = Feedback::where('video_id', $videoId)
             ->with('student')
@@ -438,7 +308,12 @@ class StudentApiController extends AppController
 
         return $this->sendResponse([
             'video' => $video,
-            'feedbacks' => $feedbacks
+            'feedbacks' => $feedbacks,
+            'chapter_info' => [
+                'id' => $chapter->id,
+                'name' => $chapter->chapter_name,
+                'subject_name' => $chapter->subject->subject_name
+            ]
         ], 'Video details retrieved.');
     }
 
@@ -449,7 +324,7 @@ class StudentApiController extends AppController
     {
         $request->validate(['video_id' => 'required|integer|exists:videos,id']);
 
-        $video = \App\Models\Video::findOrFail($request->video_id);
+        $video = Video::findOrFail($request->video_id);
         $video->increment('likes');
 
         return $this->sendResponse(['likes' => $video->likes], 'Video liked successfully.');
@@ -485,16 +360,28 @@ class StudentApiController extends AppController
     /**
      * Get Practice Test for a Video.
      */
-    public function getPracticeTest($videoId)
+    public function getPracticeTest(Request $request, $videoId)
     {
-        $video = \App\Models\Video::findOrFail($videoId);
-        $student = request()->user();
+        $student = $request->user();
+        $video = Video::with(['chapter.subject'])->findOrFail($videoId);
 
-        // Helper to safe decode JSON
+        // Check access
+        $chapter = $video->chapter;
+        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
+            ->orderBy('id', 'asc')
+            ->pluck('id')
+            ->toArray();
+        
+        $chapterIndex = array_search($chapter->id, $allChapters);
+        $isFirstChapter = ($chapterIndex === 0);
+        $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
+
+        if (!$isFirstChapter && !$hasSubscription) {
+            return $this->sendError('This test is locked. Please subscribe to access.', ['is_locked' => true], 403);
+        }
+
         $forceJson = function ($data) {
-            if (is_string($data))
-                return json_decode($data, true);
-            return $data;
+            return is_string($data) ? json_decode($data, true) : $data;
         };
 
         $questions = $forceJson($video->questions);
@@ -507,21 +394,19 @@ class StudentApiController extends AppController
         foreach ($answers as &$ans) {
             if (is_string($ans)) {
                 $decoded = json_decode($ans, true);
-                if (json_last_error() === JSON_ERROR_NONE)
-                    $ans = $decoded;
-                else
-                    $ans = array_map('trim', explode(',', $ans));
+                $ans = (json_last_error() === JSON_ERROR_NONE) ? $decoded : array_map('trim', explode(',', $ans));
             }
         }
 
-        $submittedTest = \App\Models\StudentTest::where('student_id', $student->id)
+        $submittedTest = StudentTest::where('student_id', $student->id)
             ->where('video_id', $videoId)
             ->first();
 
         return $this->sendResponse([
             'questions' => $questions,
             'options' => $answers,
-            'submitted_test' => $submittedTest
+            'submitted_test' => $submittedTest,
+            'video_title' => $video->video_title
         ], 'Practice test retrieved.');
     }
 
@@ -539,7 +424,7 @@ class StudentApiController extends AppController
         $videoId = $request->video_id;
         $studentAnswers = $request->answers;
 
-        $video = \App\Models\Video::findOrFail($videoId);
+        $video = Video::findOrFail($videoId);
 
         $correctAnswers = is_string($video->correct_answers)
             ? json_decode($video->correct_answers, true)
@@ -552,7 +437,7 @@ class StudentApiController extends AppController
             }
         }
 
-        $studentTest = \App\Models\StudentTest::updateOrCreate(
+        $studentTest = StudentTest::updateOrCreate(
             ['student_id' => $student->id, 'video_id' => $videoId],
             ['student_answers' => $studentAnswers, 'score' => $score]
         );
@@ -570,5 +455,223 @@ class StudentApiController extends AppController
             'total_questions' => count($correctAnswers ?? []),
             'student_test' => $studentTest
         ], 'Test submitted successfully.');
+    }
+
+    // ===============================================================================================
+    // SUBSCRIPTION & PAYMENTS
+    // ===============================================================================================
+
+    /**
+     * Get Payment Info (Fees for student's class).
+     */
+    public function getPaymentInfo(Request $request)
+    {
+        $student = $request->user();
+        
+        $class = Classes::with('fees')->find($student->class_id);
+        
+        if (!$class) {
+            return $this->sendError('Class not found.', [], 404);
+        }
+
+        $fees = $class->fees->first();
+        
+        if (!$fees) {
+            return $this->sendError('No fees information available for this class.', [], 404);
+        }
+
+        $hasSubscription = $this->hasActiveSubscription($student->id, $class->id);
+
+        $currentSubscription = Subscribers::where('student_id', $student->id)
+            ->where('class_id', $class->id)
+            ->orderBy('subscription_date', 'desc')
+            ->first();
+
+        return $this->sendResponse([
+            'class' => $class,
+            'fees' => $fees,
+            'has_active_subscription' => $hasSubscription,
+            'current_subscription' => $currentSubscription
+        ], 'Payment information retrieved.');
+    }
+
+    /**
+     * Store Payment / Upload Receipt.
+     */
+    public function storePayment(Request $request)
+    {
+        $request->validate([
+            'student_name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'required|string|max:20',
+            'class_id' => 'required|exists:classes,id',
+            'fees_id' => 'required|exists:fees,id',
+            'receipt' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $student = $request->user();
+
+        $receiptPath = null;
+        if ($request->hasFile('receipt')) {
+            $file = $request->file('receipt');
+            $filename = time() . '_' . $student->id . '.' . $file->getClientOriginalExtension();
+            $receiptPath = $file->storeAs('receipts', $filename, 'public');
+        }
+
+        $existingSubscriber = Subscribers::where('student_id', $student->id)
+            ->where('class_id', $request->class_id)
+            ->where('fees_id', $request->fees_id)
+            ->first();
+
+        if ($existingSubscriber) {
+            $existingSubscriber->update([
+                'reciptimage' => $receiptPath,
+                'subscription_date' => now(),
+                'status' => 'pending'
+            ]);
+            $message = 'Payment receipt updated successfully! Waiting for admin verification.';
+        } else {
+            Subscribers::create([
+                'student_id' => $student->id,
+                'class_id' => $request->class_id,
+                'fees_id' => $request->fees_id,
+                'reciptimage' => $receiptPath,
+                'subscription_date' => now(),
+                'expiry_date' => now()->addMonth(),
+                'status' => 'pending'
+            ]);
+            $message = 'Payment submitted successfully! Waiting for admin verification.';
+
+            $fee = Fees::find($request->fees_id);
+            Mail::to('saklindeveloper@gmail.com')
+                ->cc($student->email)
+                ->send(new SubscriptionMailFromStudent([
+                    'student_name' => $request->student_name,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'class_id' => $request->class_id,
+                    'fees_id' => $request->fees_id,
+                    'amount' => $fee->amount,
+                    'receipt' => $receiptPath
+                ]));
+        }
+
+        return $this->sendResponse([], $message);
+    }
+
+    // ===============================================================================================
+    // PASSWORD RESET
+    // ===============================================================================================
+
+    public function sendOTP(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $student = Student::where('email', $request->email)->first();
+
+        if (!$student) {
+            return $this->sendError('Email not found!', [], 404);
+        }
+
+        $otp = rand(100000, 999999);
+        PasswordReset::updateOrCreate(
+            ['email' => $student->email],
+            ['otp' => $otp, 'expires_at' => now()->addMinutes(10)]
+        );
+
+        Mail::raw("Your OTP is: {$otp}", function ($message) use ($student) {
+            $message->to($student->email)->subject('Password Reset OTP');
+        });
+
+        return $this->sendResponse([], 'OTP sent to your email!');
+    }
+
+    public function verifyOTP(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+        ]);
+
+        $record = PasswordReset::where('email', $request->email)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$record || $record->expires_at->isPast()) {
+            return $this->sendError('Invalid or expired OTP!', [], 400);
+        }
+
+        return $this->sendResponse([], 'OTP verified successfully.');
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|digits:6',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $record = PasswordReset::where('email', $request->email)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$record || $record->expires_at->isPast()) {
+            return $this->sendError('Invalid or expired OTP.', [], 400);
+        }
+
+        $student = Student::where('email', $request->email)->firstOrFail();
+        $student->update(['password' => Hash::make($request->password)]);
+
+        $record->delete();
+
+        return $this->sendResponse([], 'Password reset successfully. Please login.');
+    }
+
+    // ===============================================================================================
+    // FORMS & REQUESTS
+    // ===============================================================================================
+
+    public function contactUsSubmit(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'subject' => 'required|string',
+                'message' => 'required|string',
+            ]);
+
+            ContactUs::create($validated);
+
+            Mail::to('saklindeveloper@gmail.com')->send(new EnquirySend($validated));
+            Mail::to($validated['email'])->send(new EnquiryRecieved($validated));
+
+            return $this->sendResponse([], 'Your message has been sent successfully!');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function waverRequestSubmit(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'class_id' => 'required|exists:classes,id',
+                'p_name' => 'required|string|max:255',
+                'c_name' => 'required|string|max:255',
+                'c_age' => 'required|integer',
+                'email' => 'required|email|max:255',
+                'mobile' => 'required|string|max:15',
+                'address' => 'required|string',
+            ]);
+
+            WaverRequest::create($validated);
+            Mail::to('saklindeveloper@gmail.com')->send(new WaiverReceived($validated));
+
+            return $this->sendResponse([], 'Your waiver request has been submitted successfully!');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
+        }
     }
 }

@@ -1,63 +1,116 @@
 <?php
 
 use App\Http\Controllers\application\AuthController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\application\StudentApiController;
+use App\Http\Controllers\application\CommonController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
 */
 
-// Public routes
+// ===============================================================================================
+// PUBLIC ROUTES
+// ===============================================================================================
+
+// Authentication
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/classes', [App\Http\Controllers\application\CommonController::class, 'getClasses']);
 
-// Protected routes
+// Common Data
+Route::get('/classes', [CommonController::class, 'getClasses']);
+Route::get('/stories', [CommonController::class, 'getStories']);
+Route::get('/faculties', [CommonController::class, 'getFaculties']);
+Route::get('/faqs', [CommonController::class, 'getFAQs']);
+Route::get('/about-us', [CommonController::class, 'getAboutUs']);
+
+// Public Forms
+Route::post('/contact-us', [StudentApiController::class, 'contactUsSubmit']);
+Route::post('/waver-request', [StudentApiController::class, 'waverRequestSubmit']);
+
+// Password Reset
+Route::post('/password/forgot', [StudentApiController::class, 'sendOTP']);
+Route::post('/password/verify-otp', [StudentApiController::class, 'verifyOTP']);
+Route::post('/password/reset', [StudentApiController::class, 'resetPassword']);
+
+// ===============================================================================================
+// PROTECTED ROUTES (Require Authentication)
+// ===============================================================================================
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    
+    // -----------------------------------------------
+    // Authentication
+    // -----------------------------------------------
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
-    // Student specific routes
-    Route::get('/student/profile', [App\Http\Controllers\application\StudentApiController::class, 'getProfile']);
-    Route::post('/student/profile/update', [App\Http\Controllers\application\StudentApiController::class, 'updateProfile']);
-    Route::post('/student/change-password', [App\Http\Controllers\application\StudentApiController::class, 'changePassword']);
-    
-    Route::get('/student/my-class', [App\Http\Controllers\application\StudentApiController::class, 'getMyClass']);
-    Route::get('/student/subject/{subjectId}/chapters', [App\Http\Controllers\application\StudentApiController::class, 'getSubjectChapters']);
-    Route::get('/student/chapter/{chapterId}/videos', [App\Http\Controllers\application\StudentApiController::class, 'getChapterVideos']);
-    
+    // -----------------------------------------------
+    // Student Profile Management
+    // -----------------------------------------------
+    Route::prefix('student')->group(function () {
+        Route::get('/profile', [StudentApiController::class, 'getProfile']);
+        Route::post('/profile/update', [StudentApiController::class, 'updateProfile']);
+        Route::post('/change-password', [StudentApiController::class, 'changePassword']);
+    });
+
+    // -----------------------------------------------
+    // CLASS → SUBJECTS → CHAPTERS → VIDEOS Hierarchy
+    // -----------------------------------------------
+    Route::prefix('student')->group(function () {
+        
+        // 1. Get student's registered class with all subjects
+        Route::get('/my-class', [StudentApiController::class, 'getMyClass']);
+        
+        // 2. Get chapters for a specific subject (with lock status)
+        Route::get('/subject/{subjectId}/chapters', [StudentApiController::class, 'getSubjectChapters']);
+        
+        // 3. Get videos for a specific chapter (access control applied)
+        Route::get('/chapter/{chapterId}/videos', [StudentApiController::class, 'getChapterVideos']);
+        
+    });
+
+    // -----------------------------------------------
     // Video Interaction
-    Route::get('/student/video/{chapterId}/{videoId}', [App\Http\Controllers\application\StudentApiController::class, 'getVideoDetails']);
-    Route::post('/student/video/like', [App\Http\Controllers\application\StudentApiController::class, 'likeVideo']);
-    Route::post('/student/video/feedback', [App\Http\Controllers\application\StudentApiController::class, 'submitFeedback']);
+    // -----------------------------------------------
+    Route::prefix('student/video')->group(function () {
+        
+        // Get video details with feedbacks
+        Route::get('/{videoId}', [StudentApiController::class, 'getVideoDetails']);
+        
+        // Like a video
+        Route::post('/like', [StudentApiController::class, 'likeVideo']);
+        
+        // Submit feedback
+        Route::post('/feedback', [StudentApiController::class, 'submitFeedback']);
+        
+    });
 
+    // -----------------------------------------------
     // Practice Test
-    Route::get('/student/video/{videoId}/test', [App\Http\Controllers\application\StudentApiController::class, 'getPracticeTest']);
-    Route::post('/student/video/test/submit', [App\Http\Controllers\application\StudentApiController::class, 'submitPracticeTest']);
+    // -----------------------------------------------
+    Route::prefix('student/video')->group(function () {
+        
+        // Get practice test questions
+        Route::get('/{videoId}/test', [StudentApiController::class, 'getPracticeTest']);
+        
+        // Submit test answers
+        Route::post('/test/submit', [StudentApiController::class, 'submitPracticeTest']);
+        
+    });
 
-    // Payment
-    Route::post('/student/payment/store', [App\Http\Controllers\application\StudentApiController::class, 'storePayment']);
+    // -----------------------------------------------
+    // Subscription & Payment
+    // -----------------------------------------------
+    Route::prefix('student/payment')->group(function () {
+        
+        // Get payment/fees information
+        Route::get('/info', [StudentApiController::class, 'getPaymentInfo']);
+        
+        // Submit payment receipt
+        Route::post('/store', [StudentApiController::class, 'storePayment']);
+        
+    });
 });
-
-// Common Data Routes (Creating a group or just listing them)
-Route::get('/stories', [App\Http\Controllers\application\CommonController::class, 'getStories']);
-Route::get('/faculties', [App\Http\Controllers\application\CommonController::class, 'getFaculties']);
-Route::get('/faqs', [App\Http\Controllers\application\CommonController::class, 'getFAQs']);
-Route::get('/about-us', [App\Http\Controllers\application\CommonController::class, 'getAboutUs']);
-
-// Forms (Public or Protected? Usually public for contact/waver if non-student can access, but WaverRequest in controller didn't seem to enforce auth in submit method, though the view might. Let's make them public or auth based on user preference. `waverRequestSubmit` in `StudentController` validation doesn't check auth, just email. But usually these are for visitors too. ContactUs is definitely public. Waver seems public too.)
-Route::post('/contact-us', [App\Http\Controllers\application\StudentApiController::class, 'contactUsSubmit']);
-Route::post('/waver-request', [App\Http\Controllers\application\StudentApiController::class, 'waverRequestSubmit']);
-
-// Password Reset (Public)
-Route::post('/password/forgot', [App\Http\Controllers\application\StudentApiController::class, 'sendOTP']);
-Route::post('/password/verify-otp', [App\Http\Controllers\application\StudentApiController::class, 'verifyOTP']);
-Route::post('/password/reset', [App\Http\Controllers\application\StudentApiController::class, 'resetPassword']);
