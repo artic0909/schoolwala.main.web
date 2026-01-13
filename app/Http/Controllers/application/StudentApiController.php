@@ -458,9 +458,11 @@ class StudentApiController extends AppController
             return $this->sendError('No fees information available for this class.', [], 404);
         }
 
-        // 🔥 IMPORTANT FIX (new save logic er sathe match)
+        // QR image is stored in public/fees_qr/ directory
+        // Database path: 'fees_qr/1768313204.png'
+        // Required URL: 'https://schoolwala.info/fees_qr/1768313204.png'
         $fees->qrimage_url = $fees->qrimage
-            ? asset($fees->qrimage)
+            ? url($fees->qrimage)
             : null;
 
         \Log::info('QR Image Path: ' . $fees->qrimage);
