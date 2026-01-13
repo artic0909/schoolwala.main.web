@@ -459,7 +459,7 @@ class StudentApiController extends AppController
         }
 
         $fees->qrimage_url = $fees->qrimage
-            ? asset($fees->qrimage)
+            ? url($fees->qrimage)
             : null;
 
         \Log::info('QR Image Path: ' . $fees->qrimage);
