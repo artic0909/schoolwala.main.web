@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => null, // Tokens never expire (Required for Flutter App persistent session)
 
     /*
     |--------------------------------------------------------------------------

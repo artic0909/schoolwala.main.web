@@ -18,7 +18,6 @@ class AuthController extends AppController
     {
         $request->validate([
             'class_id' => 'required|exists:classes,id',
-            'student_id' => 'required|string',
             'student_name' => 'required|string|max:255',
             'parent_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:students',
@@ -27,9 +26,32 @@ class AuthController extends AppController
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // ----- AUTO GENERATE STUDENT ID -----
+        $year   = date('y'); // last 2 digits of year
+        $prefix = "SW";
+
+        // Get class name
+        $class = \App\Models\Classes::findOrFail($request->class_id);
+        $className = strtoupper(str_replace(' ', '', $class->name));
+
+        // Find last student for this class
+        $lastStudent = Student::where('class_id', $request->class_id)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastStudent && preg_match('/-(\d+)$/', $lastStudent->student_id, $matches)) {
+            $lastNumber = (int) $matches[1];
+        } else {
+            $lastNumber = 0;
+        }
+
+        // Increment & pad number
+        $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+        $studentId = "{$year}-{$prefix}-{$className}-{$nextNumber}";
+
         $student = Student::create([
             'class_id' => $request->class_id,
-            'student_id' => $request->student_id,
+            'student_id' => $studentId, // Use generated ID
             'student_name' => $request->student_name,
             'parent_name' => $request->parent_name,
             'email' => $request->email,
