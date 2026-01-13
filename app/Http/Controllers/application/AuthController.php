@@ -60,6 +60,13 @@ class AuthController extends AppController
             'password' => Hash::make($request->password),
         ]);
 
+        // Send Registration Email
+        try {
+            \Illuminate\Support\Facades\Mail::to($student->email)->send(new \App\Mail\Registration($student));
+        } catch (\Exception $e) {
+            // Log error or ignore if mail fails, but don't stop registration flow
+        }
+
         $token = $student->createToken('auth_token')->plainTextToken;
 
         return $this->sendResponse([
