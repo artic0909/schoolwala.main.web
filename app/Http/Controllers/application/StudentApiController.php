@@ -130,11 +130,14 @@ class StudentApiController extends AppController
     public function getMyClass(Request $request)
     {
         $student = $request->user();
-        
-        $class = Classes::with(['subjects' => function($query) {
-            $query->withCount('chapters');
-        }, 'fees'])
-        ->find($student->class_id);
+
+        $class = Classes::with([
+            'subjects' => function ($query) {
+                $query->withCount('chapters');
+            },
+            'fees'
+        ])
+            ->find($student->class_id);
 
         if (!$class) {
             return $this->sendError('Class not found assigned to student.', [], 404);
@@ -158,9 +161,11 @@ class StudentApiController extends AppController
     {
         $student = $request->user();
 
-        $subject = Subject::with(['chapters' => function ($q) {
-            $q->withCount('videos')->orderBy('id', 'asc');
-        }])->find($subjectId);
+        $subject = Subject::with([
+            'chapters' => function ($q) {
+                $q->withCount('videos')->orderBy('id', 'asc');
+            }
+        ])->find($subjectId);
 
         if (!$subject) {
             return $this->sendError('Subject not found.', [], 404);
@@ -204,7 +209,7 @@ class StudentApiController extends AppController
     public function getChapterVideos(Request $request, $chapterId)
     {
         $student = $request->user();
-        
+
         $chapter = Chapter::with(['videos', 'subject'])->find($chapterId);
 
         if (!$chapter) {
@@ -216,7 +221,7 @@ class StudentApiController extends AppController
             ->orderBy('id', 'asc')
             ->pluck('id')
             ->toArray();
-        
+
         $chapterIndex = array_search($chapterId, $allChapters);
         $isFirstChapter = ($chapterIndex === 0);
 
@@ -226,12 +231,12 @@ class StudentApiController extends AppController
         // Enforce access control
         if (!$isFirstChapter && !$hasSubscription) {
             return $this->sendError(
-                'This chapter is locked. Please subscribe to unlock all chapters.', 
+                'This chapter is locked. Please subscribe to unlock all chapters.',
                 [
                     'is_locked' => true,
                     'requires_subscription' => true,
                     'chapter_index' => $chapterIndex + 1
-                ], 
+                ],
                 403
             );
         }
@@ -245,15 +250,17 @@ class StudentApiController extends AppController
                 'subject_id' => $chapter->subject_id,
                 'subject_name' => $chapter->subject->subject_name
             ],
-            'videos' => $chapter->videos->map(function($video) {
+            'videos' => $chapter->videos->map(function ($video) {
                 return [
                     'id' => $video->id,
                     'video_title' => $video->video_title,
                     'video_description' => $video->video_description,
-                    'video_url' => $video->video_url,
-                    'thumbnail' => $video->thumbnail,
+                    'video_link' => $video->video_link,
+                    'video_thumbnail' => $video->video_thumbnail,
+                    'note_link' => $video->note_link,
                     'duration' => $video->duration,
                     'likes' => $video->likes ?? 0,
+                    'views' => $video->views ?? 0,
                     'has_practice_test' => !empty($video->questions)
                 ];
             }),
@@ -274,7 +281,7 @@ class StudentApiController extends AppController
     public function getVideoDetails(Request $request, $videoId)
     {
         $student = $request->user();
-        
+
         $video = Video::with(['chapter.subject'])->find($videoId);
 
         if (!$video) {
@@ -282,21 +289,21 @@ class StudentApiController extends AppController
         }
 
         $chapter = $video->chapter;
-        
+
         // Check if chapter is accessible
         $allChapters = Chapter::where('subject_id', $chapter->subject_id)
             ->orderBy('id', 'asc')
             ->pluck('id')
             ->toArray();
-        
+
         $chapterIndex = array_search($chapter->id, $allChapters);
         $isFirstChapter = ($chapterIndex === 0);
         $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
 
         if (!$isFirstChapter && !$hasSubscription) {
             return $this->sendError(
-                'This video is locked. Please subscribe to access.', 
-                ['is_locked' => true], 
+                'This video is locked. Please subscribe to access.',
+                ['is_locked' => true],
                 403
             );
         }
@@ -371,7 +378,7 @@ class StudentApiController extends AppController
             ->orderBy('id', 'asc')
             ->pluck('id')
             ->toArray();
-        
+
         $chapterIndex = array_search($chapter->id, $allChapters);
         $isFirstChapter = ($chapterIndex === 0);
         $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
@@ -467,15 +474,15 @@ class StudentApiController extends AppController
     public function getPaymentInfo(Request $request)
     {
         $student = $request->user();
-        
+
         $class = Classes::with('fees')->find($student->class_id);
-        
+
         if (!$class) {
             return $this->sendError('Class not found.', [], 404);
         }
 
         $fees = $class->fees->first();
-        
+
         if (!$fees) {
             return $this->sendError('No fees information available for this class.', [], 404);
         }
