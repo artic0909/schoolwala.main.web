@@ -458,6 +458,10 @@ class StudentApiController extends AppController
             return $this->sendError('No fees information available for this class.', [], 404);
         }
 
+        $fees->qrimage_url = $fees->qrimage
+            ? asset('storage/' . $fees->qrimage)
+            : null;
+
         $hasSubscription = $this->hasActiveSubscription($student->id, $class->id);
 
         $currentSubscription = Subscribers::where('student_id', $student->id)
