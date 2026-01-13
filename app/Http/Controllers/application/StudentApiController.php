@@ -107,8 +107,13 @@ class StudentApiController extends AppController
     /**
      * Get Chapters for a Subject.
      */
-    public function getSubjectChapters($subjectId)
+    /**
+     * Get Chapters for a Subject with Lock Status.
+     */
+    public function getSubjectChapters(Request $request, $subjectId)
     {
+        $student = $request->user();
+
         $subject = \App\Models\Subject::with([
             'chapters' => function ($q) {
                 $q->withCount('videos');
@@ -118,6 +123,33 @@ class StudentApiController extends AppController
         if (!$subject) {
             return $this->sendError('Subject not found.', [], 404);
         }
+
+        // Check for active subscription
+        // Assuming subscription is for the class containing this subject
+        // We check if there is an approved or pending subscription that hasn't expired.
+        // Actually, usually only 'approved' gives access. 
+        // But for now let's check if a record exists and status is 'approved'.
+
+        $hasSubscription = \App\Models\Subscribers::where('student_id', $student->id)
+            ->where('class_id', $subject->class_id)
+            ->where('status', 'approved') // Only approved subscriptions unlock content
+            ->where(function ($query) {
+                $query->whereNull('expiry_date')
+                    ->orWhere('expiry_date', '>=', now());
+            })
+            ->exists();
+
+        // Transform chapters to add is_locked flag
+        $subject->chapters->transform(function ($chapter, $key) use ($hasSubscription) {
+            // First chapter (index 0) is always FREE
+            if ($key === 0) {
+                $chapter->is_locked = false;
+            } else {
+                // Other chapters are locked unless user has subscription
+                $chapter->is_locked = !$hasSubscription;
+            }
+            return $chapter;
+        });
 
         return $this->sendResponse($subject, 'Subject chapters retrieved.');
     }
