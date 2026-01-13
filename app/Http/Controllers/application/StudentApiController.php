@@ -32,11 +32,8 @@ class StudentApiController extends AppController
     {
         return Subscribers::where('student_id', $studentId)
             ->where('class_id', $classId)
-            ->where('status', 'approved')
-            ->where(function ($query) {
-                $query->whereNull('expiry_date')
-                    ->orWhere('expiry_date', '>=', now());
-            })
+            ->where('status', 'active') // Strict status check
+            ->whereDate('expiry_date', '>=', now()) // Ensure subscription hasn't expired
             ->exists();
     }
 
@@ -155,7 +152,7 @@ class StudentApiController extends AppController
     /**
      * Get Subject with Chapters (Subject-wise structure).
      * Shows all chapters for a subject with lock status.
-     * First chapter is always FREE, rest require subscription.
+     * ALL chapters require active subscription.
      */
     public function getSubjectChapters(Request $request, $subjectId)
     {
@@ -181,7 +178,7 @@ class StudentApiController extends AppController
                 'chapter_name' => $chapter->chapter_name,
                 'chapter_description' => $chapter->chapter_description,
                 'videos_count' => $chapter->videos_count,
-                'is_locked' => $index === 0 ? false : !$hasSubscription, // First chapter FREE
+                'is_locked' => !$hasSubscription, // ALL chapters locked if no subscription
                 'chapter_index' => $index + 1
             ];
         });
@@ -196,15 +193,14 @@ class StudentApiController extends AppController
             'chapters' => $chapters,
             'has_subscription' => $hasSubscription,
             'total_chapters' => $chapters->count(),
-            'unlocked_chapters' => $hasSubscription ? $chapters->count() : 1
+            'unlocked_chapters' => $hasSubscription ? $chapters->count() : 0 // 0 unlocked if no sub
         ], 'Subject chapters retrieved successfully.');
     }
 
     /**
      * Get Chapter with Videos (Chapter-wise structure).
      * Only accessible if:
-     * - It's the first chapter (FREE)
-     * - OR student has active subscription
+     * - Student has active subscription (for ALL chapters)
      */
     public function getChapterVideos(Request $request, $chapterId)
     {
@@ -216,26 +212,16 @@ class StudentApiController extends AppController
             return $this->sendError('Chapter not found.', [], 404);
         }
 
-        // Get all chapters for this subject to determine if this is the first one
-        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
-            ->orderBy('id', 'asc')
-            ->pluck('id')
-            ->toArray();
-
-        $chapterIndex = array_search($chapterId, $allChapters);
-        $isFirstChapter = ($chapterIndex === 0);
-
         // Check subscription
         $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
 
-        // Enforce access control
-        if (!$isFirstChapter && !$hasSubscription) {
+        // Enforce strict access control for ALL chapters
+        if (!$hasSubscription) {
             return $this->sendError(
-                'This chapter is locked. Please subscribe to unlock all chapters.',
+                'This chapter is locked. Please subscribe to unlock course content.',
                 [
                     'is_locked' => true,
-                    'requires_subscription' => true,
-                    'chapter_index' => $chapterIndex + 1
+                    'requires_subscription' => true
                 ],
                 403
             );
@@ -265,8 +251,7 @@ class StudentApiController extends AppController
                 ];
             }),
             'is_locked' => false,
-            'is_first_chapter' => $isFirstChapter,
-            'chapter_index' => $chapterIndex + 1
+            'is_first_chapter' => false, // Concept of free first chapter removed
         ], 'Chapter videos retrieved successfully.');
     }
 
@@ -290,17 +275,10 @@ class StudentApiController extends AppController
 
         $chapter = $video->chapter;
 
-        // Check if chapter is accessible
-        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
-            ->orderBy('id', 'asc')
-            ->pluck('id')
-            ->toArray();
-
-        $chapterIndex = array_search($chapter->id, $allChapters);
-        $isFirstChapter = ($chapterIndex === 0);
+        // Strict Subscription Check
         $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
 
-        if (!$isFirstChapter && !$hasSubscription) {
+        if (!$hasSubscription) {
             return $this->sendError(
                 'This video is locked. Please subscribe to access.',
                 ['is_locked' => true],
@@ -374,16 +352,9 @@ class StudentApiController extends AppController
 
         // Check access
         $chapter = $video->chapter;
-        $allChapters = Chapter::where('subject_id', $chapter->subject_id)
-            ->orderBy('id', 'asc')
-            ->pluck('id')
-            ->toArray();
-
-        $chapterIndex = array_search($chapter->id, $allChapters);
-        $isFirstChapter = ($chapterIndex === 0);
         $hasSubscription = $this->hasActiveSubscription($student->id, $chapter->subject->class_id);
 
-        if (!$isFirstChapter && !$hasSubscription) {
+        if (!$hasSubscription) {
             return $this->sendError('This test is locked. Please subscribe to access.', ['is_locked' => true], 403);
         }
 
