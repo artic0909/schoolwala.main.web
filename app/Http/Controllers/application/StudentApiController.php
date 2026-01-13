@@ -458,8 +458,9 @@ class StudentApiController extends AppController
             return $this->sendError('No fees information available for this class.', [], 404);
         }
 
+        // 🔥 IMPORTANT FIX (new save logic er sathe match)
         $fees->qrimage_url = $fees->qrimage
-            ? url($fees->qrimage)
+            ? asset($fees->qrimage)
             : null;
 
         \Log::info('QR Image Path: ' . $fees->qrimage);
@@ -473,12 +474,20 @@ class StudentApiController extends AppController
             ->first();
 
         return $this->sendResponse([
-            'class' => $class,
-            'fees' => $fees,
+            'class' => [
+                'id' => $class->id,
+                'name' => $class->name,
+            ],
+            'fees' => [
+                'id' => $fees->id,
+                'amount' => $fees->amount,
+                'qrimage_url' => $fees->qrimage_url,
+            ],
             'has_active_subscription' => $hasSubscription,
-            'current_subscription' => $currentSubscription
+            'current_subscription' => $currentSubscription,
         ], 'Payment information retrieved.');
     }
+
 
     /**
      * Store Payment / Upload Receipt.
