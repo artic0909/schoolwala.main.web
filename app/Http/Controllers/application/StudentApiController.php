@@ -459,8 +459,11 @@ class StudentApiController extends AppController
         }
 
         $fees->qrimage_url = $fees->qrimage
-            ? asset('storage/' . $fees->qrimage)
+            ? asset($fees->qrimage)
             : null;
+
+        \Log::info('QR Image Path: ' . $fees->qrimage);
+        \Log::info('QR Image URL: ' . $fees->qrimage_url);
 
         $hasSubscription = $this->hasActiveSubscription($student->id, $class->id);
 
