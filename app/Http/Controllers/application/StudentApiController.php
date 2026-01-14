@@ -402,6 +402,7 @@ class StudentApiController extends AppController
         return $this->sendResponse([
             'questions' => $questions,
             'options' => $answers,
+            'correct_answers' => $video->correct_answers, // Included for review
             'submitted_test' => $submittedTest,
             'video_title' => $video->video_title
         ], 'Practice test retrieved.');
@@ -423,9 +424,10 @@ class StudentApiController extends AppController
 
         $video = Video::findOrFail($videoId);
 
-        $correctAnswers = is_string($video->correct_answers)
-            ? json_decode($video->correct_answers, true)
-            : $video->correct_answers;
+        $correctAnswers = $video->correct_answers;
+        if (is_string($correctAnswers)) {
+            $correctAnswers = json_decode($correctAnswers, true);
+        }
 
         // Calculate score (2 marks per correct answer)
         $score = 0;
@@ -454,6 +456,7 @@ class StudentApiController extends AppController
         return $this->sendResponse([
             'score' => $score,
             'total_questions' => count($correctAnswers ?? []),
+            'correct_answers' => $correctAnswers, // Included for rectification
             'student_test' => $studentTest
         ], 'Test submitted successfully.');
     }
