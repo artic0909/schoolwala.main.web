@@ -1339,11 +1339,6 @@ class AdminController extends Controller
         }
     }
 
-
-
-
-
-
     public function adminTuitionFeesView()
     {
         $classes = Classes::all();
@@ -1362,17 +1357,8 @@ class AdminController extends Controller
         ]);
 
         $qrimagePath = null;
-
         if ($request->hasFile('qrimage')) {
-            $file = $request->file('qrimage');
-
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-
-            // public/fees_qr folder e store
-            $file->move(public_path('fees_qr'), $filename);
-
-            // DB te SHORT path
-            $qrimagePath = 'fees_qr/' . $filename;
+            $qrimagePath = $request->file('qrimage')->store('fees_qr', 'public');
         }
 
         Fees::create([
@@ -1383,7 +1369,6 @@ class AdminController extends Controller
 
         return back()->with('success', 'Fees added successfully');
     }
-
 
     public function adminTuitionFeesUpdate(Request $request, $id)
     {
@@ -1396,18 +1381,12 @@ class AdminController extends Controller
         $fees = Fees::findOrFail($id);
 
         if ($request->hasFile('qrimage')) {
-
-            // old image delete
-            if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
-                unlink(public_path($fees->qrimage));
+            // Delete old image
+            if ($fees->qrimage && Storage::disk('public')->exists($fees->qrimage)) {
+                Storage::disk('public')->delete($fees->qrimage);
             }
 
-            $file = $request->file('qrimage');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-
-            $file->move(public_path('fees_qr'), $filename);
-
-            $fees->qrimage = 'fees_qr/' . $filename;
+            $fees->qrimage = $request->file('qrimage')->store('fees_qr', 'public');
         }
 
         $fees->class_id = $request->class_id;
