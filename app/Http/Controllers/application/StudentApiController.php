@@ -184,8 +184,8 @@ class StudentApiController extends AppController
         $chapters = $subject->chapters->map(function ($chapter, $index) use ($hasSubscription) {
             return [
                 'id' => $chapter->id,
-                'chapter_name' => $chapter->chapter_name,
-                'chapter_description' => $chapter->chapter_description,
+                'chapter_name' => $chapter->name,
+                'chapter_description' => $chapter->description,
                 'videos_count' => $chapter->videos_count,
                 'is_locked' => !$hasSubscription, // ALL chapters locked if no subscription
                 'chapter_index' => $index + 1
@@ -195,8 +195,8 @@ class StudentApiController extends AppController
         return $this->sendResponse([
             'subject' => [
                 'id' => $subject->id,
-                'subject_name' => $subject->subject_name,
-                'subject_description' => $subject->subject_description,
+                'subject_name' => $subject->name,
+                'subject_description' => $subject->description,
                 'class_id' => $subject->class_id
             ],
             'chapters' => $chapters,
@@ -249,10 +249,10 @@ class StudentApiController extends AppController
         return $this->sendResponse([
             'chapter' => [
                 'id' => $chapter->id,
-                'chapter_name' => $chapter->chapter_name,
-                'chapter_description' => $chapter->chapter_description,
+                'chapter_name' => $chapter->name,
+                'chapter_description' => $chapter->description,
                 'subject_id' => $chapter->subject_id,
-                'subject_name' => $chapter->subject->subject_name
+                'subject_name' => $chapter->subject->name
             ],
             'videos' => $chapter->videos->map(function ($video) use ($submittedVideoIds) {
                 return [
@@ -315,8 +315,8 @@ class StudentApiController extends AppController
             'feedbacks' => $feedbacks,
             'chapter_info' => [
                 'id' => $chapter->id,
-                'name' => $chapter->chapter_name,
-                'subject_name' => $chapter->subject->subject_name
+                'name' => $chapter->name,
+                'subject_name' => $chapter->subject->name
             ]
         ], 'Video details retrieved.');
     }
@@ -414,7 +414,7 @@ class StudentApiController extends AppController
     {
         $request->validate([
             'video_id' => 'required|exists:videos,id',
-            'answers' => 'required|array',            
+            'answers' => 'required|array',
         ]);
 
         $student = $request->user();
