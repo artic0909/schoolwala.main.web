@@ -408,6 +408,7 @@ class StudentApiController extends AppController
             ? json_decode($video->correct_answers, true)
             : $video->correct_answers;
 
+        // Calculate score (2 marks per correct answer)
         $score = 0;
         foreach ($studentAnswers as $index => $answer) {
             if (isset($correctAnswers[$index]) && strtolower($answer) == strtolower($correctAnswers[$index])) {
@@ -415,18 +416,21 @@ class StudentApiController extends AppController
             }
         }
 
+        // Store or update student test
         $studentTest = StudentTest::updateOrCreate(
             ['student_id' => $student->id, 'video_id' => $videoId],
             ['student_answers' => $studentAnswers, 'score' => $score]
         );
 
+        // Update student profile
         $studentProfile = StudentProfile::firstOrCreate(
             ['student_id' => $student->id],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
         );
 
-        $studentProfile->increment('no_practise_test');
-        $studentProfile->increment('total_practise_test_score', $score);
+        // Increment the number of tests and add the score
+        $studentProfile->increment('no_practise_test'); // +1
+        $studentProfile->increment('total_practise_test_score', $score); // + current score
 
         return $this->sendResponse([
             'score' => $score,
