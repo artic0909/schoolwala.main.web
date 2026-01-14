@@ -48,10 +48,21 @@ class StudentApiController extends AppController
     {
         $student = $request->user();
 
+        // Sync profile stats with actual test data (Self-healing)
+        $totalScore = StudentTest::where('student_id', $student->id)->sum('score');
+        $totalTests = StudentTest::where('student_id', $student->id)->count();
+
         $profile = StudentProfile::firstOrCreate(
             ['student_id' => $student->id],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
         );
+
+        // Update if stats mismatch
+        if ($profile->total_practise_test_score != $totalScore || $profile->no_practise_test != $totalTests) {
+            $profile->total_practise_test_score = $totalScore;
+            $profile->no_practise_test = $totalTests;
+            $profile->save();
+        }
 
         $class = Classes::find($student->class_id);
 
