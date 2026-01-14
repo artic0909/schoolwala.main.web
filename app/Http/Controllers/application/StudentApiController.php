@@ -414,7 +414,7 @@ class StudentApiController extends AppController
     {
         $request->validate([
             'video_id' => 'required|exists:videos,id',
-            'answers' => 'required|array',
+            'answers' => 'required|array',            
         ]);
 
         $student = $request->user();
