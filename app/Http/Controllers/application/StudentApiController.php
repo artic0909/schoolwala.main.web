@@ -402,7 +402,7 @@ class StudentApiController extends AppController
         return $this->sendResponse([
             'questions' => $questions,
             'options' => $answers,
-            'correct_answers' => $video->correct_answers, // Included for review
+            'correct_answers' => $forceJson($video->correct_answers), // Included for review
             'submitted_test' => $submittedTest,
             'video_title' => $video->video_title
         ], 'Practice test retrieved.');
