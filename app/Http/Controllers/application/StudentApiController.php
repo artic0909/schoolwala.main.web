@@ -227,6 +227,15 @@ class StudentApiController extends AppController
             );
         }
 
+        // Pre-fetch submitted tests for these videos
+        $submittedVideoIds = [];
+        if ($chapter->videos->isNotEmpty()) {
+            $submittedVideoIds = StudentTest::where('student_id', $student->id)
+                ->whereIn('video_id', $chapter->videos->pluck('id'))
+                ->pluck('video_id')
+                ->toArray();
+        }
+
         // Return videos with additional info
         return $this->sendResponse([
             'chapter' => [
@@ -236,7 +245,7 @@ class StudentApiController extends AppController
                 'subject_id' => $chapter->subject_id,
                 'subject_name' => $chapter->subject->subject_name
             ],
-            'videos' => $chapter->videos->map(function ($video) {
+            'videos' => $chapter->videos->map(function ($video) use ($submittedVideoIds) {
                 return [
                     'id' => $video->id,
                     'video_title' => $video->video_title,
@@ -247,7 +256,8 @@ class StudentApiController extends AppController
                     'duration' => $video->duration,
                     'likes' => $video->likes ?? 0,
                     'views' => $video->views ?? 0,
-                    'has_practice_test' => !empty($video->questions)
+                    'has_practice_test' => !empty($video->questions),
+                    'has_submitted_test' => in_array($video->id, $submittedVideoIds)
                 ];
             }),
             'is_locked' => false,
