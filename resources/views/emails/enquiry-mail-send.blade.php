@@ -160,7 +160,7 @@
                 <a href="www.schoolwala.info">Privacy Policy</a> | 
                 <a href="www.schoolwala.info">Contact Us</a>
             </div>
-            <p style="margin-top: 15px; font-size: 14px;">&copy; 2025 Schoolwala. All rights reserved.</p>
+            <p style="margin-top: 15px; font-size: 14px;">&copy; {{ date('Y') }} Schoolwala. All rights reserved.</p>
         </div>
     </div>
 </body>

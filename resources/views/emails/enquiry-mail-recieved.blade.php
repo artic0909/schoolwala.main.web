@@ -167,8 +167,8 @@
             
             <div class="contact-info">
                 <p><strong>Need immediate assistance?</strong></p>
-                <p>📞 Call us: (123) 456-7890</p>
-                <p>📧 Email: help@schoolwala.info</p>
+                <p>📞 Call us: 6292237210</p>
+                <p>📧 Email: schoolwala.info@gmail.com</p>
             </div>
         </div>
         
@@ -185,7 +185,7 @@
                 <a href="www.schoolwala.info">Privacy Policy</a> | 
                 <a href="www.schoolwala.info">Contact Us</a>
             </div>
-            <p style="margin-top: 15px; font-size: 14px;">&copy; 2025 Schoolwala. All rights reserved.</p>
+            <p style="margin-top: 15px; font-size: 14px;">&copy; {{ date('Y') }} Schoolwala. All rights reserved.</p>
         </div>
     </div>
 </body>

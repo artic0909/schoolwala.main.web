@@ -220,7 +220,7 @@
 
             <div style="text-align: center; margin-top: 30px;">
                 <p><strong>Need help?</strong> Our friendly team is here to assist you!</p>
-                <p>Email: help@schoolwala.info | Phone: (123) 456-7890</p>
+                <p>Email: schoolwala.info@gmail.com | Phone: 6292237210</p>
             </div>
         </div>
 
@@ -238,7 +238,7 @@
                 <a href="www.schoolwala.info">Privacy Policy</a> |
                 <a href="www.schoolwala.info">Contact Us</a>
             </div>
-            <p style="margin-top: 15px; font-size: 14px;">&copy; 2025 Schoolwala. All rights reserved.</p>
+            <p style="margin-top: 15px; font-size: 14px;">&copy; {{ date('Y') }} Schoolwala. All rights reserved.</p>
         </div>
     </div>
 </body>
