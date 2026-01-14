@@ -98,7 +98,7 @@
 
                   <td>
                     @if($fees->qrimage)
-                    <img src="{{ asset($fees->qrimage) }}" alt="QR Code" width="120">
+                    <img src="{{ 'storage/' . $fees->qrimage }}" alt="QR Code" width="120">
                     @endif
                   </td>
 

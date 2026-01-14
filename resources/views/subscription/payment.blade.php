@@ -446,7 +446,7 @@
                 <h2>💳 Scan to Pay</h2>
 
                 @if($fees->qrimage)
-                <img src="{{ asset($fees->qrimage) }}" alt="Payment QR Code" class="qr-code">
+                <img src="{{ 'storage/' . $fees->qrimage }}" alt="Payment QR Code" class="qr-code">
                 @else
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Payment for {{ $class->name }}"
                     alt="QR Code for Payment" class="qr-code">
