@@ -458,11 +458,12 @@ class StudentApiController extends AppController
             return $this->sendError('No fees information available for this class.', [], 404);
         }
 
-        // QR image is stored in public/fees_qr/ directory
-        // Database path: 'fees_qr/1768313204.png'
-        // Required URL: 'https://schoolwala.info/fees_qr/1768313204.png'
+        // QR image is stored via public disk: storage/app/public/fees_qr/
+        // Database path: 'fees_qr/image.png'
+        // Access via storage symlink: public/storage/fees_qr/image.png
+        // Generate full URL: https://domain.com/storage/fees_qr/image.png
         $fees->qrimage_url = $fees->qrimage
-            ? url($fees->qrimage)
+            ? asset('storage/' . $fees->qrimage)
             : null;
 
         \Log::info('QR Image Path: ' . $fees->qrimage);
@@ -542,14 +543,14 @@ class StudentApiController extends AppController
             Mail::to('saklindeveloper@gmail.com')
                 ->cc($student->email)
                 ->send(new SubscriptionMailFromStudent([
-                    'student_name' => $request->student_name,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'class_id' => $request->class_id,
-                    'fees_id' => $request->fees_id,
-                    'amount' => $fee->amount,
-                    'receipt' => $receiptPath
-                ]));
+                            'student_name' => $request->student_name,
+                            'email' => $request->email,
+                            'phone' => $request->phone,
+                            'class_id' => $request->class_id,
+                            'fees_id' => $request->fees_id,
+                            'amount' => $fee->amount,
+                            'receipt' => $receiptPath
+                        ]));
         }
 
         return $this->sendResponse([], $message);
