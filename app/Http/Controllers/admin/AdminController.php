@@ -960,7 +960,7 @@ class AdminController extends Controller
         $classes = Classes::all();
         $subjects = Subject::with('class')->get();
         $chapters = Chapter::with('subject')->get();
-        $videos = Video::with('class', 'subject', 'chapter')->get();
+        $videos = Video::with('class', 'subject', 'chapter')->orderBy('id', 'desc')->paginate(10);
         return view('admin.admin-videos', compact('classes', 'subjects', 'chapters', 'videos'));
     }
 

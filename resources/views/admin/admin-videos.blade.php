@@ -174,6 +174,40 @@
                 </tr>
                 @endforeach
               </tbody>
+
+              <!-- Pagination -->
+              <tfoot>
+                <tr>
+                  <td colspan="10">
+                    <div class="d-flex justify-content-center">
+                      <div class="d-flex justify-content-center align-items-center mt-3">
+                        @if ($videos->onFirstPage())
+                        <button class="btn btn-secondary me-2" disabled>Prev</button>
+                        @else
+                        <a href="{{ $videos->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                        @endif
+
+                        <form action="" method="GET" class="d-flex align-items-center">
+                          <input type="number" name="page" value="{{ $videos->currentPage() }}"
+                            min="1" max="{{ $videos->lastPage() }}"
+                            class="form-control text-center me-1" style="width: 70px;"
+                            onchange="this.form.submit()" readonly>
+
+                          <span class="mx-1">/</span>
+                          <input type="text" readonly value="{{ $videos->lastPage() }}"
+                            class="form-control text-center ms-1" style="width: 70px;">
+                        </form>
+
+                        @if ($videos->hasMorePages())
+                        <a href="{{ $videos->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                        @else
+                        <button class="btn btn-secondary ms-2" disabled>Next</button>
+                        @endif
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
