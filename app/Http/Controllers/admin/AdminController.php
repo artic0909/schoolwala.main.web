@@ -955,14 +955,35 @@ class AdminController extends Controller
 
 
 
-    public function adminVideosView()
+    public function adminVideosView(Request $request)
     {
         $classes = Classes::all();
-        $subjects = Subject::with('class')->get();
-        $chapters = Chapter::with('subject')->get();
-        $videos = Video::with('class', 'subject', 'chapter')->orderBy('id', 'desc')->paginate(10);
-        return view('admin.admin-videos', compact('classes', 'subjects', 'chapters', 'videos'));
+
+        $classId = $request->input('class');
+        $subjectId = $request->input('subject');
+        $chapterId = $request->input('chapter');
+
+        $query = Video::with('class', 'subject', 'chapter');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+        if ($subjectId) {
+            $query->where('subject_id', $subjectId);
+        }
+        if ($chapterId) {
+            $query->where('chapter_id', $chapterId);
+        }
+
+        $videos = $query->orderBy('id', 'desc')->paginate(10);
+        $videos->appends($request->all());
+
+        $subjects = $classId ? Subject::where('class_id', $classId)->get() : collect();
+        $chapters = $subjectId ? Chapter::where('subject_id', $subjectId)->get() : collect();
+
+        return view('admin.admin-videos', compact('classes', 'subjects', 'chapters', 'videos', 'classId', 'subjectId', 'chapterId'));
     }
+
 
     public function getChapters($subjectId)
     {

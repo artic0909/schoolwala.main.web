@@ -4,875 +4,876 @@
 
 @section('content')
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<style>
-  .fab {
-    position: fixed;
-    right: 34px;
-    bottom: 54px;
-    width: 56px;
-    height: 56px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9999px;
-    background: #0d6efd;
-    /* change color as you like */
-    color: #fff !important;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
-      0 6px 10px rgba(0, 0, 0, 0.08);
-    text-decoration: none;
-    z-index: 1050;
-    /* sits above most UI */
-    transition: transform 0.15s ease, box-shadow 0.15s ease,
-      filter 0.15s ease;
-  }
-
-  .fab:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18),
-      0 8px 14px rgba(0, 0, 0, 0.1);
-    filter: brightness(1.05);
-  }
-
-  .fab:focus-visible {
-    outline: 3px solid rgba(13, 110, 253, 0.45);
-    outline-offset: 2px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
+  <style>
     .fab {
-      transition: none;
+      position: fixed;
+      right: 34px;
+      bottom: 54px;
+      width: 56px;
+      height: 56px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      background: #0d6efd;
+      /* change color as you like */
+      color: #fff !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15),
+        0 6px 10px rgba(0, 0, 0, 0.08);
+      text-decoration: none;
+      z-index: 1050;
+      /* sits above most UI */
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        filter 0.15s ease;
     }
-  }
-</style>
 
-<div class="row">
-  <div class="col-lg-12 mb-4 order-0">
-    <div class="card">
-      <div class="d-flex align-items-end row">
-        <div class="col-sm-7">
-          <div class="card-body">
-            <h5 class="card-title text-primary">
-              List of Videos !
-            </h5>
-            <p class="mb-4">
-              You can <strong>add/ edit/ delete</strong> videos
-            </p>
+    .fab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18),
+        0 8px 14px rgba(0, 0, 0, 0.1);
+      filter: brightness(1.05);
+    }
+
+    .fab:focus-visible {
+      outline: 3px solid rgba(13, 110, 253, 0.45);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .fab {
+        transition: none;
+      }
+    }
+  </style>
+
+  <div class="row">
+    <div class="col-lg-12 mb-4 order-0">
+      <div class="card">
+        <div class="d-flex align-items-end row">
+          <div class="col-sm-7">
+            <div class="card-body">
+              <h5 class="card-title text-primary">
+                List of Videos !
+              </h5>
+              <p class="mb-4">
+                You can <strong>add/ edit/ delete</strong> videos
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="col-sm-5 text-center text-sm-left">
-          <div class="card-body pb-0 px-0 px-md-4">
-            <img
-              src="{{ asset('./admin/assets/img/illustrations/man-with-laptop-light.png') }}"
-              height="140"
-              alt="View Badge User" />
-          </div>
-        </div>
-        <div class="col-lg-12">
-          <div class="table-responsive text-nowrap">
-            <table class="table table-hover table-bordered">
-              <thead>
-                <tr>
-                  <th>SL</th>
-                  <th>Thumbnails</th>
-                  <th>Class Names</th>
-                  <th>Subjects</th>
-                  <th>Chapters</th>
-                  <th>Paid/ Free</th>
-                  <th>Video Titles</th>
-                  <th>Videos</th>
-                  <th>Practice Q/A</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody class="table-border-bottom-0">
-                @foreach ($videos as $video)
-                <tr>
-                  <td>
-                    <strong>{{ $loop->iteration }}</strong>
-                  </td>
-                  <td>
-                    <img
-                      class="img-fluid rounded"
-                      src="{{ asset('storage/' . $video->video_thumbnail) }}"
-                      width="50" />
-                  </td>
-                  <td>{{ $video->class->name }}</td>
-                  <td>{{ $video->subject->name }}</td>
-                  <td>{{ $video->chapter->name }}</td>
-                  <td>
-                    @if ($video->video_type == 'paid')
-                    <span class="badge bg-label-success">Paid</span>
-                    @elseif ($video->video_type == 'free')
-                    <span class="badge bg-label-info">Free</span>
-                    @endif
-                  </td>
-                  <td style="text-transform: capitalize; white-space: normal; word-break: break-word;">
-                    <strong>{{ $video->video_title }}</strong>
-                  </td>
+          <div class="col-sm-12 text-center text-sm-left">
+            <!-- filter -->
+            <div class="card-body pb-0 px-0 px-md-4 d-flex justify-content-end gap-2 mb-4">
 
-                  <td>
-                    <div class="d-flex flex-column gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-info"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalPlayVideo{{ $video->id }}">
-                        <i class="fa-solid fa-video"></i>
-                      </button>
-
-                      <button
-                        type="button"
-                        class="btn btn-warning"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalDescription{{ $video->id }}">
-                        <i class="fa-solid fa-file"></i>
-                      </button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div class="d-flex flex-column gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-success"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalAddTest{{ $video->id }}" style="width: fit-content;">
-                        <i class="fa-solid fa-plus"></i>
-                      </button>
-
-                      <button
-                        type="button"
-                        class="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalViewTest{{ $video->id }}" style="width: fit-content;">
-                        <i class="fa-solid fa-eye"></i>
-                      </button>
-                    </div>
-                  </td>
-
-                  <td>
-                    <div class="d-flex flex-column gap-2">
-                      <button
-                        type="button"
-                        class="btn btn-warning"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalEditClass{{ $video->id }}">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      <button
-                        class="btn btn-danger"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#backDropModalDeleteClass{{ $video->id }}">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+              <select name="class" id="classSelect" class="form-select class-select" aria-label="Default select example">
+                <option value="" selected>Filter by Class</option>
+                @foreach ($classes as $class)
+                  <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>
+                    {{ $class->name }}
+                  </option>
                 @endforeach
-              </tbody>
+              </select>
 
-              <!-- Pagination -->
-              <tfoot>
-                <tr>
-                  <td colspan="10">
-                    <div class="d-flex justify-content-center">
-                      <div class="d-flex justify-content-center align-items-center mt-3">
-                        @if ($videos->onFirstPage())
-                        <button class="btn btn-secondary me-2" disabled>Prev</button>
-                        @else
-                        <a href="{{ $videos->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+              <select name="subject" id="subjectSelect" class="form-select subject-select"
+                aria-label="Default select example">
+                <option value="" selected>Filter by Subject</option>
+                @foreach ($subjects as $subject)
+                  <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>
+                    {{ $subject->name }}
+                  </option>
+                @endforeach
+              </select>
+
+              <select name="chapter" id="chapterSelect" class="form-select chapter-select"
+                aria-label="Default select example">
+                <option value="" selected>Filter by Chapter</option>
+                @foreach ($chapters as $chapter)
+                  <option value="{{ $chapter->id }}" {{ $chapterId == $chapter->id ? 'selected' : '' }}>
+                    {{ $chapter->name }}
+                  </option>
+                @endforeach
+              </select>
+
+              <button id="filterBtn" class="btn btn-primary">Filter</button>
+              <button id="resetBtn" class="btn btn-secondary">Reset</button>
+
+
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="table-responsive text-nowrap">
+              <table class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th>SL</th>
+                    <th>Thumbnails</th>
+                    <th>Class Names</th>
+                    <th>Subjects</th>
+                    <th>Chapters</th>
+                    <th>Paid/ Free</th>
+                    <th>Video Titles</th>
+                    <th>Videos</th>
+                    <th>Practice Q/A</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                  @foreach ($videos as $video)
+                    <tr>
+                      <td>
+                        <strong>{{ $loop->iteration }}</strong>
+                      </td>
+                      <td>
+                        <img class="img-fluid rounded" src="{{ asset('storage/' . $video->video_thumbnail) }}" width="50" />
+                      </td>
+                      <td>{{ $video->class->name }}</td>
+                      <td>{{ $video->subject->name }}</td>
+                      <td>{{ $video->chapter->name }}</td>
+                      <td>
+                        @if ($video->video_type == 'paid')
+                          <span class="badge bg-label-success">Paid</span>
+                        @elseif ($video->video_type == 'free')
+                          <span class="badge bg-label-info">Free</span>
                         @endif
+                      </td>
+                      <td style="text-transform: capitalize; white-space: normal; word-break: break-word;">
+                        <strong>{{ $video->video_title }}</strong>
+                      </td>
 
-                        <form action="" method="GET" class="d-flex align-items-center">
-                          <input type="number" name="page" value="{{ $videos->currentPage() }}"
-                            min="1" max="{{ $videos->lastPage() }}"
-                            class="form-control text-center me-1" style="width: 70px;"
-                            onchange="this.form.submit()" readonly>
+                      <td>
+                        <div class="d-flex flex-column gap-2">
+                          <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalPlayVideo{{ $video->id }}">
+                            <i class="fa-solid fa-video"></i>
+                          </button>
 
-                          <span class="mx-1">/</span>
-                          <input type="text" readonly value="{{ $videos->lastPage() }}"
-                            class="form-control text-center ms-1" style="width: 70px;">
-                        </form>
+                          <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalDescription{{ $video->id }}">
+                            <i class="fa-solid fa-file"></i>
+                          </button>
+                        </div>
+                      </td>
 
-                        @if ($videos->hasMorePages())
-                        <a href="{{ $videos->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
-                        @else
-                        <button class="btn btn-secondary ms-2" disabled>Next</button>
-                        @endif
+                      <td>
+                        <div class="d-flex flex-column gap-2">
+                          <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalAddTest{{ $video->id }}" style="width: fit-content;">
+                            <i class="fa-solid fa-plus"></i>
+                          </button>
+
+                          <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalViewTest{{ $video->id }}" style="width: fit-content;">
+                            <i class="fa-solid fa-eye"></i>
+                          </button>
+                        </div>
+                      </td>
+
+                      <td>
+                        <div class="d-flex flex-column gap-2">
+                          <button type="button" class="btn btn-warning" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalEditClass{{ $video->id }}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                          <button class="btn btn-danger" type="button" data-bs-toggle="modal"
+                            data-bs-target="#backDropModalDeleteClass{{ $video->id }}">
+                            <i class="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  @endforeach
+                </tbody>
+
+                <!-- Pagination -->
+                <tfoot>
+                  <tr>
+                    <td colspan="10">
+                      <div class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center align-items-center mt-3">
+                          @if ($videos->onFirstPage())
+                            <button class="btn btn-secondary me-2" disabled>Prev</button>
+                          @else
+                            <a href="{{ $videos->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                          @endif
+
+                          <form action="" method="GET" class="d-flex align-items-center">
+                            <input type="number" name="page" value="{{ $videos->currentPage() }}" min="1"
+                              max="{{ $videos->lastPage() }}" class="form-control text-center me-1" style="width: 70px;"
+                              onchange="this.form.submit()" readonly>
+
+                            <span class="mx-1">/</span>
+                            <input type="text" readonly value="{{ $videos->lastPage() }}"
+                              class="form-control text-center ms-1" style="width: 70px;">
+                          </form>
+
+                          @if ($videos->hasMorePages())
+                            <a href="{{ $videos->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                          @else
+                            <button class="btn btn-secondary ms-2" disabled>Next</button>
+                          @endif
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Video Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalPlayVideo{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <p style="width: 100%">
-              <strong>{{ $video->video_title }}</strong>
-              <br />
-              <br />
-              <iframe
-                src="{{ $video->video_link }}"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                style="width: 100%; height: 500px"></iframe>
-            </p>
+  <!-- Video Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalPlayVideo{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <form class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="backDropModalTitle">
+              {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-@endforeach
-
-
-<!-- Test View Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalViewTest{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Practice Test | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
-
-            @php
-            $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
-            $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
-            $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
-            @endphp
-
-
-            @if(!empty($questions))
-            @foreach($questions as $i => $q)
-            <p>
-              <strong>{{ $i+1 }}.</strong> {{ $q }} <br>
-              @php $ansArr = explode(',', $answers[$i] ?? ''); @endphp
-              @foreach($ansArr as $key => $ans)
-              @php $isCorrect = trim($ans) == ($correct[$i] ?? ''); @endphp
-              <span class="me-2 {{ $isCorrect ? 'badge bg-success' : '' }}">
-                {!! $isCorrect ? '<strong>'.chr(65+$key).'. '.trim($ans).'</strong>' : chr(65+$key).'. '.trim($ans) !!}
-              </span>
-              @endforeach
-            </p>
-            @endforeach
-            @else
-            <p>No practice test added yet.</p>
-            @endif
-
-
-
+          <div class="modal-body">
+            <div class="row">
+              <div class="col mb-3">
+                <p style="width: 100%">
+                  <strong>{{ $video->video_title }}</strong>
+                  <br />
+                  <br />
+                  <iframe src="{{ $video->video_link }}" title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen style="width: 100%; height: 500px"></iframe>
+                </p>
+              </div>
+            </div>
           </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  @endforeach
+
+
+  <!-- Test View Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalViewTest{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <form class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="backDropModalTitle">
+              Practice Test | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col mb-3">
+                <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
+
+                @php
+                  $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
+                  $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
+                  $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
+                @endphp
+
+
+                @if(!empty($questions))
+                  @foreach($questions as $i => $q)
+                    <p>
+                      <strong>{{ $i + 1 }}.</strong> {{ $q }} <br>
+                      @php $ansArr = explode(',', $answers[$i] ?? ''); @endphp
+                      @foreach($ansArr as $key => $ans)
+                        @php $isCorrect = trim($ans) == ($correct[$i] ?? ''); @endphp
+                        <span class="me-2 {{ $isCorrect ? 'badge bg-success' : '' }}">
+                          {!! $isCorrect ? '<strong>' . chr(65 + $key) . '. ' . trim($ans) . '</strong>' : chr(65 + $key) . '. ' . trim($ans) !!}
+                        </span>
+                      @endforeach
+                    </p>
+                  @endforeach
+                @else
+                  <p>No practice test added yet.</p>
+                @endif
+
+
+
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  @endforeach
+
+  <!-- Test Add Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalAddTest{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <form class="modal-content" action="{{ route('admin.admin-videos.practice-test.update', $video->id) }}"
+          method="POST">
+          @csrf
+          @method('PUT')
+          <div class="modal-header">
+            <h5 class="modal-title" id="backDropModalTitle">
+              Practice Test | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label class="form-label">Video Title: {{ $video->video_title }}</label> <br>
+                <label class="form-label">Practice Questions & Answers</label>
+
+                <input type="hidden" value="{{ $video->id }}" name="video_id">
+
+                @php
+                  $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
+                  $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
+                  $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
+                @endphp
+
+                <div id="questions-wrapper-{{ $video->id }}">
+                  @if(!empty($questions))
+                    @foreach($questions as $i => $q)
+                      @php $ansArr = explode(',', $answers[$i] ?? ''); @endphp
+                      <div class="multiple-section mb-3 border rounded p-3">
+                        <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]"
+                          value="{{ $q }}" />
+
+                        <input type="text" class="form-control mb-2 answers-field"
+                          placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" value="{{ $answers[$i] ?? '' }}" />
+
+                        <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+                          <option value="">-- Select Correct Answer --</option>
+                          @foreach($ansArr as $ans)
+                            <option value="{{ trim($ans) }}" {{ (trim($ans) == ($correct[$i] ?? '')) ? 'selected' : '' }}>
+                              {{ trim($ans) }}
+                            </option>
+                          @endforeach
+                        </select>
+
+                        <button type="button" class="btn btn-danger remove-section">Remove</button>
+                      </div>
+                    @endforeach
+                  @endif
+
+                  {{-- Blank section for new question --}}
+                  <div class="multiple-section mb-3 border rounded p-3">
+                    <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
+                    <input type="text" class="form-control mb-2 answers-field"
+                      placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+                    <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+                      <option value="">-- Select Correct Answer --</option>
+                    </select>
+                    <button type="button" class="btn btn-danger remove-section">Remove</button>
+                  </div>
+                </div>
+
+                <button type="button" class="mt-2 btn btn-primary add-section"
+                  data-target="questions-wrapper-{{ $video->id }}">Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  @endforeach
+
+
+  <!-- Video Description Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalDescription{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <form class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="backDropModalTitle">
+              Video Description | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col mb-3">
+                <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
+
+                <p class="fw-bold">Video Description: {{ $video->video_description }}</p>
+
+                <br>
+                <p>Notes Link: <a href="{{ $video->note_link }}" target="_blank">View</a></p>
+
+                <p>Video Duration: {{ $video->duration }}</p>
+                <p>Views: {{ $video->views }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  @endforeach
+
+
+
+
+
+
+
+  <!-- Add Video Modal -->
+  <div class="modal fade" id="backDropModalAddClass" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <form class="modal-content" action="{{ route('admin.admin-videos.store') }}" method="POST"
+        enctype="multipart/form-data">
+        @csrf
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">
+            Add Video
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
-    </form>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="class_id" class="form-label">Choose Class</label>
+              <select name="class_id" id="class_id" class="form-select class-select">
+                <option value="" selected>Choose Class</option>
+                @foreach ($classes as $class)
+                  <option value="{{ $class->id }}">{{ $class->name }}</option>
+                @endforeach
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="subject_id" class="form-label">Choose Subject</label>
+              <select name="subject_id" id="subject_id" class="form-select subject-select">
+                <option value="" selected>Choose Subject</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="chapter_id" class="form-label">Choose Chapter</label>
+              <select name="chapter_id" id="chapter_id" class="form-select chapter-select">
+                <option value="" selected>Choose Chapter</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Video Title</label>
+              <input type="text" class="form-control" name="video_title" id="video_title" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Video Type</label>
+              <select name="video_type" id="video_type" class="form-select">
+                <option value="" selected>Choose Video Type</option>
+                <option value="paid">Paid</option>
+                <option value="free">Free</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-2" id="video_link_row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Video Link</label>
+              <input type="text" class="form-control" name="video_link" id="video_link" />
+            </div>
+          </div>
+
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
+              <input type="text" class="form-control" name="note_link" id="note_link" />
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6 mb-3">
+              <label for="nameBackdrop" class="form-label">Video Duration</label>
+              <input type="text" class="form-control" name="duration" id="duration" />
+            </div>
+
+            <div class="col-6 mb-3">
+              <label for="nameBackdrop" class="form-label">Views</label>
+              <input type="text" class="form-control" name="views" id="views" />
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Video Description</label>
+              <textarea name="video_description" id="video_description" class="form-control" rows="5"></textarea>
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Video Thumbnail</label>
+              <input type="file" class="form-control" name="video_thumbnail" id="video_thumbnail" />
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
-@endforeach
 
-<!-- Test Add Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalAddTest{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content" action="{{ route('admin.admin-videos.practice-test.update', $video->id) }}" method="POST">
-      @csrf
-      @method('PUT')
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Practice Test | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label class="form-label">Video Title: {{ $video->video_title }}</label> <br>
-            <label class="form-label">Practice Questions & Answers</label>
+  <!-- Edit Video Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalEditClass{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <form class="modal-content" action="{{ route('admin.admin-videos.update', $video->id) }}" method="POST"
+          enctype="multipart/form-data">
+          @csrf
+          @method('PUT')
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Video</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
 
-            <input type="hidden" value="{{ $video->id }}" name="video_id">
-
-            @php
-            $questions = is_string($video->questions) ? json_decode($video->questions, true) : ($video->questions ?? []);
-            $answers = is_string($video->answers) ? json_decode($video->answers, true) : ($video->answers ?? []);
-            $correct = is_string($video->correct_answers) ? json_decode($video->correct_answers, true) : ($video->correct_answers ?? []);
-            @endphp
-
-            <div id="questions-wrapper-{{ $video->id }}">
-              @if(!empty($questions))
-              @foreach($questions as $i => $q)
-              @php $ansArr = explode(',', $answers[$i] ?? ''); @endphp
-              <div class="multiple-section mb-3 border rounded p-3">
-                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" value="{{ $q }}" />
-
-                <input type="text" class="form-control mb-2 answers-field" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" value="{{ $answers[$i] ?? '' }}" />
-
-                <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
-                  <option value="">-- Select Correct Answer --</option>
-                  @foreach($ansArr as $ans)
-                  <option value="{{ trim($ans) }}" {{ (trim($ans) == ($correct[$i] ?? '')) ? 'selected' : '' }}>
-                    {{ trim($ans) }}
-                  </option>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col mb-3">
+                <label for="class_id" class="form-label">Choose Class</label>
+                <select name="class_id" id="class_id_edit{{ $video->id }}" class="form-select class-select">
+                  <option value="" disabled>Choose Class</option>
+                  @foreach ($classes as $class)
+                    <option value="{{ $class->id }}" {{ $class->id == $video->class_id ? 'selected' : '' }}>
+                      {{ $class->name }}
+                    </option>
                   @endforeach
                 </select>
-
-                <button type="button" class="btn btn-danger remove-section">Remove</button>
-              </div>
-              @endforeach
-              @endif
-
-              {{-- Blank section for new question --}}
-              <div class="multiple-section mb-3 border rounded p-3">
-                <input type="text" class="form-control mb-2" placeholder="Enter Question" name="questions[]" />
-                <input type="text" class="form-control mb-2 answers-field" placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
-                <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
-                  <option value="">-- Select Correct Answer --</option>
-                </select>
-                <button type="button" class="btn btn-danger remove-section">Remove</button>
               </div>
             </div>
 
-            <button type="button" class="mt-2 btn btn-primary add-section" data-target="questions-wrapper-{{ $video->id }}">Add</button>
+            <div class="row">
+              <div class="col mb-3">
+                <label for="subject_id" class="form-label">Choose Subject</label>
+                <select name="subject_id" id="subject_id_edit{{ $video->id }}" class="form-select subject-select">
+                  <option value="" disabled>Choose Subject</option>
+                  @foreach ($subjects as $subject)
+                    <option value="{{ $subject->id }}" {{ $subject->id == $video->subject_id ? 'selected' : '' }}>
+                      {{ $subject->name }}
+                    </option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col mb-3">
+                <label for="chapter_id" class="form-label">Choose Chapter</label>
+                <select name="chapter_id" id="chapter_id_edit{{ $video->id }}" class="form-select chapter-select">
+                  <option value="" disabled>Choose Chapter</option>
+                  @foreach ($chapters as $chapter)
+                    <option value="{{ $chapter->id }}" {{ $chapter->id == $video->chapter_id ? 'selected' : '' }}>
+                      {{ $chapter->name }}
+                    </option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col mb-3">
+                <label for="video_type" class="form-label">Video Type</label>
+                <select name="video_type" id="video_type_edit{{ $video->id }}" class="form-select">
+                  <option value="paid" {{ $video->video_type == 'paid' ? 'selected' : '' }}>Paid</option>
+                  <option value="free" {{ $video->video_type == 'free' ? 'selected' : '' }}>Free</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label for="video_title" class="form-label">Video Title</label>
+                <input type="text" class="form-control" name="video_title" value="{{ $video->video_title }}">
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label for="video_link" class="form-label">Video Link</label>
+                <input type="text" class="form-control" name="video_link" value="{{ $video->video_link }}">
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
+                <input type="text" class="form-control" name="note_link" id="note_link" value="{{ $video->note_link }}" />
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Video Duration</label>
+                <input type="text" class="form-control" name="duration" id="duration" value="{{ $video->duration }}" />
+              </div>
+
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Views</label>
+                <input type="text" class="form-control" name="views" id="views" value="{{ $video->views }}" />
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label for="video_description" class="form-label">Video Description</label>
+                <textarea name="video_description" class="form-control" rows="5">{{ $video->video_description }}</textarea>
+              </div>
+            </div>
+
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label for="video_thumbnail" class="form-label">Video Thumbnail</label>
+                <input type="file" class="form-control" name="video_thumbnail">
+                @if($video->video_thumbnail)
+                  <img src="{{ asset('storage/' . $video->video_thumbnail) }}" alt="Thumbnail" class="mt-2"
+                    style="max-width: 120px; border-radius: 8px;">
+                @endif
+              </div>
+            </div>
           </div>
-        </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </form>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  @endforeach
+
+
+  <!-- Delete Video Modal -->
+  @foreach ($videos as $video)
+    <div class="modal fade" id="backDropModalDeleteClass{{ $video->id }}" data-bs-backdrop="static" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" action="{{ route('admin.admin-videos.delete', $video->id) }}" method="POST">
+          @csrf
+          @method('DELETE')
+
+          <div class="modal-header">
+            <h5 class="modal-title" id="backDropModalTitle">
+              Delete Video
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col mb-3">
+                <p>Are you sure you want to delete this Video?</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+            <button type="submit" class="btn btn-danger">Delete</button>
+
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
+  @endforeach
 
-  </div>
-</div>
-@endforeach
+  <!-- Add Button -->
+  <a type="button" data-bs-toggle="modal" data-bs-target="#backDropModalAddClass" class="fab" aria-label="Add new item"
+    title="Add">
+    Add
+  </a>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      // Base routes from Laravel
+      let subjectRoute = "{{ route('admin.get-subjects', ':classId') }}";
+      let chapterRoute = "{{ route('admin.get-chapters', ':subjectId') }}";
 
-<!-- Video Description Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalDescription{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <form class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Video Description | {{ $video->class->name}} | {{ $video->subject->name}} | {{ $video->chapter->name}}
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <p class="fw-bold">Video Title: {{ $video->video_title }}</p>
+      // --- Dynamic Filters Logic ---
+      $('#classSelect').on('change', function () {
+        let classId = $(this).val();
+        $('#subjectSelect').html('<option value="">Filter by Subject</option>');
+        $('#chapterSelect').html('<option value="">Filter by Chapter</option>');
 
-            <p class="fw-bold">Video Description: {{ $video->video_description }}</p>
-
-            <br>
-            <p>Notes Link: <a href="{{ $video->note_link }}" target="_blank">View</a></p>
-
-            <p>Video Duration: {{ $video->duration }}</p>
-            <p>Views: {{ $video->views }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-@endforeach
-
-
-
-
-
-
-
-<!-- Add Video Modal -->
-<div
-  class="modal fade"
-  id="backDropModalAddClass"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <form class="modal-content" action="{{ route('admin.admin-videos.store') }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Add Video
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="class_id" class="form-label">Choose Class</label>
-            <select name="class_id" id="class_id" class="form-select">
-              <option value="" selected>Choose Class</option>
-              @foreach ($classes as $class)
-              <option value="{{ $class->id }}">{{ $class->name }}</option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="subject_id" class="form-label">Choose Subject</label>
-            <select name="subject_id" id="subject_id" class="form-select">
-              <option value="" selected>Choose Subject</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="chapter_id" class="form-label">Choose Chapter</label>
-            <select name="chapter_id" id="chapter_id" class="form-select">
-              <option value="" selected>Choose Chapter</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Title</label>
-            <input type="text" class="form-control" name="video_title" id="video_title" />
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Type</label>
-            <select name="video_type" id="video_type" class="form-select">
-              <option value="" selected>Choose Video Type</option>
-              <option value="paid">Paid</option>
-              <option value="free">Free</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2" id="video_link_row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Link</label>
-            <input type="text" class="form-control" name="video_link" id="video_link" />
-          </div>
-        </div>
-
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
-            <input type="text" class="form-control" name="note_link" id="note_link" />
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col-6 mb-3">
-            <label for="nameBackdrop" class="form-label">Video Duration</label>
-            <input type="text" class="form-control" name="duration" id="duration" />
-          </div>
-
-          <div class="col-6 mb-3">
-            <label for="nameBackdrop" class="form-label">Views</label>
-            <input type="text" class="form-control" name="views" id="views" />
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Description</label>
-            <textarea
-              name="video_description"
-              id="video_description"
-              class="form-control"
-              rows="5"></textarea>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Video Thumbnail</label>
-            <input type="file" class="form-control" name="video_thumbnail" id="video_thumbnail" />
-          </div>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="submit" class="btn btn-primary">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Edit Video Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalEditClass{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <form class="modal-content" action="{{ route('admin.admin-videos.update', $video->id) }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <div class="modal-header">
-        <h5 class="modal-title">Edit Video</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <label for="class_id" class="form-label">Choose Class</label>
-            <select name="class_id" id="class_id_edit{{ $video->id }}" class="form-select class-select">
-              <option value="" disabled>Choose Class</option>
-              @foreach ($classes as $class)
-              <option value="{{ $class->id }}" {{ $class->id == $video->class_id ? 'selected' : '' }}>
-                {{ $class->name }}
-              </option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="subject_id" class="form-label">Choose Subject</label>
-            <select name="subject_id" id="subject_id_edit{{ $video->id }}" class="form-select subject-select">
-              <option value="" disabled>Choose Subject</option>
-              @foreach ($subjects as $subject)
-              <option value="{{ $subject->id }}" {{ $subject->id == $video->subject_id ? 'selected' : '' }}>
-                {{ $subject->name }}
-              </option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="chapter_id" class="form-label">Choose Chapter</label>
-            <select name="chapter_id" id="chapter_id_edit{{ $video->id }}" class="form-select chapter-select">
-              <option value="" disabled>Choose Chapter</option>
-              @foreach ($chapters as $chapter)
-              <option value="{{ $chapter->id }}" {{ $chapter->id == $video->chapter_id ? 'selected' : '' }}>
-                {{ $chapter->name }}
-              </option>
-              @endforeach
-            </select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="video_type" class="form-label">Video Type</label>
-            <select name="video_type" id="video_type_edit{{ $video->id }}" class="form-select">
-              <option value="paid" {{ $video->video_type == 'paid' ? 'selected' : '' }}>Paid</option>
-              <option value="free" {{ $video->video_type == 'free' ? 'selected' : '' }}>Free</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="video_title" class="form-label">Video Title</label>
-            <input type="text" class="form-control" name="video_title" value="{{ $video->video_title }}">
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="video_link" class="form-label">Video Link</label>
-            <input type="text" class="form-control" name="video_link" value="{{ $video->video_link }}">
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Note's Drive Link</label>
-            <input type="text" class="form-control" name="note_link" id="note_link" value="{{ $video->note_link }}"/>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col-6 mb-3">
-            <label for="nameBackdrop" class="form-label">Video Duration</label>
-            <input type="text" class="form-control" name="duration" id="duration" value="{{ $video->duration }}"/>
-          </div>
-
-          <div class="col-6 mb-3">
-            <label for="nameBackdrop" class="form-label">Views</label>
-            <input type="text" class="form-control" name="views" id="views" value="{{ $video->views }}"/>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="video_description" class="form-label">Video Description</label>
-            <textarea name="video_description" class="form-control" rows="5">{{ $video->video_description }}</textarea>
-          </div>
-        </div>
-
-        <div class="row g-2">
-          <div class="col mb-3">
-            <label for="video_thumbnail" class="form-label">Video Thumbnail</label>
-            <input type="file" class="form-control" name="video_thumbnail">
-            @if($video->video_thumbnail)
-            <img src="{{ asset('storage/'.$video->video_thumbnail) }}" alt="Thumbnail" class="mt-2" style="max-width: 120px; border-radius: 8px;">
-            @endif
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Update</button>
-      </div>
-    </form>
-  </div>
-</div>
-@endforeach
-
-
-<!-- Delete Video Modal -->
-@foreach ($videos as $video)
-<div
-  class="modal fade"
-  id="backDropModalDeleteClass{{ $video->id }}"
-  data-bs-backdrop="static"
-  tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content" action="{{ route('admin.admin-videos.delete', $video->id) }}" method="POST">
-      @csrf
-      @method('DELETE')
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">
-          Delete Video
-        </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-            <p>Are you sure you want to delete this Video?</p>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-secondary"
-          data-bs-dismiss="modal">
-          Close
-        </button>
-        <button type="submit" class="btn btn-danger">Delete</button>
-
-      </div>
-    </form>
-  </div>
-</div>
-@endforeach
-
-<!-- Add Button -->
-<a
-  type="button"
-  data-bs-toggle="modal"
-  data-bs-target="#backDropModalAddClass"
-  class="fab"
-  aria-label="Add new item"
-  title="Add">
-  Add
-</a>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-  $(document).ready(function() {
-    // Base routes from Laravel
-    let subjectRoute = "{{ route('admin.get-subjects', ':classId') }}";
-    let chapterRoute = "{{ route('admin.get-chapters', ':subjectId') }}";
-
-    // When Class changes
-    $('#class_id').on('change', function() {
-      let classId = $(this).val();
-      $('#subject_id').html('<option value="">Choose Subject</option>');
-      $('#chapter_id').html('<option value="">Choose Chapter</option>');
-
-      if (classId) {
-        let url = subjectRoute.replace(':classId', classId);
-
-        $.get(url, function(data) {
-          $.each(data, function(key, subject) {
-            $('#subject_id').append('<option value="' + subject.id + '">' + subject.name + '</option>');
+        if (classId) {
+          let url = subjectRoute.replace(':classId', classId);
+          $.get(url, function (data) {
+            $.each(data, function (key, subject) {
+              $('#subjectSelect').append('<option value="' + subject.id + '">' + subject.name + '</option>');
+            });
           });
-        });
-      }
-    });
+        }
+      });
 
-    // When Subject changes
-    $('#subject_id').on('change', function() {
-      let subjectId = $(this).val();
-      $('#chapter_id').html('<option value="">Choose Chapter</option>');
+      $('#subjectSelect').on('change', function () {
+        let subjectId = $(this).val();
+        $('#chapterSelect').html('<option value="">Filter by Chapter</option>');
 
-      if (subjectId) {
-        let url = chapterRoute.replace(':subjectId', subjectId);
-
-        $.get(url, function(data) {
-          $.each(data, function(key, chapter) {
-            $('#chapter_id').append('<option value="' + chapter.id + '">' + chapter.name + '</option>');
+        if (subjectId) {
+          let url = chapterRoute.replace(':subjectId', subjectId);
+          $.get(url, function (data) {
+            $.each(data, function (key, chapter) {
+              $('#chapterSelect').append('<option value="' + chapter.id + '">' + chapter.name + '</option>');
+            });
           });
-        });
-      }
-    });
-  });
-</script>
+        }
+      });
 
-<script>
-  $(document).ready(function() {
-    // Function to build a new section
-    function buildSection() {
-      return `
-        <div class="multiple-section mb-3 border rounded p-3">
-          <input type="text" class="form-control mb-2 question-field" 
-                 placeholder="Enter Question" name="questions[]" />
+      // Filter button action
+      $('#filterBtn').on('click', function () {
+        let classId = $('#classSelect').val();
+        let subjectId = $('#subjectSelect').val();
+        let chapterId = $('#chapterSelect').val();
 
-          <input type="text" class="form-control mb-2 answers-field" 
-                 placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+        let url = new URL(window.location.href);
+        url.searchParams.set('class', classId || '');
+        url.searchParams.set('subject', subjectId || '');
+        url.searchParams.set('chapter', chapterId || '');
+        url.searchParams.set('page', 1); // Reset to first page when filtering
+        window.location.href = url.toString();
+      });
 
-          <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
-            <option value="">-- Select Correct Answer --</option>
-          </select>
+      // Reset button action
+      $('#resetBtn').on('click', function () {
+        window.location.href = "{{ route('admin.admin-videos') }}";
+      });
 
-          <button type="button" class="btn btn-danger remove-section">Remove</button>
-        </div>
-      `;
-    }
 
-    // Add new section
-    $(document).on("click", ".add-section", function() {
-      let targetWrapper = $(this).data("target");
-      $("#" + targetWrapper).append(buildSection());
-    });
+      // --- Add/Edit Modal Logic ---
+      // Handle both "Add" and "Edit" modals by looking for classes
+      $(document).on('change', '.class-select', function () {
+        let classId = $(this).val();
+        let row = $(this).closest('.modal-body');
+        let subjectSelect = row.find('.subject-select');
+        let chapterSelect = row.find('.chapter-select');
 
-    // Remove section (ensure at least one remains)
-    $(document).on("click", ".remove-section", function() {
-      let wrapper = $(this).closest("[id]");
-      if (wrapper.find(".multiple-section").length > 1) {
-        $(this).closest(".multiple-section").remove();
-      } else {
-        alert("At least one question is required.");
-      }
-    });
+        subjectSelect.html('<option value="" selected>Choose Subject</option>');
+        chapterSelect.html('<option value="" selected>Choose Chapter</option>');
 
-    // Populate correct answer dropdown when answers field changes
-    $(document).on("input", ".answers-field", function() {
-      let answers = $(this).val().split(",");
-      let select = $(this).closest(".multiple-section").find(".correct-answer-field");
+        if (classId) {
+          let url = subjectRoute.replace(':classId', classId);
+          $.get(url, function (data) {
+            $.each(data, function (key, subject) {
+              subjectSelect.append('<option value="' + subject.id + '">' + subject.name + '</option>');
+            });
+          });
+        }
+      });
 
-      select.empty(); // clear old options
-      select.append(`<option value="">-- Select Correct Answer --</option>`);
+      $(document).on('change', '.subject-select', function () {
+        let subjectId = $(this).val();
+        let row = $(this).closest('.modal-body');
+        let chapterSelect = row.find('.chapter-select');
 
-      answers.forEach(function(ans) {
-        let trimmed = ans.trim();
-        if (trimmed) {
-          select.append(`<option value="${trimmed}">${trimmed}</option>`);
+        chapterSelect.html('<option value="" selected>Choose Chapter</option>');
+
+        if (subjectId) {
+          let url = chapterRoute.replace(':subjectId', subjectId);
+          $.get(url, function (data) {
+            $.each(data, function (key, chapter) {
+              chapterSelect.append('<option value="' + chapter.id + '">' + chapter.name + '</option>');
+            });
+          });
         }
       });
     });
-  });
-</script>
+
+  </script>
+
+  <script>
+    $(document).ready(function () {
+      // Function to build a new section
+      function buildSection() {
+        return `
+          <div class="multiple-section mb-3 border rounded p-3">
+            <input type="text" class="form-control mb-2 question-field" 
+                   placeholder="Enter Question" name="questions[]" />
+
+            <input type="text" class="form-control mb-2 answers-field" 
+                   placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+
+            <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+              <option value="">-- Select Correct Answer --</option>
+            </select>
+
+            <button type="button" class="btn btn-danger remove-section">Remove</button>
+          </div>
+        `;
+      }
+
+      // Add new section
+      $(document).on("click", ".add-section", function () {
+        let targetWrapper = $(this).data("target");
+        $("#" + targetWrapper).append(buildSection());
+      });
+
+      // Remove section (ensure at least one remains)
+      $(document).on("click", ".remove-section", function () {
+        let wrapper = $(this).closest("[id]");
+        if (wrapper.find(".multiple-section").length > 1) {
+          $(this).closest(".multiple-section").remove();
+        } else {
+          alert("At least one question is required.");
+        }
+      });
+
+      // Populate correct answer dropdown when answers field changes
+      $(document).on("input", ".answers-field", function () {
+        let answers = $(this).val().split(",");
+        let select = $(this).closest(".multiple-section").find(".correct-answer-field");
+
+        select.empty(); // clear old options
+        select.append(`<option value="">-- Select Correct Answer --</option>`);
+
+        answers.forEach(function (ans) {
+          let trimmed = ans.trim();
+          if (trimmed) {
+            select.append(`<option value="${trimmed}">${trimmed}</option>`);
+          }
+        });
+      });
+    });
+  </script>
 
 
 
