@@ -60,14 +60,34 @@
             </p>
           </div>
         </div>
-        <div class="col-sm-5 text-center text-sm-left">
-          <div class="card-body pb-0 px-0 px-md-4">
-            <img
-              src="{{ asset('./admin/assets/img/illustrations/man-with-laptop-light.png') }}"
-              height="140"
-              alt="View Badge User" />
+        <div class="col-sm-12 text-center text-sm-left">
+          <!-- filter -->
+          <div class="card-body pb-0 px-0 px-md-4 d-flex justify-content-end gap-2 mb-4">
+
+            <select name="class" id="classFilter" class="form-select w-px-200" style="width: 200px;">
+              <option value="">Filter by Class</option>
+              @foreach ($classes as $class)
+              <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>
+                {{ $class->name }}
+              </option>
+              @endforeach
+            </select>
+
+            <select name="subject" id="subjectFilter" class="form-select w-px-200" style="width: 200px;">
+              <option value="">Filter by Subject</option>
+              @foreach ($subjects as $subject)
+              <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>
+                {{ $subject->name }}
+              </option>
+              @endforeach
+            </select>
+
+            <button id="filterBtn" class="btn btn-primary">Filter</button>
+            <button id="resetBtn" class="btn btn-secondary">Reset</button>
+
           </div>
         </div>
+
         <div class="col-lg-12">
           <div class="table-responsive text-nowrap">
             <table class="table table-hover table-bordered">
@@ -84,8 +104,9 @@
                 @foreach($chapters as $chapter)
                 <tr>
                   <td>
-                    <strong>{{ $loop->iteration }}</strong>
+                    <strong>{{ ($chapters->currentPage() - 1) * $chapters->perPage() + $loop->iteration }}</strong>
                   </td>
+
                   <td>{{ $chapter->class->name }}</td>
                   <td>{{ $chapter->subject->name }}</td>
                   <td>{{ $chapter->name }}</td>
@@ -110,6 +131,40 @@
                 </tr>
                 @endforeach
               </tbody>
+              <!-- Pagination -->
+              <tfoot>
+                <tr>
+                  <td colspan="5">
+                    <div class="d-flex justify-content-center">
+                      <div class="d-flex justify-content-center align-items-center mt-3">
+                        @if ($chapters->onFirstPage())
+                        <button class="btn btn-secondary me-2" disabled>Prev</button>
+                        @else
+                        <a href="{{ $chapters->previousPageUrl() }}" class="btn btn-primary me-2">Prev</a>
+                        @endif
+
+                        <form action="" method="GET" class="d-flex align-items-center">
+                          <input type="number" name="page" value="{{ $chapters->currentPage() }}"
+                            min="1" max="{{ $chapters->lastPage() }}"
+                            class="form-control text-center me-1" style="width: 70px;"
+                            onchange="this.form.submit()" readonly>
+
+                          <span class="mx-1">/</span>
+                          <input type="text" readonly value="{{ $chapters->lastPage() }}"
+                            class="form-control text-center ms-1" style="width: 70px;">
+                        </form>
+
+                        @if ($chapters->hasMorePages())
+                        <a href="{{ $chapters->nextPageUrl() }}" class="btn btn-primary ms-2">Next</a>
+                        @else
+                        <button class="btn btn-secondary ms-2" disabled>Next</button>
+                        @endif
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+
             </table>
           </div>
         </div>
@@ -311,6 +366,37 @@
 
 <script>
   $(document).ready(function() {
+    // --- Filter Logic ---
+    $('#classFilter').on('change', function() {
+      let classId = $(this).val();
+      $('#subjectFilter').html('<option value="">Filter by Subject</option>');
+
+      if (classId) {
+        let url = "{{ route('admin.get-subjects', ':id') }}".replace(':id', classId);
+        $.get(url, function(data) {
+          $.each(data, function(key, subject) {
+            $('#subjectFilter').append('<option value="' + subject.id + '">' + subject.name + '</option>');
+          });
+        });
+      }
+    });
+
+    $('#filterBtn').on('click', function() {
+      let classId = $('#classFilter').val();
+      let subjectId = $('#subjectFilter').val();
+
+      let url = new URL(window.location.href);
+      url.searchParams.set('class', classId || '');
+      url.searchParams.set('subject', subjectId || '');
+      url.searchParams.set('page', 1);
+      window.location.href = url.toString();
+    });
+
+    $('#resetBtn').on('click', function() {
+      window.location.href = "{{ route('admin.admin-chapters') }}";
+    });
+
+    // --- Modal Logic ---
     function loadSubjects(classId, subjectDropdown, selectedSubjectId) {
       subjectDropdown.empty().append('<option value="">Loading...</option>');
 
@@ -333,18 +419,18 @@
       }
     }
 
-    // On change event
-    $(document).on('change', '.class-select', function() {
+    // On change event for modals
+    $(document).on('change', '.modal-body .class-select', function() {
       let classId = $(this).val();
       let modalBody = $(this).closest('.modal-body');
       let subjectDropdown = modalBody.find('.subject-select');
 
-      loadSubjects(classId, subjectDropdown, null); // no preselected subject when changing class
+      loadSubjects(classId, subjectDropdown, null);
     });
 
     // On modal open (for edit) → load subjects for the preselected class
-    $('.class-select').each(function() {
-      let classId = $(this).data('selected-class');
+    $('.modal-body .class-select').each(function() {
+      let classId = $(this).val() || $(this).data('selected-class');
       let selectedSubjectId = $(this).data('selected-subject');
       let modalBody = $(this).closest('.modal-body');
       let subjectDropdown = modalBody.find('.subject-select');
@@ -353,6 +439,7 @@
         loadSubjects(classId, subjectDropdown, selectedSubjectId);
       }
     });
+
   });
 </script>
 

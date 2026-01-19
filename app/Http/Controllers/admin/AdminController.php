@@ -879,14 +879,30 @@ class AdminController extends Controller
 
 
 
-    public function adminChaptersView()
+    public function adminChaptersView(Request $request)
     {
         $classes = Classes::all();
-        $subjects = Subject::with('class')->get();
-        $chapters = Chapter::with('subject')->get();
 
-        return view('admin.admin-chapters', compact('classes', 'subjects', 'chapters'));
+        $classId = $request->input('class');
+        $subjectId = $request->input('subject');
+
+        $query = Chapter::with('class', 'subject');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+        if ($subjectId) {
+            $query->where('subject_id', $subjectId);
+        }
+
+        $chapters = $query->orderBy('id', 'desc')->paginate(10);
+        $chapters->appends($request->all());
+
+        $subjects = $classId ? Subject::where('class_id', $classId)->get() : collect();
+
+        return view('admin.admin-chapters', compact('classes', 'subjects', 'chapters', 'classId', 'subjectId'));
     }
+
 
     public function getSubjects($class_id)
     {
