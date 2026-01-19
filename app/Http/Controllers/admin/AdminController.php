@@ -808,12 +808,24 @@ class AdminController extends Controller
 
 
 
-    public function adminSubjectsView()
+    public function adminSubjectsView(Request $request)
     {
         $classes = Classes::all();
-        $subjects = Subject::with('class')->get();
-        return view('admin.admin-subjects', compact('classes', 'subjects'));
+
+        $classId = $request->input('class');
+
+        $query = Subject::with('class');
+
+        if ($classId) {
+            $query->where('class_id', $classId);
+        }
+
+        $subjects = $query->orderBy('id', 'desc')->paginate(10);
+        $subjects->appends($request->all());
+
+        return view('admin.admin-subjects', compact('classes', 'subjects', 'classId'));
     }
+
 
     public function addSubject(Request $request)
     {
