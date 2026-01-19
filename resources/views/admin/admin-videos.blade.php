@@ -71,30 +71,33 @@
               <select name="class" id="classSelect" class="form-select class-select" aria-label="Default select example">
                 <option value="" selected>Filter by Class</option>
                 @foreach ($classes as $class)
-                  <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>
+                  <option value="{{ $class->id }}" {{ request('class') == $class->id ? 'selected' : '' }}>
                     {{ $class->name }}
                   </option>
                 @endforeach
+
               </select>
 
               <select name="subject" id="subjectSelect" class="form-select subject-select"
                 aria-label="Default select example">
                 <option value="" selected>Filter by Subject</option>
                 @foreach ($subjects as $subject)
-                  <option value="{{ $subject->id }}" {{ $subjectId == $subject->id ? 'selected' : '' }}>
+                  <option value="{{ $subject->id }}" {{ request('subject') == $subject->id ? 'selected' : '' }}>
                     {{ $subject->name }}
                   </option>
                 @endforeach
+
               </select>
 
               <select name="chapter" id="chapterSelect" class="form-select chapter-select"
                 aria-label="Default select example">
                 <option value="" selected>Filter by Chapter</option>
                 @foreach ($chapters as $chapter)
-                  <option value="{{ $chapter->id }}" {{ $chapterId == $chapter->id ? 'selected' : '' }}>
+                  <option value="{{ $chapter->id }}" {{ request('chapter') == $chapter->id ? 'selected' : '' }}>
                     {{ $chapter->name }}
                   </option>
                 @endforeach
+
               </select>
 
               <button id="filterBtn" class="btn btn-primary">Filter</button>
@@ -825,20 +828,20 @@
       // Function to build a new section
       function buildSection() {
         return `
-          <div class="multiple-section mb-3 border rounded p-3">
-            <input type="text" class="form-control mb-2 question-field" 
-                   placeholder="Enter Question" name="questions[]" />
+            <div class="multiple-section mb-3 border rounded p-3">
+              <input type="text" class="form-control mb-2 question-field" 
+                     placeholder="Enter Question" name="questions[]" />
 
-            <input type="text" class="form-control mb-2 answers-field" 
-                   placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
+              <input type="text" class="form-control mb-2 answers-field" 
+                     placeholder="Enter MCQ Answers (Comma Separated)" name="answers[]" />
 
-            <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
-              <option value="">-- Select Correct Answer --</option>
-            </select>
+              <select class="form-control mb-2 correct-answer-field" name="correct_answers[]">
+                <option value="">-- Select Correct Answer --</option>
+              </select>
 
-            <button type="button" class="btn btn-danger remove-section">Remove</button>
-          </div>
-        `;
+              <button type="button" class="btn btn-danger remove-section">Remove</button>
+            </div>
+          `;
       }
 
       // Add new section

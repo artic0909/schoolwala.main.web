@@ -67,10 +67,11 @@
               <select name="class" id="classFilter" class="form-select w-px-200" style="width: 200px;">
                 <option value="">Filter by Class</option>
                 @foreach ($classes as $class)
-                  <option value="{{ $class->id }}" {{ $classId == $class->id ? 'selected' : '' }}>
+                  <option value="{{ $class->id }}" {{ request('class') == $class->id ? 'selected' : '' }}>
                     {{ $class->name }}
                   </option>
                 @endforeach
+
               </select>
 
               <button id="filterBtn" class="btn btn-primary">Filter</button>
