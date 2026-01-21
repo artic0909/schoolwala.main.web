@@ -2,8 +2,57 @@
 
 @section('title', 'School Tuition - Education For All')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
+<style>
+    .hero-gif {
+        max-width: 120%;
+        width: 120%;
+        height: auto;
+        will-change: transform;
+        opacity: 0;
+        animation: zoomBoomFadeIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+            floatAnimation 6s ease-in-out infinite 1.2s;
+    }
+
+    @keyframes zoomBoomFadeIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3) rotate(-5deg);
+        }
+
+        60% {
+            opacity: 1;
+            transform: scale(1.15) rotate(2deg);
+        }
+
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    @keyframes floatAnimation {
+
+        0%,
+        100% {
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+        }
+
+        25% {
+            transform: translateY(-15px) translateX(10px) rotate(1deg);
+        }
+
+        50% {
+            transform: translateY(-8px) translateX(-8px) rotate(-1deg);
+        }
+
+        75% {
+            transform: translateY(-20px) translateX(5px) rotate(0.5deg);
+        }
+    }
+</style>
 
 @section('content')
+
     <!-- HERO -->
     <section class="hero">
         <div class="container">
@@ -44,14 +93,11 @@
             </div>
 
             <div class="hero-image">
-                <div class="illustration-container">
-                    <div class="kid-illustration"></div>
-                    <div class="shape star"></div>
-                    <div class="shape pencil"></div>
-                </div>
+                <img src="{{ asset('img/hero-video.gif') }}" alt="Schoolwala Animation" class="hero-gif" id="heroGif">
             </div>
         </div>
     </section>
+
 
     <!-- CLASS PILL NAV -->
     <section class="class-pills">
@@ -192,9 +238,9 @@
                             let html = "";
                             data.subjects.forEach(subject => {
                                 html += `<div class="subject-box">
-                                <h3>${subject.name}</h3>
-                                <ul>${subject.chapters.map(ch => `<li>${ch.name}</li>`).join('')}</ul>
-                            </div>`;
+                                    <h3>${subject.name}</h3>
+                                    <ul>${subject.chapters.map(ch => `<li>${ch.name}</li>`).join('')}</ul>
+                                </div>`;
                             });
                             curriculumCards.innerHTML = html || "<p>No subjects found</p>";
 
@@ -207,11 +253,11 @@
                                 let faqHtml = "";
                                 data.faqs.forEach(faq => {
                                     faqHtml += `<div class="accordion-item">
-                                    <button class="accordion-button">${faq.question}</button>
-                                    <div class="accordion-content" style="max-height:0; overflow:hidden; transition: max-height 0.3s ease;">
-                                        <p>${faq.answer}</p>
-                                    </div>
-                                </div>`;
+                                        <button class="accordion-button">${faq.question}</button>
+                                        <div class="accordion-content" style="max-height:0; overflow:hidden; transition: max-height 0.3s ease;">
+                                            <p>${faq.answer}</p>
+                                        </div>
+                                    </div>`;
                                 });
                                 faqAcc.innerHTML = faqHtml;
                                 initAccordions();
