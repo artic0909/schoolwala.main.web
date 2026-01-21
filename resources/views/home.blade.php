@@ -9,10 +9,9 @@
 <section class="hero">
     <div class="container">
         <div class="hero-content">
-            <h1>Make learning playful — <span>for every curious kid</span></h1>
+            <h1>Tuition classes from class 8 to professional <br> — <span>Bengali medium</span> <br> — <span>English medium</span></h1>
             <p>
-                Short animated lessons, fun quizzes, and printable activity sheets.
-                Designed for ages 6–14 with playful visuals and gentle pacing.
+                Schoolwala, save your time & energy, for your good learning. So let's start the learning.
             </p>
 
             <div class="hero-actions">
@@ -38,7 +37,7 @@
                     <div class="feature-icon">🧪</div>
                     <div>
                         <div class="feature-title">Hands-on activities</div>
-                        <div>Downloadable worksheets</div>
+                        <div>Downloadable Notes</div>
                     </div>
                 </div>
             </div>
