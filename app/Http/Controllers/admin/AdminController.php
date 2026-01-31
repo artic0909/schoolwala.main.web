@@ -826,7 +826,6 @@ class AdminController extends Controller
         return view('admin.admin-subjects', compact('classes', 'subjects', 'classId'));
     }
 
-
     public function addSubject(Request $request)
     {
         try {
@@ -835,13 +834,20 @@ class AdminController extends Controller
                 'name' => 'required|string|max:255',
                 'bg_color_txt' => 'required|string|max:50',
                 'icon_txt' => 'required|string|max:100',
+                'background_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             ]);
+
+            $background_image = null;
+            if ($request->hasFile('background_image')) {
+                $background_image = $request->file('background_image')->store('subjects', 'public');
+            }
 
             $subject = new Subject();
             $subject->class_id = $request->class_id;
             $subject->name = $request->name;
             $subject->bg_color_txt = $request->bg_color_txt;
             $subject->icon_txt = $request->icon_txt;
+            $subject->background_image = $background_image;
             $subject->slug = Str::slug($request->name);
             $subject->save();
 
@@ -851,6 +857,61 @@ class AdminController extends Controller
         }
     }
 
+
+    // public function addSubject(Request $request)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'class_id' => 'required|exists:classes,id',
+    //             'name' => 'required|string|max:255',
+    //             'bg_color_txt' => 'required|string|max:50',
+    //             'icon_txt' => 'required|string|max:100',
+    //         ]);
+
+    //         $background_image = null;
+    //         if ($request->hasFile('background_image')) {
+    //             $background_image = $request->file('background_image')->store('subjects', 'public');
+    //         }
+
+    //         $subject = new Subject();
+    //         $subject->class_id = $request->class_id;
+    //         $subject->name = $request->name;
+    //         $subject->bg_color_txt = $request->bg_color_txt;
+    //         $subject->icon_txt = $request->icon_txt;
+    //         $subject->slug = Str::slug($request->name);
+    //         $subject->save();
+
+    //         return redirect()->back()->with('success', 'Subject added successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Failed to add subject: ' . $e->getMessage());
+    //     }
+    // }
+
+    // public function updateSubject(Request $request, $id)
+    // {
+    //     try {
+    //         $request->validate([
+    //             'class_id' => 'required|exists:classes,id',
+    //             'name' => 'required|string|max:255',
+    //             'bg_color_txt' => 'required|string|max:50',
+    //             'icon_txt' => 'required|string|max:100',
+
+    //         ]);
+
+    //         $subject = Subject::findOrFail($id);
+    //         $subject->class_id = $request->class_id;
+    //         $subject->name = $request->name;
+    //         $subject->bg_color_txt = $request->bg_color_txt;
+    //         $subject->icon_txt = $request->icon_txt;
+    //         $subject->slug = Str::slug($request->name);
+    //         $subject->save();
+
+    //         return redirect()->back()->with('success', 'Subject updated successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Failed to update subject: ' . $e->getMessage());
+    //     }
+    // }
+
     public function updateSubject(Request $request, $id)
     {
         try {
@@ -859,9 +920,22 @@ class AdminController extends Controller
                 'name' => 'required|string|max:255',
                 'bg_color_txt' => 'required|string|max:50',
                 'icon_txt' => 'required|string|max:100',
+                'background_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Add validation
             ]);
 
             $subject = Subject::findOrFail($id);
+
+            // Handle image upload
+            if ($request->hasFile('background_image')) {
+                // Delete old image if exists
+                if ($subject->background_image && Storage::disk('public')->exists($subject->background_image)) {
+                    Storage::disk('public')->delete($subject->background_image);
+                }
+
+                // Store new image
+                $subject->background_image = $request->file('background_image')->store('subjects', 'public');
+            }
+
             $subject->class_id = $request->class_id;
             $subject->name = $request->name;
             $subject->bg_color_txt = $request->bg_color_txt;
@@ -875,10 +949,28 @@ class AdminController extends Controller
         }
     }
 
+    // public function deleteSubject($id)
+    // {
+    //     try {
+    //         $subject = Subject::findOrFail($id);
+    //         $subject->delete();
+
+    //         return redirect()->back()->with('success', 'Subject deleted successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', 'Failed to delete subject: ' . $e->getMessage());
+    //     }
+    // }
+
     public function deleteSubject($id)
     {
         try {
             $subject = Subject::findOrFail($id);
+
+            // Delete the image file if exists
+            if ($subject->background_image && Storage::disk('public')->exists($subject->background_image)) {
+                Storage::disk('public')->delete($subject->background_image);
+            }
+
             $subject->delete();
 
             return redirect()->back()->with('success', 'Subject deleted successfully!');
