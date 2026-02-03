@@ -217,13 +217,29 @@
         </div>
 
         <div class="row">
+          <div class="col mb-3">
+            <label for="subject" class="form-label"><strong>Email Subject:</strong></label>
+            <input
+              type="text"
+              name="subject"
+              class="form-control"
+              id="subject"
+              placeholder="Enter email subject"
+              value="{{$enquiry->subject}}"
+              required />
+          </div>
+        </div>
+
+        <div class="row">
           <div class="col">
-            <p class="m-0 p-0 mb-2"><strong>Reply:</strong></p>
+            <label for="reply" class="form-label"><strong>Reply Message:</strong></label>
             <textarea
               name="reply"
               class="form-control"
               id="reply"
-              rows="10"></textarea>
+              rows="10"
+              placeholder="Enter your reply message"
+              required></textarea>
           </div>
         </div>
       </div>
