@@ -1713,13 +1713,21 @@ class AdminController extends Controller
         try {
             $request->validate([
                 'reply' => 'required|string',
+                'subject' => 'required|string|max:255',
             ]);
 
             $enquiry = ContactUs::findOrFail($id);
             $enquiry->reply = $request->reply;
             $enquiry->save();
 
-            return redirect()->back()->with('success', 'Reply sent successfully!');
+            // Send email to the enquirer
+            Mail::to($enquiry->email)->send(new \App\Mail\EnquiryReply(
+                $request->reply,
+                $request->subject,
+                $enquiry->name
+            ));
+
+            return redirect()->back()->with('success', 'Reply sent successfully via email!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Something went wrong. ' . $e->getMessage());
         }

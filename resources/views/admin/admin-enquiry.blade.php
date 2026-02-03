@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard - Schoolwala')
+@section('title', 'Enquiries - Schoolwala')
 
 @section('content')
 
