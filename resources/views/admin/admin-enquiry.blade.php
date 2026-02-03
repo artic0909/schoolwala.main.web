@@ -239,7 +239,7 @@
               id="reply"
               rows="10"
               placeholder="Enter your reply message"
-              required></textarea>
+              required>{{$enquiry->reply ? $enquiry->reply : 'N/A'}}</textarea>
           </div>
         </div>
       </div>
