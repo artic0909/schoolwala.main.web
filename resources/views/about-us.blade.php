@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'About Us - Education For All')
+@section('title', 'About Us | Schoolwala | Education For All')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <link rel="stylesheet" href="{{ asset('css/about-us.css') }}" />
 

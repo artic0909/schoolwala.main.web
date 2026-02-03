@@ -489,7 +489,7 @@ class StudentController extends Controller
             ContactUs::create($validated);
 
             // Mail to admin
-            Mail::to('saklindeveloper@gmail.com')->send(new EnquirySend($validated));
+            Mail::to('team.schoolwala@gmail.com')->send(new EnquirySend($validated));
 
             // Mail to email
             Mail::to($validated['email'])->send(new EnquiryRecieved($validated));
@@ -517,7 +517,7 @@ class StudentController extends Controller
 
             WaverRequest::create($validated);
             // Mail to admin
-            Mail::to('saklindeveloper@gmail.com')->send(new WaiverReceived($validated));
+            Mail::to('team.schoolwala@gmail.com')->send(new WaiverReceived($validated));
             
             return back()->with('success', 'Your waiver request has been submitted successfully!');
         } catch (\Exception $e) {

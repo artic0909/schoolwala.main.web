@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'School Tuition - Education For All')
+@section('title', 'School Tuition | Schoolwala | Education For All')
 <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <style>
     .hero-gif {
