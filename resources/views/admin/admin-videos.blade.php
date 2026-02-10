@@ -501,7 +501,7 @@
               <select name="video_type" id="video_type" class="form-select">
                 <option value="" selected>Choose Video Type</option>
                 <option value="paid">Paid</option>
-                <option value="free">Free</option>
+                <option value="free" selected>Free</option>
               </select>
             </div>
           </div>
