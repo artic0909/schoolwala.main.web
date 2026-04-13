@@ -111,18 +111,22 @@
         
         .action-buttons {
             text-align: center;
-            margin: 25px 0;
+            margin: 30px 0;
         }
         
         .action-button {
             display: inline-block;
-            background-color: #ff9f43;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
+            background: #ff9f43;
+            background: linear-gradient(135deg, #ff9f43 0%, #ffb366 100%);
+            color: #ffffff !important;
+            padding: 14px 35px;
+            border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
-            margin: 0 10px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(255, 159, 67, 0.4);
         }
         
         .footer {
@@ -226,6 +230,10 @@
             <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f0f8f0; border-radius: 8px;">
                 <p><strong>Status:</strong> <span style="color: #ff9f43;">Pending Verification</span></p>
                 <p>We will verify the payment receipt and activate your subscription.</p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="https://schoolwala.info/admin-login" class="action-button">ADMIN LOGIN</a>
             </div>
         </div>
         

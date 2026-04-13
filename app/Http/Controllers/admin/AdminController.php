@@ -1606,7 +1606,7 @@ class AdminController extends Controller
         // Send acceptance email
         Mail::to($subscriber->student->email)->send(new SubscriptionActivateInactiveMail([
             'status' => 'active',
-            'student_name' => $subscriber->student->name,
+            'student_name' => $subscriber->student->student_name,
             'class_name' => $subscriber->class->name,
             'class_id' => $subscriber->class_id,
             'subject_id' => $subscriber->subject_id,
@@ -1629,7 +1629,7 @@ class AdminController extends Controller
         // Send rejection email
         Mail::to($subscriber->student->email)->send(new SubscriptionActivateInactiveMail([
             'status' => 'inactive',
-            'student_name' => $subscriber->student->name,
+            'student_name' => $subscriber->student->student_name,
             'class_name' => $subscriber->class->name,
             'class_id' => $subscriber->class_id,
             'subject_id' => $subscriber->subject_id,

@@ -736,7 +736,7 @@ class StudentController extends Controller
 
             // Send email to admin
             $fee = \App\Models\Fees::find($request->fees_id);
-            Mail::to('saklindeveloper@gmail.com')
+            Mail::to('team.schoolwala@gmail.com')
             ->cc($student->email)
             ->send(new SubscriptionMailFromStudent([
                 'student_name' => $request->student_name,
