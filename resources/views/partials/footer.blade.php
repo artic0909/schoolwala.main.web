@@ -11,7 +11,7 @@
         <div class="app-content">
           <h2>Learning At Your Pace<br />Anytime, Anywhere</h2>
           <p>Download the SchoolWala App - India's Popular Learning Platform</p>
-          <a href="#" target="_blank">
+          <a href="https://play.google.com/store/apps/details?id=com.schoolwala.schoolwalaapp&pcampaignid=web_share" target="_blank">
             <img
               src="{{ asset('./img/play.png') }}"
               alt="Get it on Google Play"
