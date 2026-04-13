@@ -80,9 +80,9 @@
         <div class="footer-bottom">
           <p>&copy; {{ date('Y') }} Schoolwala. All rights reserved.</p>
           <div class="social-links">
-            <a href="#"><img src="{{ asset('img/facebook.png') }}" class="img-fluid" width="40" alt="facebook" /></a>
-            <a href="#"><img src="{{ asset('img/instagram.png') }}" class="img-fluid" width="40" alt="instagram" /></a>
-            <a href="#"><img src="{{ asset('img/social.png') }}" class="img-fluid" width="40" alt="social" /></a>
+            <a href="https://www.facebook.com/share/1CdNzMEzaM/"><img src="{{ asset('img/facebook.png') }}" class="img-fluid" width="40" alt="facebook" /></a>
+            <a href="https://www.instagram.com/schoolwala_official"><img src="{{ asset('img/instagram.png') }}" class="img-fluid" width="40" alt="instagram" /></a>
+            <a href="https://www.youtube.com/@schoolwalainfo/featured"><img src="{{ asset('img/social.png') }}" class="img-fluid" width="40" alt="social" /></a>
           </div>
         </div>
       </div>
