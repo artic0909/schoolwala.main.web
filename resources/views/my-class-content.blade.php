@@ -110,7 +110,7 @@
                         <div class="chapter-details">
                             <h3>{{$chapter->name}}</h3>
                             <p>
-                                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Maiores, ex.
+                                Learn the key concepts, explanations and examples for this topic.
                             </p>
                         </div>
                     </div>
