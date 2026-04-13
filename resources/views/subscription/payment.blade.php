@@ -382,6 +382,36 @@
                 padding: 20px;
             }
         }
+
+        /* Note Box Style */
+        .note-box {
+            background-color: #fff9db;
+            border-left: 5px solid #fab005;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .note-icon {
+            font-size: 1.5rem;
+        }
+
+        .note-text {
+            color: #856404;
+            font-weight: 600;
+            line-height: 1.4;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 
@@ -422,6 +452,14 @@
                 </ul>
             </div>
             @endif
+
+            <!-- Note Section -->
+            <div class="note-box">
+                <div class="note-icon">💡</div>
+                <div class="note-text">
+                    Complete the payment and upload the screenshot or receipt to get one month of access to all videos, notes, tests, and study materials for this class.
+                </div>
+            </div>
 
             <!-- Course Information -->
             <div class="course-info-box">
