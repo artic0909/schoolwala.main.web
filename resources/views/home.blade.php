@@ -395,9 +395,13 @@
                             // Curriculum
                             let html = "";
                             data.subjects.forEach(subject => {
+                                let chaptersHtml = subject.chapters.slice(0, 4).map(ch => `<li>${ch.name}</li>`).join('');
+                                if (subject.chapters.length > 4) {
+                                    chaptersHtml += `<li>...</li>`;
+                                }
                                 html += `<div class="subject-box">
                                         <h3>${subject.name}</h3>
-                                        <ul>${subject.chapters.map(ch => `<li>${ch.name}</li>`).join('')}</ul>
+                                        <ul>${chaptersHtml}</ul>
                                     </div>`;
                             });
                             curriculumCards.innerHTML = html || "<p>No subjects found</p>";

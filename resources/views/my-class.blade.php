@@ -68,9 +68,12 @@
                     <div class="subject-topics">
                         <h4>Key Topics:</h4>
                         <div class="topics-list">
-                            @foreach($subject->chapters as $chapter)
+                            @foreach($subject->chapters->take(4) as $chapter)
                             <span class="topic-pill">{{ $chapter->name }}</span>
                             @endforeach
+                            @if($subject->chapters->count() > 4)
+                            <span class="topic-pill">...</span>
+                            @endif
                         </div>
                     </div>
                     <a
