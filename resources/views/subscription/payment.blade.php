@@ -4,432 +4,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make Payment - Schoolwala</title>
+    <title>Secure Payment - Schoolwala</title>
+        <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('logofav.png') }}" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #5b6bf0;
-            --secondary: #ff7b9c;
-            --accent: #6bc4a6;
-            --light: #f9f7fe;
-            --dark: #333366;
-            --text: #444444;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --surface: #ffffff;
+            --background: #f3f4f6;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --danger: #ef4444;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Nunito', 'Comic Sans MS', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #e0f7fa 0%, #f8bbd0 100%);
-            color: var(--text);
+            background-color: var(--background);
+            color: var(--text-main);
             min-height: 100vh;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 40px 20px;
         }
 
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background-color: white;
-            border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-top: 20px;
-        }
-
-        header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: white;
-            padding: 25px;
+        .header {
             text-align: center;
-            position: relative;
+            margin-bottom: 30px;
         }
 
-        h1 {
-            font-size: 2.2rem;
+        .header img {
+            width: 60px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .subtitle {
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+
+        .payment-container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .order-summary {
+            background: #f8fafc;
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .order-summary h3 {
             font-size: 1.1rem;
-            opacity: 0.9;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .payment-section {
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 0.95rem;
+        }
+
+        .summary-item:not(:last-child) {
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .summary-label {
+            color: var(--text-muted);
+        }
+
+        .summary-value {
+            font-weight: 500;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        .total-row {
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .total-amount {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .payment-form-section {
             padding: 30px;
         }
 
-        /* Alert Styles */
-        .alert {
-            padding: 15px 20px;
-            border-radius: 12px;
+        .payment-form-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
             margin-bottom: 20px;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-
-        .alert-danger {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-
-        .alert ul {
-            margin: 10px 0 0 20px;
-            padding: 0;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Course Info Box */
-        .course-info-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .course-info-box h3 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .course-info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .course-info-item:last-child {
-            border-bottom: none;
-        }
-
-        .course-info-label {
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .course-info-value {
-            font-weight: 700;
-        }
-
-        .qr-container {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .qr-container h2 {
-            color: var(--dark);
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        .qr-code {
-            max-width: 250px;
-            width: 100%;
-            border-radius: 15px;
-            border: 5px solid white;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            background: white;
-            padding: 10px;
-        }
-
-        .amount-display {
-            margin-top: 20px;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #28a745;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        .qr-instructions {
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .form-container {
-            background-color: var(--light);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .form-container h2 {
-            color: var(--dark);
-            margin-bottom: 10px;
+            color: var(--text-main);
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        label .required {
-            color: #dc3545;
-            margin-left: 3px;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            background-color: white;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(91, 107, 240, 0.2);
-            outline: none;
-        }
-
-        input[readonly] {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-        }
-
-        .file-upload {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-upload-label {
-            display: block;
-            padding: 20px;
-            background: white;
-            border: 2px dashed #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .file-upload-label:hover {
-            border-color: var(--primary);
-            background-color: rgba(91, 107, 240, 0.05);
-        }
-
-        .file-upload-label span {
-            color: var(--text);
+            font-size: 0.9rem;
             font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-main);
         }
 
-        .file-upload input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
+        .form-control {
             width: 100%;
-            height: 100%;
-            cursor: pointer;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            background-color: #f9fafb;
+            transition: all 0.2s;
         }
 
-        .file-hint {
-            display: block;
-            margin-top: 8px;
-            font-size: 0.85rem;
-            color: #666;
+        .form-control[readonly] {
+            cursor: not-allowed;
+            color: var(--text-muted);
         }
 
-        .continue-btn {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        .pay-btn {
+            width: 100%;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 16px 30px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 50px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            width: 100%;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(91, 107, 240, 0.4);
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
             margin-top: 10px;
         }
 
-        .continue-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(91, 107, 240, 0.6);
+        .pay-btn:hover {
+            background: var(--primary-hover);
         }
 
-        .continue-btn:active {
-            transform: translateY(0);
-        }
-
-        .continue-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .decoration {
-            position: fixed;
-            z-index: -1;
-        }
-
-        .decoration-1 {
-            top: 10%;
-            left: 5%;
-            width: 100px;
-            height: 100px;
-            background-color: rgba(255, 123, 156, 0.2);
-            border-radius: 50%;
-        }
-
-        .decoration-2 {
-            bottom: 10%;
-            right: 5%;
-            width: 150px;
-            height: 150px;
-            background-color: rgba(91, 107, 240, 0.15);
-            border-radius: 50%;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: var(--dark);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                border-radius: 20px;
-            }
-
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .payment-section {
-                padding: 20px;
-            }
-
-            .qr-code {
-                max-width: 200px;
-            }
-
-            .amount-display {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-
-            .container {
-                border-radius: 15px;
-            }
-
-            header {
-                padding: 20px 15px;
-            }
-
-            h1 {
-                font-size: 1.6rem;
-            }
-
-            .payment-section {
-                padding: 15px;
-            }
-
-            .form-container {
-                padding: 20px;
-            }
-        }
-
-        /* Note Box Style */
-        .note-box {
-            background-color: #fff9db;
-            border-left: 5px solid #fab005;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 25px;
+        .secure-badge {
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            animation: fadeIn 0.5s ease-in;
+            gap: 8px;
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
 
-        .note-icon {
-            font-size: 1.5rem;
+        .secure-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
 
-        .note-text {
-            color: #856404;
-            font-weight: 600;
-            line-height: 1.4;
+        /* Alerts */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             font-size: 0.95rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        .alert-success {
+            background-color: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        footer {
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 20px 15px;
+            }
+            .payment-container {
+                border-radius: 10px;
+            }
+            .order-summary, .payment-form-section {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="decoration decoration-1"></div>
-    <div class="decoration decoration-2"></div>
+    <div class="header">
+        <img src="{{ asset('img/logo.png') }}" alt="Schoolwala Logo">
+        <h1>Secure Checkout</h1>
+        <p>Complete your subscription payment to access all course materials</p>
+    </div>
 
-    <div class="container">
-        <header>
-            <div>
-                <img src="{{ asset('img/logo.png') }}" alt="logo" width="40">
-                <h1>Make Payment</h1>
+    <div class="payment-container">
+        
+        <div class="order-summary">
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Order Summary
+            </h3>
+            
+            <div class="summary-item">
+                <span class="summary-label">Class Subscription</span>
+                <span class="summary-value">{{ $class->name }}</span>
             </div>
-            <p class="subtitle">Complete your subscription payment easily</p>
-        </header>
+            <div class="summary-item">
+                <span class="summary-label">Student Name</span>
+                <span class="summary-value">{{ $student->student_name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Access Duration</span>
+                <span class="summary-value">30 Days</span>
+            </div>
+            
+            <div class="total-row">
+                <span class="total-label">Total to Pay</span>
+                <span class="total-amount">₹{{ number_format($fees->amount ?? 0, 2) }}</span>
+            </div>
+        </div>
 
-        <section class="payment-section">
-            <!-- Success/Error Messages -->
+        <div class="payment-form-section">
             @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -442,118 +298,54 @@
             </div>
             @endif
 
-            @if($errors->any())
-            <div class="alert alert-danger">
-                <strong>Please fix the following errors:</strong>
-                <ul>
-                    @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
+            <form id="payment-form" action="{{ route('student.razorpay-callback') }}" method="POST">
+                @csrf
+                <input type="hidden" name="class_id" value="{{ $class->id }}">
+                <input type="hidden" name="subject_id" value="{{ $subject->id }}">
+                <input type="hidden" name="fees_id" value="{{ $fees->id ?? '' }}">
+                
+                <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+                <input type="hidden" name="razorpay_signature" id="razorpay_signature">
 
-            <!-- Note Section -->
-            <div class="note-box">
-                <div class="note-icon">💡</div>
-                <div class="note-text">
-                    Complete the payment and upload the screenshot or receipt to get one month of access to all videos, notes, tests, and study materials for this class.
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" value="{{ $student->email }}" readonly>
                 </div>
-            </div>
 
-            <!-- Course Information -->
-            <div class="course-info-box">
-                <h3>📚 Subscription Details</h3>
-                <div class="course-info-item">
-                    <span class="course-info-label">Class:</span>
-                    <span class="course-info-value">{{ $class->name }}</span>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="text" class="form-control" id="phone" value="{{ $student->mobile ?? 'N/A' }}" readonly>
                 </div>
-                <div class="course-info-item">
-                    <span class="course-info-label">Student:</span>
-                    <span class="course-info-value">{{ $student->student_name }}</span>
-                </div>
-                <div class="course-info-item">
-                    <span class="course-info-label">Email:</span>
-                    <span class="course-info-value">{{ $student->email }}</span>
-                </div>
+
+                <button type="button" class="pay-btn" id="rzp-button1">
+                    Pay ₹{{ number_format($fees->amount ?? 0, 2) }} securely
+                </button>
+            </form>
+
+            <div class="secure-badge">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Payments are 100% secure and encrypted
             </div>
-
-            <!-- Removed QR Code Section as it's no longer needed for Razorpay -->
-
-            <!-- Payment Form -->
-            <div class="form-container">
-                <h2>Payment Details</h2>
-                <p style="margin-bottom: 20px; color: #666;">Please verify your details before proceeding to payment.</p>
-
-                <form id="payment-form" action="{{ route('student.razorpay-callback') }}" method="POST">
-                    @csrf
-
-                    <!-- Hidden Fields -->
-                    <input type="hidden" name="class_id" value="{{ $class->id }}">
-                    <input type="hidden" name="subject_id" value="{{ $subject->id }}">
-                    <input type="hidden" name="fees_id" value="{{ $fees->id ?? '' }}">
-                    
-                    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-                    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-                    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-
-                    <div class="form-group">
-                        <label for="student-name">Student Name</label>
-                        <input type="text"
-                            id="student-name"
-                            name="student_name"
-                            value="{{ $student->student_name }}"
-                            readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email"
-                            id="email"
-                            name="email"
-                            value="{{ $student->email }}"
-                            readonly>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="class">Class Name</label>
-                        <input type="text"
-                            id="class"
-                            value="{{ $class->name }}"
-                            readonly>
-                    </div>
-
-                    @if($fees)
-                    <div class="form-group">
-                        <label for="amount">Amount to Pay</label>
-                        <input type="text"
-                            id="amount"
-                            value="₹{{ number_format($fees->amount, 2) }}"
-                            readonly
-                            style="font-weight: bold; font-size: 1.1rem; color: #28a745;">
-                    </div>
-                    @endif
-
-                    <button type="button" class="continue-btn" id="rzp-button1">Pay with Razorpay</button>
-                </form>
-            </div>
-        </section>
+        </div>
     </div>
 
     <footer>
-        <p>© 2025 Schoolwala. All rights reserved.</p>
+        <p>© {{ date('Y') }} Schoolwala. All rights reserved.</p>
     </footer>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         var options = {
-            "key": "{{ config('services.razorpay.key') }}", // Enter the Key ID generated from the Dashboard
-            "amount": "{{ $fees->amount * 100 }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "key": "{{ config('services.razorpay.key') }}", 
+            "amount": "{{ ($fees->amount ?? 0) * 100 }}", 
             "currency": "INR",
             "name": "Schoolwala",
             "description": "Subscription for {{ $class->name }}",
             "image": "{{ asset('img/logo.png') }}",
-            "order_id": "{{ $razorpayOrderId }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "order_id": "{{ $razorpayOrderId }}", 
             "handler": function (response){
                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
                 document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
@@ -566,12 +358,12 @@
                 "contact": "{{ $student->mobile ?? '' }}"
             },
             "theme": {
-                "color": "#5b6bf0"
+                "color": "#4f46e5"
             }
         };
         var rzp1 = new Razorpay(options);
         rzp1.on('payment.failed', function (response){
-                alert("Payment Failed. Reason: " + response.error.description);
+            alert("Payment Failed. Reason: " + response.error.description);
         });
         document.getElementById('rzp-button1').onclick = function(e){
             rzp1.open();
