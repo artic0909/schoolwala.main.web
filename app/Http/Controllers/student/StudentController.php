@@ -719,6 +719,15 @@ class StudentController extends Controller
         $feesId = $request->input('fees_id');
         $fees = \App\Models\Fees::find($feesId);
 
+        // Fetch payment details to get payment method
+        $paymentMethod = null;
+        try {
+            $payment = $api->payment->fetch($input['razorpay_payment_id']);
+            $paymentMethod = $payment->method;
+        } catch (\Exception $e) {
+            // Log error or ignore if fetch fails
+        }
+
         // Save Transaction
         Transaction::create([
             'student_id' => $student->id,
@@ -727,6 +736,7 @@ class StudentController extends Controller
             'razorpay_payment_id' => $input['razorpay_payment_id'],
             'razorpay_order_id' => $input['razorpay_order_id'],
             'razorpay_signature' => $input['razorpay_signature'],
+            'payment_method' => $paymentMethod,
             'status' => 'success',
         ]);
 

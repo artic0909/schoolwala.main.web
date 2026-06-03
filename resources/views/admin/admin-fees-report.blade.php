@@ -308,6 +308,10 @@
                             <p>{{ $transaction->razorpay_order_id ?? 'N/A' }}</p>
                           </div>
                           <div class="col-md-6 mb-3">
+                            <strong>Payment Method:</strong>
+                            <p>{{ $transaction->payment_method ? ucfirst($transaction->payment_method) : 'N/A' }}</p>
+                          </div>
+                          <div class="col-md-6 mb-3">
                             <strong>Transaction Status:</strong>
                             <p>
                                 @if($transaction->status === 'success')

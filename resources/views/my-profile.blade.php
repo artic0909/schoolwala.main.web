@@ -145,6 +145,7 @@
                         <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Class</th>
                         <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Amount</th>
                         <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Payment ID</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Method</th>
                         <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Status</th>
                     </tr>
                 </thead>
@@ -155,6 +156,7 @@
                         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->class->name ?? 'N/A' }}</td>
                         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">₹{{ number_format($transaction->amount, 2) }}</td>
                         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->razorpay_payment_id }}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->payment_method ? ucfirst($transaction->payment_method) : 'N/A' }}</td>
                         <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
                             <span style="background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 9999px; font-size: 0.875rem;">
                                 {{ ucfirst($transaction->status) }}
