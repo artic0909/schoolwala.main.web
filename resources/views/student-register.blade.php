@@ -131,7 +131,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Child's Name</label>
+                        <label class="form-label">Student's Name</label>
                         <input
                             type="text"
                             class="form-control"
@@ -142,7 +142,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Child's Age</label>
+                        <label class="form-label">Student's Age</label>
                         <input
                             type="number"
                             class="form-control"
