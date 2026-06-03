@@ -111,6 +111,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         
         // Submit payment receipt
         Route::post('/store', [StudentApiController::class, 'storePayment']);
+
+        // Razorpay Endpoints
+        Route::post('/razorpay/order', [StudentApiController::class, 'createRazorpayOrder']);
+        Route::post('/razorpay/verify', [StudentApiController::class, 'verifyRazorpayPayment']);
         
     });
 });

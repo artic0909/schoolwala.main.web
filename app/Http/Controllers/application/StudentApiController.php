@@ -18,10 +18,12 @@ use App\Models\ContactUs;
 use App\Models\WaverRequest;
 use App\Models\PasswordReset;
 use App\Models\StudentTest;
+use App\Models\Transaction;
 use App\Mail\EnquirySend;
 use App\Mail\EnquiryRecieved;
 use App\Mail\WaiverReceived;
 use App\Mail\SubscriptionMailFromStudent;
+use Razorpay\Api\Api;
 
 class StudentApiController extends AppController
 {
@@ -580,6 +582,118 @@ class StudentApiController extends AppController
         }
 
         return $this->sendResponse([], $message);
+    }
+
+    /**
+     * Create Razorpay Order.
+     */
+    public function createRazorpayOrder(Request $request)
+    {
+        $request->validate([
+            'class_id' => 'required|exists:classes,id',
+            'fees_id' => 'required|exists:fees,id',
+        ]);
+
+        $student = $request->user();
+        $fees = Fees::findOrFail($request->fees_id);
+
+        try {
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            
+            $orderData = [
+                'receipt' => 'receipt_' . $student->id . '_' . time(),
+                'amount' => $fees->amount * 100, // amount in paise
+                'currency' => 'INR'
+            ];
+            
+            $order = $api->order->create($orderData);
+            
+            return $this->sendResponse([
+                'order_id' => $order['id'],
+                'amount' => $fees->amount,
+                'key' => config('services.razorpay.key'),
+                'currency' => 'INR',
+            ], 'Razorpay order created successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to create Razorpay order.', ['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Verify Razorpay Payment and Activate Subscription.
+     */
+    public function verifyRazorpayPayment(Request $request)
+    {
+        $request->validate([
+            'razorpay_order_id' => 'required|string',
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_signature' => 'required|string',
+            'class_id' => 'required|exists:classes,id',
+            'fees_id' => 'required|exists:fees,id',
+        ]);
+
+        $student = $request->user();
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        try {
+            // Verify signature
+            $attributes = array(
+                'razorpay_order_id' => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature' => $request->razorpay_signature
+            );
+            $api->utility->verifyPaymentSignature($attributes);
+        } catch (\Exception $e) {
+            return $this->sendError('Payment verification failed.', ['error' => $e->getMessage()], 400);
+        }
+
+        $fees = Fees::findOrFail($request->fees_id);
+        
+        // Fetch payment details to get payment method (optional but good for records)
+        $paymentMethod = null;
+        try {
+            $payment = $api->payment->fetch($request->razorpay_payment_id);
+            $paymentMethod = $payment->method;
+        } catch (\Exception $e) {
+            // Log error or ignore if fetch fails
+        }
+
+        // Save Transaction
+        Transaction::create([
+            'student_id' => $student->id,
+            'class_id' => $request->class_id,
+            'amount' => $fees->amount,
+            'razorpay_payment_id' => $request->razorpay_payment_id,
+            'razorpay_order_id' => $request->razorpay_order_id,
+            'razorpay_signature' => $request->razorpay_signature,
+            'payment_method' => $paymentMethod,
+            'status' => 'success',
+        ]);
+
+        // Update/Create Subscriber
+        $existingSubscriber = Subscribers::where('student_id', $student->id)
+            ->where('class_id', $request->class_id)
+            ->where('fees_id', $request->fees_id)
+            ->first();
+
+        if ($existingSubscriber) {
+            $existingSubscriber->update([
+                'subscription_date' => now(),
+                'expiry_date' => now()->addDays(30),
+                'status' => 'active'
+            ]);
+        } else {
+            Subscribers::create([
+                'student_id' => $student->id,
+                'class_id' => $request->class_id,
+                'fees_id' => $request->fees_id,
+                'subscription_date' => now(),
+                'expiry_date' => now()->addDays(30),
+                'status' => 'active'
+            ]);
+        }
+
+        return $this->sendResponse([], 'Payment verified and subscription activated successfully.');
     }
 
     // ===============================================================================================
