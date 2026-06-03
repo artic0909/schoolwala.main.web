@@ -1494,18 +1494,11 @@ class AdminController extends Controller
         $request->validate([
             'class_id' => 'required|exists:classes,id',
             'amount' => 'required|numeric',
-            'qrimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
-
-        $qrimagePath = null;
-        if ($request->hasFile('qrimage')) {
-            $qrimagePath = $request->file('qrimage')->store('fees_qr', 'public');
-        }
 
         Fees::create([
             'class_id' => $request->class_id,
             'amount' => $request->amount,
-            'qrimage' => $qrimagePath,
         ]);
 
         return back()->with('success', 'Fees added successfully');
@@ -1516,19 +1509,9 @@ class AdminController extends Controller
         $request->validate([
             'class_id' => 'required|exists:classes,id',
             'amount' => 'required|numeric',
-            'qrimage' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $fees = Fees::findOrFail($id);
-
-        if ($request->hasFile('qrimage')) {
-            // Delete old image
-            if ($fees->qrimage && Storage::disk('public')->exists($fees->qrimage)) {
-                Storage::disk('public')->delete($fees->qrimage);
-            }
-
-            $fees->qrimage = $request->file('qrimage')->store('fees_qr', 'public');
-        }
 
         $fees->class_id = $request->class_id;
         $fees->amount = $request->amount;
@@ -1543,9 +1526,9 @@ class AdminController extends Controller
         try {
             $fees = Fees::findOrFail($id);
 
-            // Delete QR image if exists
-            if ($fees->qrimage && file_exists(public_path($fees->qrimage))) {
-                unlink(public_path($fees->qrimage));
+            // Delete QR image if exists (cleaning up old ones)
+            if ($fees->qrimage && file_exists(public_path('storage/' . $fees->qrimage))) {
+                unlink(public_path('storage/' . $fees->qrimage));
             }
 
             $fees->delete();

@@ -851,7 +851,26 @@ class StudentController extends Controller
         $subject = $class->subjects->find($subjectId);
         $chapter = $subject->chapters->find($chapterId);
 
-        $studentId = auth()->guard('student')->user()->id;
+        $student = auth()->guard('student')->user();
+        
+        // Authorization Check
+        if ($student->type !== 'waiver') {
+            $hasActiveSub = \App\Models\Subscribers::where('student_id', $student->id)
+                ->where('class_id', $classId)
+                ->where('status', 'active')
+                ->where(function($q) {
+                    $q->whereNull('expiry_date')
+                      ->orWhere('expiry_date', '>=', now());
+                })
+                ->exists();
+
+            if (!$hasActiveSub) {
+                return redirect()->route('student.my-payment', ['classId' => $classId, 'subjectId' => $subjectId, 'chapterId' => $chapterId])
+                                 ->with('error', 'You need an active subscription to access this content.');
+            }
+        }
+
+        $studentId = $student->id;
         $profile = StudentProfile::firstOrCreate(
             ['student_id' => $studentId],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
@@ -875,7 +894,26 @@ class StudentController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        $studentId = auth()->guard('student')->user()->id;
+        $student = auth()->guard('student')->user();
+        
+        // Authorization Check
+        if ($student->type !== 'waiver') {
+            $hasActiveSub = \App\Models\Subscribers::where('student_id', $student->id)
+                ->where('class_id', $classId)
+                ->where('status', 'active')
+                ->where(function($q) {
+                    $q->whereNull('expiry_date')
+                      ->orWhere('expiry_date', '>=', now());
+                })
+                ->exists();
+
+            if (!$hasActiveSub) {
+                return redirect()->route('student.my-payment', ['classId' => $classId, 'subjectId' => $subjectId, 'chapterId' => $chapterId])
+                                 ->with('error', 'You need an active subscription to access this content.');
+            }
+        }
+
+        $studentId = $student->id;
         $profile = StudentProfile::firstOrCreate(
             ['student_id' => $studentId],
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
@@ -887,7 +925,26 @@ class StudentController extends Controller
 
     public function myVideoPracticeTest($classId, $subjectId, $chapterId, $videoId)
     {
-        $studentId = auth()->guard('student')->id(); // Get logged-in student via student guard
+        $student = auth()->guard('student')->user(); // Get logged-in student via student guard
+
+        // Authorization Check
+        if ($student->type !== 'waiver') {
+            $hasActiveSub = \App\Models\Subscribers::where('student_id', $student->id)
+                ->where('class_id', $classId)
+                ->where('status', 'active')
+                ->where(function($q) {
+                    $q->whereNull('expiry_date')
+                      ->orWhere('expiry_date', '>=', now());
+                })
+                ->exists();
+
+            if (!$hasActiveSub) {
+                return redirect()->route('student.my-payment', ['classId' => $classId, 'subjectId' => $subjectId, 'chapterId' => $chapterId])
+                                 ->with('error', 'You need an active subscription to access this content.');
+            }
+        }
+        
+        $studentId = $student->id;
 
         $class = \App\Models\Classes::findOrFail($classId);
         $subject = \App\Models\Subject::findOrFail($subjectId);

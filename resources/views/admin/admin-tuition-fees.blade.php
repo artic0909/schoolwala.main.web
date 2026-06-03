@@ -83,7 +83,6 @@
               <thead>
                 <tr>
                   <th>SL</th>
-                  <th>QR Image</th>
                   <th>Class Name</th>
                   <th>Fees Amount</th>
                   <th>Actions</th>
@@ -94,12 +93,6 @@
                 <tr>
                   <td>
                     <strong>{{ $loop->iteration }}</strong>
-                  </td>
-
-                  <td>
-                    @if($fees->qrimage)
-                    <img src="{{ asset('storage/' . $fees->qrimage) }}" alt="QR Code" width="120">
-                    @endif
                   </td>
 
                   <td>
@@ -173,13 +166,6 @@
             <input type="number" name="amount" id="amount" class="form-control" />
           </div>
         </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">QR Code</label>
-            <input type="file" name="qrimage" id="qrimage" class="form-control" />
-          </div>
-        </div>
       </div>
 
       <div class="modal-footer">
@@ -240,14 +226,6 @@
             <input type="number" name="amount" id="amount" value="{{$fees->amount}}" class="form-control" />
           </div>
         </div>
-
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">QR Code</label>
-            <input type="file" name="qrimage" id="qrimage" class="form-control" />
-          </div>
-        </div>
-
 
       </div>
       <div class="modal-footer">

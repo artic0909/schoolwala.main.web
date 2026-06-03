@@ -127,6 +127,10 @@
                         $subscriber = \App\Models\Subscribers::where('student_id', $student->id)
                         ->where('class_id', $class->id)
                         ->where('status', 'active') // Only get active subscriptions
+                        ->where(function($q) {
+                            $q->whereNull('expiry_date')
+                              ->orWhere('expiry_date', '>=', now());
+                        })
                         ->first();
                         @endphp
 
