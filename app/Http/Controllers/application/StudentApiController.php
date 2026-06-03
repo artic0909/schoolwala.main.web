@@ -796,6 +796,23 @@ class StudentApiController extends AppController
         }
     }
 
+    /**
+     * Get Student Support History
+     */
+    public function getSupportHistory(Request $request)
+    {
+        try {
+            $student = $request->user();
+            
+            $history = ContactUs::where('email', $student->email)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return $this->sendResponse($history, 'Support history retrieved successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
+        }
+    }
     public function waverRequestSubmit(Request $request)
     {
         try {

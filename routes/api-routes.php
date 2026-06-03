@@ -54,6 +54,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/profile', [StudentApiController::class, 'getProfile']);
         Route::post('/profile/update', [StudentApiController::class, 'updateProfile']);
         Route::post('/change-password', [StudentApiController::class, 'changePassword']);
+        Route::get('/support/history', [StudentApiController::class, 'getSupportHistory']);
     });
 
     // -----------------------------------------------
