@@ -247,6 +247,9 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
                       <div class="modal-body">
+                        @php
+                          $transaction = $subscriber->student->transactions->where('class_id', $subscriber->class_id)->sortByDesc('created_at')->first();
+                        @endphp
                         <div class="row">
                           <div class="col-md-6 mb-3">
                             <strong>Student Name:</strong>
@@ -288,6 +291,39 @@
                           <div class="col-md-6 mb-3">
                             <strong>Expiry Date:</strong>
                             <p>{{ date('d-m-Y', strtotime($subscriber->expiry_date)) }}</p>
+                          </div>
+                          @endif
+                          
+                          <div class="col-12 mt-3 mb-2">
+                            <h6 class="border-bottom pb-2">Razorpay Transaction Details</h6>
+                          </div>
+                          
+                          @if($transaction)
+                          <div class="col-md-6 mb-3">
+                            <strong>Payment ID:</strong>
+                            <p>{{ $transaction->razorpay_payment_id ?? 'N/A' }}</p>
+                          </div>
+                          <div class="col-md-6 mb-3">
+                            <strong>Order ID:</strong>
+                            <p>{{ $transaction->razorpay_order_id ?? 'N/A' }}</p>
+                          </div>
+                          <div class="col-md-6 mb-3">
+                            <strong>Transaction Status:</strong>
+                            <p>
+                                @if($transaction->status === 'success')
+                                <span class="badge bg-success">Success</span>
+                                @else
+                                <span class="badge bg-danger">{{ ucfirst($transaction->status) }}</span>
+                                @endif
+                            </p>
+                          </div>
+                          <div class="col-md-6 mb-3">
+                            <strong>Paid Amount:</strong>
+                            <p>₹{{ number_format($transaction->amount, 2) }}</p>
+                          </div>
+                          @else
+                          <div class="col-12 mb-3 text-muted">
+                            <small><i>No Razorpay transaction found. This might be a manual payment.</i></small>
                           </div>
                           @endif
                           @if($subscriber->reciptimage)

@@ -1568,7 +1568,7 @@ class AdminController extends Controller
         $status = $request->input('status');
 
         // Build query with relationships
-        $query = Subscribers::with(['student', 'class', 'fees'])
+        $query = Subscribers::with(['student.transactions', 'class', 'fees'])
             ->orderBy('created_at', 'desc');
 
         // Apply filters
