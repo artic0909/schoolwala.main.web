@@ -183,7 +183,6 @@
                   </td>
 
                   <td>
-                    <p class="m-0 p-0 fw-bold">₹{{ number_format($subscriber->fees->amount ?? 0, 2) }}</p>
                     <p class="m-0 p-0">
                       Paid: <span class="badge bg-label-info">{{ date('d-m-Y', strtotime($subscriber->subscription_date)) }}</span>
                     </p>
@@ -267,10 +266,7 @@
                             <strong>Class:</strong>
                             <p>{{ $subscriber->class->name ?? 'N/A' }}</p>
                           </div>
-                          <div class="col-md-6 mb-3">
-                            <strong>Amount:</strong>
-                            <p class="text-success fw-bold">₹{{ number_format($subscriber->fees->amount ?? 0, 2) }}</p>
-                          </div>
+                         
                           <div class="col-md-6 mb-3">
                             <strong>Status:</strong>
                             <p>
