@@ -26,6 +26,8 @@ use App\Models\Subject;
 use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
+use App\Models\Transaction;
+use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -302,7 +304,9 @@ class StudentController extends Controller
 
         $interests = $profile->interest_in ? json_decode($profile->interest_in, true) : [];
 
-        return view('my-profile', compact('profile', 'class', 'interests'));
+        $transactions = Transaction::where('student_id', $studentId)->with('class')->orderBy('created_at', 'desc')->get();
+
+        return view('my-profile', compact('profile', 'class', 'interests', 'transactions'));
     }
 
     public function studentProfileUpdateView()
@@ -680,7 +684,79 @@ class StudentController extends Controller
             ['no_practise_test' => 0, 'total_practise_test_score' => 0]
         );
 
-        return view('subscription.payment', compact('class', 'subject', 'profile', 'student', 'fees', 'chapter'));
+        // Generate Razorpay Order
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+        $order = $api->order->create([
+            'receipt' => 'receipt_' . $student->id . '_' . time(),
+            'amount' => $fees->amount * 100, // amount in paise
+            'currency' => 'INR'
+        ]);
+        $razorpayOrderId = $order['id'];
+
+        return view('subscription.payment', compact('class', 'subject', 'profile', 'student', 'fees', 'chapter', 'razorpayOrderId'));
+    }
+
+    public function razorpayCallback(Request $request)
+    {
+        $input = $request->all();
+        $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+
+        try {
+            // Verify signature
+            $attributes = array(
+                'razorpay_order_id' => $input['razorpay_order_id'],
+                'razorpay_payment_id' => $input['razorpay_payment_id'],
+                'razorpay_signature' => $input['razorpay_signature']
+            );
+            $api->utility->verifyPaymentSignature($attributes);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Payment verification failed: ' . $e->getMessage());
+        }
+
+        $student = auth()->guard('student')->user();
+        $classId = $request->input('class_id');
+        $subjectId = $request->input('subject_id');
+        $feesId = $request->input('fees_id');
+        $fees = \App\Models\Fees::find($feesId);
+
+        // Save Transaction
+        Transaction::create([
+            'student_id' => $student->id,
+            'class_id' => $classId,
+            'amount' => $fees->amount,
+            'razorpay_payment_id' => $input['razorpay_payment_id'],
+            'razorpay_order_id' => $input['razorpay_order_id'],
+            'razorpay_signature' => $input['razorpay_signature'],
+            'status' => 'success',
+        ]);
+
+        // Update/Create Subscriber
+        $existingSubscriber = Subscribers::where('student_id', $student->id)
+            ->where('class_id', $classId)
+            ->where('fees_id', $feesId)
+            ->first();
+
+        if ($existingSubscriber) {
+            $existingSubscriber->update([
+                'subscription_date' => now(),
+                'expiry_date' => now()->addDays(30),
+                'status' => 'active'
+            ]);
+        } else {
+            Subscribers::create([
+                'student_id' => $student->id,
+                'class_id' => $classId,
+                'fees_id' => $feesId,
+                'subscription_date' => now(),
+                'expiry_date' => now()->addDays(30),
+                'status' => 'active'
+            ]);
+        }
+
+        return redirect()->route('student.my-class-content', [
+            'classId' => $classId,
+            'subjectId' => $subjectId
+        ])->with('success', 'Payment successful! You now have 30 days of access.');
     }
 
     public function storePayment(Request $request)

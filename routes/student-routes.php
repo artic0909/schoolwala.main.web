@@ -88,6 +88,7 @@ Route::prefix('student')->group(function () {
         Route::get('/my-payment/{classId}/{subjectId}', [StudentController::class, 'myPayment'])->name('student.my-payment');
         // Add this to your routes
         Route::post('/my-payment/store-payment', [StudentController::class, 'storePayment'])->name('student.store-payment');
+        Route::post('/my-payment/razorpay-callback', [StudentController::class, 'razorpayCallback'])->name('student.razorpay-callback');
 
         // My Chapter Videos
         Route::get('/my-chapter-videos/{classId}/{subjectId}/{chapterId}', [StudentController::class, 'myChapterVideos'])->name('student.my-chapter-videos');

@@ -478,64 +478,41 @@
                 </div>
             </div>
 
-            <!-- QR Code Section -->
-            @if($fees)
-            <div class="qr-container">
-                <h2>💳 Scan to Pay</h2>
-
-                @if($fees->qrimage)
-                <img src="{{ asset('storage/' . $fees->qrimage) }}" alt="Payment QR Code" class="qr-code">
-                @else
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Payment for {{ $class->name }}"
-                    alt="QR Code for Payment" class="qr-code">
-                @endif
-
-                <div class="amount-display">₹{{ number_format($fees->amount, 2) }}</div>
-                <p class="qr-instructions">Scan this QR code with any UPI app to make payment</p>
-            </div>
-            @endif
+            <!-- Removed QR Code Section as it's no longer needed for Razorpay -->
 
             <!-- Payment Form -->
             <div class="form-container">
                 <h2>Payment Details</h2>
-                <p style="margin-bottom: 20px; color: #666;">Please fill in your details after making the payment</p>
+                <p style="margin-bottom: 20px; color: #666;">Please verify your details before proceeding to payment.</p>
 
-                <form id="payment-form" action="{{ route('student.store-payment') }}" method="POST" enctype="multipart/form-data">
+                <form id="payment-form" action="{{ route('student.razorpay-callback') }}" method="POST">
                     @csrf
 
                     <!-- Hidden Fields -->
                     <input type="hidden" name="class_id" value="{{ $class->id }}">
                     <input type="hidden" name="subject_id" value="{{ $subject->id }}">
                     <input type="hidden" name="fees_id" value="{{ $fees->id ?? '' }}">
+                    
+                    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                    <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+                    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
 
                     <div class="form-group">
-                        <label for="student-name">Student Name <span class="required">*</span></label>
+                        <label for="student-name">Student Name</label>
                         <input type="text"
                             id="student-name"
                             name="student_name"
-                            value="{{ old('student_name', $student->student_name) }}"
-                            placeholder="Enter your full name"
-                            required>
+                            value="{{ $student->student_name }}"
+                            readonly>
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email Address <span class="required">*</span></label>
+                        <label for="email">Email Address</label>
                         <input type="email"
                             id="email"
                             name="email"
-                            value="{{ old('email', $student->email) }}"
-                            placeholder="Enter your email"
-                            required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Phone Number <span class="required">*</span></label>
-                        <input type="tel"
-                            id="phone"
-                            name="phone"
-                            value="{{ old('phone', $student->mobile ?? '') }}"
-                            placeholder="Enter your phone number"
-                            required>
+                            value="{{ $student->email }}"
+                            readonly>
                     </div>
 
                     <div class="form-group">
@@ -548,7 +525,7 @@
 
                     @if($fees)
                     <div class="form-group">
-                        <label for="amount">Amount Paid</label>
+                        <label for="amount">Amount to Pay</label>
                         <input type="text"
                             id="amount"
                             value="₹{{ number_format($fees->amount, 2) }}"
@@ -557,23 +534,7 @@
                     </div>
                     @endif
 
-                    <div class="form-group">
-                        <label for="receipt">Upload Payment Screenshot/Receipt <span class="required">*</span></label>
-                        <div class="file-upload">
-                            <label class="file-upload-label" for="receipt">
-                                <span id="file-name">📤 Click to upload screenshot of payment</span>
-                            </label>
-                            <input type="file"
-                                id="receipt"
-                                name="receipt"
-                                accept="image/*"
-                                required
-                                onchange="displayFileName(this)">
-                        </div>
-                        <small class="file-hint">Accepted formats: JPG, PNG, GIF (Max: 2MB)</small>
-                    </div>
-
-                    <button type="submit" class="continue-btn">Submit Payment Details</button>
+                    <button type="button" class="continue-btn" id="rzp-button1">Pay with Razorpay</button>
                 </form>
             </div>
         </section>
@@ -583,22 +544,39 @@
         <p>© 2025 Schoolwala. All rights reserved.</p>
     </footer>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        function displayFileName(input) {
-            const fileNameSpan = document.getElementById('file-name');
-            if (input.files && input.files[0]) {
-                const fileName = input.files[0].name;
-                fileNameSpan.textContent = '✅ ' + fileName;
-                fileNameSpan.style.color = '#28a745';
+        var options = {
+            "key": "{{ config('services.razorpay.key') }}", // Enter the Key ID generated from the Dashboard
+            "amount": "{{ $fees->amount * 100 }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Schoolwala",
+            "description": "Subscription for {{ $class->name }}",
+            "image": "{{ asset('img/logo.png') }}",
+            "order_id": "{{ $razorpayOrderId }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response){
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('payment-form').submit();
+            },
+            "prefill": {
+                "name": "{{ $student->student_name }}",
+                "email": "{{ $student->email }}",
+                "contact": "{{ $student->mobile ?? '' }}"
+            },
+            "theme": {
+                "color": "#5b6bf0"
             }
-        }
-
-        // Form submission handling
-        document.getElementById('payment-form').addEventListener('submit', function(e) {
-            const submitBtn = this.querySelector('.continue-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Processing...';
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response){
+                alert("Payment Failed. Reason: " + response.error.description);
         });
+        document.getElementById('rzp-button1').onclick = function(e){
+            rzp1.open();
+            e.preventDefault();
+        }
     </script>
 </body>
 

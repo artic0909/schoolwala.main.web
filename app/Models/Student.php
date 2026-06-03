@@ -72,4 +72,9 @@ class Student extends Authenticatable
     {
         return $this->hasMany(Subscriber::class);
     }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }

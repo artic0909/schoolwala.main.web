@@ -131,6 +131,45 @@
         </div>
     </div>
 
+    <!-- Transactions Section -->
+    <div class="section">
+        <div class="section-header">
+            <h2 class="section-title">Transaction History</h2>
+        </div>
+        
+        <div style="overflow-x:auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6; text-align: left;">
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Date</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Class</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Amount</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Payment ID</th>
+                        <th style="padding: 12px; border-bottom: 2px solid #e5e7eb;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($transactions as $transaction)
+                    <tr>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->created_at->format('d M Y, h:i A') }}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->class->name ?? 'N/A' }}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">₹{{ number_format($transaction->amount, 2) }}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">{{ $transaction->razorpay_payment_id }}</td>
+                        <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+                            <span style="background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 9999px; font-size: 0.875rem;">
+                                {{ ucfirst($transaction->status) }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="padding: 12px; text-align: center; color: #6b7280; border-bottom: 1px solid #e5e7eb;">No transactions found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
     
 </div>
 
