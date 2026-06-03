@@ -503,6 +503,11 @@ class StudentApiController extends AppController
             ->where('class_id', $class->id)
             ->orderBy('subscription_date', 'desc')
             ->first();
+            
+        $latestTransaction = Transaction::where('student_id', $student->id)
+            ->where('class_id', $class->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         return $this->sendResponse([
             'class' => [
@@ -516,6 +521,7 @@ class StudentApiController extends AppController
             ],
             'has_active_subscription' => $hasSubscription,
             'current_subscription' => $currentSubscription,
+            'latest_transaction' => $latestTransaction,
         ], 'Payment information retrieved.');
     }
 
