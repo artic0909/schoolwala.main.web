@@ -811,4 +811,22 @@ class StudentApiController extends AppController
             return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get Transaction History.
+     */
+    public function getTransactions(Request $request)
+    {
+        $student = $request->user();
+
+        // Get transactions with class relationship
+        $transactions = Transaction::with('class:id,name')
+            ->where('student_id', $student->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $this->sendResponse([
+            'transactions' => $transactions
+        ], 'Transactions retrieved successfully.');
+    }
 }

@@ -116,5 +116,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/razorpay/order', [StudentApiController::class, 'createRazorpayOrder']);
         Route::post('/razorpay/verify', [StudentApiController::class, 'verifyRazorpayPayment']);
         
+        // Transaction History
+        Route::get('/transactions', [StudentApiController::class, 'getTransactions']);
+        
     });
 });
