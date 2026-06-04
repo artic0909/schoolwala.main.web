@@ -608,7 +608,7 @@ class StudentApiController extends AppController
             
             $orderData = [
                 'receipt' => 'receipt_' . $student->id . '_' . time(),
-                'amount' => $fees->amount * 100, // amount in paise
+                'amount' => (int) round($fees->amount * 100), // amount in paise
                 'currency' => 'INR'
             ];
             

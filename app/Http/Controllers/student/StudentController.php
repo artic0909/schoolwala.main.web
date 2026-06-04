@@ -688,7 +688,7 @@ class StudentController extends Controller
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         $order = $api->order->create([
             'receipt' => 'receipt_' . $student->id . '_' . time(),
-            'amount' => $fees->amount * 100, // amount in paise
+            'amount' => (int) round($fees->amount * 100), // amount in paise
             'currency' => 'INR'
         ]);
         $razorpayOrderId = $order['id'];
