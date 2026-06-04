@@ -8,6 +8,7 @@ use App\Mail\EnquirySend;
 use App\Mail\Registration;
 use App\Mail\SubscriptionMail;
 use App\Mail\SubscriptionMailFromStudent;
+use App\Mail\SubscriptionActivateInactiveMail;
 use App\Mail\WaiverReceived;
 use App\Models\AboutUs;
 use App\Models\Chapter;
@@ -762,6 +763,33 @@ class StudentController extends Controller
                 'status' => 'active'
             ]);
         }
+
+        $class = Classes::find($classId);
+
+        // Send email to admin
+        Mail::to('team.schoolwala@gmail.com')
+            ->cc($student->email)
+            ->send(new SubscriptionMailFromStudent([
+                'student_name' => $student->student_name,
+                'email' => $student->email,
+                'phone' => $student->mobile ?? '',
+                'class_id' => $classId,
+                'fees_id' => $feesId,
+                'amount' => $fees->amount,
+                'subject_id' => $subjectId,
+                'receipt' => null
+            ]));
+
+        // Send activation email to student
+        Mail::to($student->email)->send(new SubscriptionActivateInactiveMail([
+            'status' => 'active',
+            'student_name' => $student->student_name,
+            'class_name' => $class ? $class->name : 'Your Class',
+            'class_id' => $classId,
+            'subject_id' => $subjectId,
+            'subscription_date' => now()->format('Y-m-d'),
+            'expiry_date' => now()->addDays(30)->format('Y-m-d'),
+        ]));
 
         return redirect()->route('student.my-class-content', [
             'classId' => $classId,

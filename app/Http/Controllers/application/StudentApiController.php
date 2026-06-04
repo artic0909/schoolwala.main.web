@@ -23,6 +23,7 @@ use App\Mail\EnquirySend;
 use App\Mail\EnquiryRecieved;
 use App\Mail\WaiverReceived;
 use App\Mail\SubscriptionMailFromStudent;
+use App\Mail\SubscriptionActivateInactiveMail;
 use Razorpay\Api\Api;
 
 class StudentApiController extends AppController
@@ -574,7 +575,7 @@ class StudentApiController extends AppController
             $message = 'Payment submitted successfully! Waiting for admin verification.';
 
             $fee = Fees::find($request->fees_id);
-            Mail::to('saklindeveloper@gmail.com')
+            Mail::to('team.schoolwala@gmail.com')
                 ->cc($student->email)
                 ->send(new SubscriptionMailFromStudent([
                             'student_name' => $request->student_name,
@@ -699,6 +700,32 @@ class StudentApiController extends AppController
             ]);
         }
 
+        $class = Classes::find($request->class_id);
+        
+        // Send email to admin
+        Mail::to('team.schoolwala@gmail.com')
+            ->cc($student->email)
+            ->send(new SubscriptionMailFromStudent([
+                'student_name' => $student->student_name,
+                'email' => $student->email,
+                'phone' => $student->mobile ?? '',
+                'class_id' => $request->class_id,
+                'fees_id' => $request->fees_id,
+                'amount' => $fees->amount,
+                'receipt' => null
+            ]));
+
+        // Send activation email to student
+        Mail::to($student->email)->send(new SubscriptionActivateInactiveMail([
+            'status' => 'active',
+            'student_name' => $student->student_name,
+            'class_name' => $class ? $class->name : 'Your Class',
+            'class_id' => $request->class_id,
+            'subject_id' => null,
+            'subscription_date' => now()->format('Y-m-d'),
+            'expiry_date' => now()->addDays(30)->format('Y-m-d'),
+        ]));
+
         return $this->sendResponse([], 'Payment verified and subscription activated successfully.');
     }
 
@@ -787,7 +814,7 @@ class StudentApiController extends AppController
 
             ContactUs::create($validated);
 
-            Mail::to('saklindeveloper@gmail.com')->send(new EnquirySend($validated));
+            Mail::to('team.schoolwala@gmail.com')->send(new EnquirySend($validated));
             Mail::to($validated['email'])->send(new EnquiryRecieved($validated));
 
             return $this->sendResponse([], 'Your message has been sent successfully!');
@@ -827,7 +854,7 @@ class StudentApiController extends AppController
             ]);
 
             WaverRequest::create($validated);
-            Mail::to('saklindeveloper@gmail.com')->send(new WaiverReceived($validated));
+            Mail::to('team.schoolwala@gmail.com')->send(new WaiverReceived($validated));
 
             return $this->sendResponse([], 'Your waiver request has been submitted successfully!');
         } catch (\Exception $e) {
