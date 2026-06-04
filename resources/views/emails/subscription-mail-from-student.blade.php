@@ -215,26 +215,8 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="receipt-section">
-                <h3 class="section-title">Payment Receipt</h3>
-                
-                @if($receipt)
-                    <img src="{{ $receipt }}" alt="Payment Receipt" class="receipt-image">
-                @else
-                    <p style="color: #ff6b6b;">No receipt image provided</p>
-                @endif
-            </div>
 
-            
-            <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f0f8f0; border-radius: 8px;">
-                <p><strong>Status:</strong> <span style="color: #ff9f43;">Pending Verification</span></p>
-                <p>We will verify the payment receipt and activate your subscription.</p>
-            </div>
 
-            <div class="action-buttons">
-                <a href="https://schoolwala.info/admin-login" class="action-button">ADMIN LOGIN</a>
-            </div>
         </div>
         
         <div class="footer">
