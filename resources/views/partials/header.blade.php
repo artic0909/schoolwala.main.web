@@ -47,6 +47,7 @@ $currentRoute = request()->path();
         </li>
         <li>
           @auth('student')
+          @php $profile = auth('student')->user(); @endphp
           <a
             href="{{route('student.student-profile')}}"
             style="
