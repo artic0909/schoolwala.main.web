@@ -182,5 +182,11 @@
                 <div>Enquiry</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->routeIs('admin.admin-blogs') ? 'active' : '' }}">
+            <a href="{{ route('admin.admin-blogs') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-book"></i>
+                <div>Blogs</div>
+            </a>
+        </li>
     </ul>
 </aside>

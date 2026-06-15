@@ -44,14 +44,15 @@
           </div>
 
           <div class="footer-links">
-            <a href="{{route ('student.my-class') }}">My Class</a>
             @guest
             <a href="{{route('student.about.view')}}">About Us</a>
+            <a href="{{route('')}}">Read Blogs</a>
             <a href="{{route('student.contact-us')}}">Contact Us</a>
             <a href="{{route('student.privacy.view')}}">Privacy & Policy</a>
             @endguest
             @auth
             <a href="{{route('student.about-us.view')}}">About Us</a>
+            <a href="{{route('')}}">Read Blogs</a>
             <a href="{{route('student.contact-us.view')}}">Contact Us</a>
             <a href="{{route('student.privacy-policy.view')}}">Privacy & Policy</a>
             @endauth
