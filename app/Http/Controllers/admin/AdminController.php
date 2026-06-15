@@ -10,6 +10,7 @@ use App\Mail\WaiverMailBack;
 use App\Mail\WaiverRejectMail;
 use App\Models\AboutUs;
 use App\Models\Admin;
+use App\Models\Blog;
 use App\Models\Chapter;
 use App\Models\Classes;
 use App\Models\ClassFAQ;
@@ -599,6 +600,118 @@ class AdminController extends Controller
 
 
 
+
+    // Blogs Start =========================================================================================================================>
+    public function adminBlogsView()
+    {
+        $blogs = Blog::orderBy('created_at', 'desc')->get();
+        return view('admin.blogs', compact('blogs'));
+    }
+
+    public function adminAddBlog(Request $request)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+                'short_description' => 'required|string',
+                'content' => 'required|string',
+                'status' => 'required|boolean',
+                'meta_title' => 'nullable|string|max:255',
+                'meta_description' => 'nullable|string'
+            ]);
+
+            $blog = new Blog();
+            $blog->title = $request->title;
+            // Generate unique slug
+            $slug = Str::slug($request->title);
+            $count = Blog::where('slug', 'LIKE', "{$slug}%")->count();
+            if ($count > 0) {
+                $slug = $slug . '-' . ($count + 1);
+            }
+            $blog->slug = $slug;
+            $blog->short_description = $request->short_description;
+            $blog->content = $request->content;
+            $blog->status = $request->status;
+            $blog->meta_title = $request->meta_title;
+            $blog->meta_description = $request->meta_description;
+
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('blogs', 'public');
+                $blog->image = $imagePath;
+            }
+
+            $blog->save();
+
+            return redirect()->route('admin.admin-blogs')->with('success', 'Blog added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-blogs')->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditBlog(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+                'short_description' => 'required|string',
+                'content' => 'required|string',
+                'status' => 'required|boolean',
+                'meta_title' => 'nullable|string|max:255',
+                'meta_description' => 'nullable|string'
+            ]);
+
+            $blog = Blog::findOrFail($id);
+            $blog->title = $request->title;
+            
+            // Generate slug only if title changes significantly or we just keep old if we don't want to break URLs
+            if ($blog->title !== $request->title) {
+                $slug = Str::slug($request->title);
+                $count = Blog::where('slug', 'LIKE', "{$slug}%")->where('id', '!=', $blog->id)->count();
+                if ($count > 0) {
+                    $slug = $slug . '-' . ($count + 1);
+                }
+                $blog->slug = $slug;
+            }
+
+            $blog->short_description = $request->short_description;
+            $blog->content = $request->content;
+            $blog->status = $request->status;
+            $blog->meta_title = $request->meta_title;
+            $blog->meta_description = $request->meta_description;
+
+            if ($request->hasFile('image')) {
+                if (!empty($blog->image) && Storage::disk('public')->exists($blog->image)) {
+                    Storage::disk('public')->delete($blog->image);
+                }
+                $imagePath = $request->file('image')->store('blogs', 'public');
+                $blog->image = $imagePath;
+            }
+
+            $blog->save();
+
+            return redirect()->route('admin.admin-blogs')->with('success', 'Blog updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-blogs')->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteBlog($id)
+    {
+        try {
+            $blog = Blog::findOrFail($id);
+            if (!empty($blog->image) && Storage::disk('public')->exists($blog->image)) {
+                Storage::disk('public')->delete($blog->image);
+            }
+            $blog->delete();
+
+            return redirect()->route('admin.admin-blogs')->with('success', 'Blog deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-blogs')->with('error', 'Something went wrong. ' . $e->getMessage());
+        }
+    }
+    // Blogs End ==========================================================================================================================>
 
 
 

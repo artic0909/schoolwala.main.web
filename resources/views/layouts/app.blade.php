@@ -5,6 +5,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@yield('title', 'Schoolwala — Fun Learning for Kids')</title>
+    
+    @hasSection('meta_description')
+<meta name="description" content="@yield('meta_description')" />
+    @endif
+
+    @hasSection('meta_keywords')
+<meta name="keywords" content="@yield('meta_keywords')" />
+    @endif
 
     <link
         rel="stylesheet"

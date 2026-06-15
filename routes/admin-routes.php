@@ -173,6 +173,13 @@ Route::prefix('admin')->group(function () {
 
 
 
+        // Blogs Routes Start =========================================================================================================================>
+        Route::get('/admin-blogs', [AdminController::class, 'adminBlogsView'])->name('admin.admin-blogs');
+        Route::post('/admin-blogs', [AdminController::class, 'adminAddBlog'])->name('admin.admin-blogs.store');
+        Route::put('/admin-blogs/{id}', [AdminController::class, 'adminEditBlog'])->name('admin.admin-blogs.update');
+        Route::delete('/admin-blogs/{id}', [AdminController::class, 'adminDeleteBlog'])->name('admin.admin-blogs.delete');
+        // Blogs Routes End ==========================================================================================================================>
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>

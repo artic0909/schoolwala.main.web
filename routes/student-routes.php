@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\student\BlogController;
 use App\Http\Controllers\student\StudentController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,9 @@ Route::get('/about-us', [StudentController::class, 'aboutUsView'])->name('studen
 // Privacy Policy Page
 Route::get('/privacy-policy', [StudentController::class, 'privacyPolicyView'])->name('student.privacy.view');
 
+// Blogs Page
+Route::get('/blogs', [BlogController::class, 'index'])->name('student.blogs');
+Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('student.blog.show');
 
 
 // Student Guard Routes Start =========================================================================================================================>

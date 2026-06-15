@@ -46,13 +46,13 @@
           <div class="footer-links">
             @guest
             <a href="{{route('student.about.view')}}">About Us</a>
-            <a href="{{route('')}}">Read Blogs</a>
+            <a href="{{route('student.blogs')}}">Read Blogs</a>
             <a href="{{route('student.contact-us')}}">Contact Us</a>
             <a href="{{route('student.privacy.view')}}">Privacy & Policy</a>
             @endguest
             @auth
             <a href="{{route('student.about-us.view')}}">About Us</a>
-            <a href="{{route('')}}">Read Blogs</a>
+            <a href="{{route('student.blogs')}}">Read Blogs</a>
             <a href="{{route('student.contact-us.view')}}">Contact Us</a>
             <a href="{{route('student.privacy-policy.view')}}">Privacy & Policy</a>
             @endauth
