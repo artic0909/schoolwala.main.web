@@ -47,7 +47,11 @@ $currentRoute = request()->path();
         </li>
         <li>
           @auth('student')
-          @php $profile = auth('student')->user(); @endphp
+          @php 
+              $profile = \App\Models\StudentProfile::firstOrCreate([
+                  'student_id' => auth('student')->user()->id
+              ]); 
+          @endphp
           <a
             href="{{route('student.student-profile')}}"
             style="
