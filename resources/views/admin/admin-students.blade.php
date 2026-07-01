@@ -83,6 +83,8 @@
                 @endforeach
               </select>
 
+              <input type="text" name="search" class="form-control" placeholder="Search by name or phone..." value="{{ request('search') }}">
+
               <button class="btn btn-primary" type="submit">Search</button>
               &nbsp;&nbsp;
               <a href="{{ route('admin.admin-students') }}" class="btn btn-info">Reset</a>

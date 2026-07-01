@@ -1416,16 +1416,24 @@ class AdminController extends Controller
 
         $classes = Classes::all();
         $classId = $request->input('class_id');
+        $search = $request->input('search');
         $query = Student::with('classes')->orderBy('id', 'desc');
 
         if (!empty($classId)) {
             $query->where('class_id', $classId);
         }
 
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('student_name', 'like', '%' . $search . '%')
+                  ->orWhere('mobile', 'like', '%' . $search . '%');
+            });
+        }
+
         $students = $query->paginate(8);
         $students->appends($request->all());
 
-        return view('admin.admin-students', compact('students', 'classes', 'classId'));
+        return view('admin.admin-students', compact('students', 'classes', 'classId', 'search'));
     }
 
     public function adminAddStudent(Request $request)
