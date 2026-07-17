@@ -254,8 +254,11 @@
         </p>
         <a href="#" class="contact-btn">Contact Our Privacy Team <i class="fas fa-arrow-right"></i></a>
     </section>
-</div>
 
+    <div style="text-align: center; margin-top: 30px; padding: 20px; color: #666; font-size: 0.9rem;">
+        <p><strong>Schoolwala</strong> is a Brand of the <strong>Sumatra Sales Private Limited</strong></p>
+    </div>
+</div>
 
 <script>
     // Simple animation effects
