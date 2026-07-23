@@ -41,6 +41,12 @@ Route::get('/about-us', [StudentController::class, 'aboutUsView'])->name('studen
 // Privacy Policy Page
 Route::get('/privacy-policy', [StudentController::class, 'privacyPolicyView'])->name('student.privacy.view');
 
+// Terms & Conditions Page
+Route::get('/terms-and-conditions', [StudentController::class, 'termsAndConditionsView'])->name('student.terms-and-conditions.view');
+
+// Refund Policy Page
+Route::get('/refund-policy', [StudentController::class, 'refundPolicyView'])->name('student.refund-policy.view');
+
 // Blogs Page
 Route::get('/blogs', [BlogController::class, 'index'])->name('student.blogs');
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('student.blog.show');
@@ -68,6 +74,12 @@ Route::prefix('student')->group(function () {
 
         // Privacy Policy Page
         Route::get('/privacy-policy', [StudentController::class, 'privacyPolicyView'])->name('student.privacy-policy.view');
+
+        // Terms & Conditions Page
+        Route::get('/terms-and-conditions', [StudentController::class, 'termsAndConditionsView'])->name('student.terms-and-conditions.auth.view');
+
+        // Refund Policy Page
+        Route::get('/refund-policy', [StudentController::class, 'refundPolicyView'])->name('student.refund-policy.auth.view');
 
 
 

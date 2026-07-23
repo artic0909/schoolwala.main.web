@@ -573,6 +573,38 @@ class StudentController extends Controller
         }
     }
 
+    public function termsAndConditionsView()
+    {
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            return view('terms-and-conditions', compact('profile'));
+        } else {
+            return view('terms-and-conditions');
+        }
+    }
+
+    public function refundPolicyView()
+    {
+        if (auth()->guard('student')->check()) {
+            $studentId = auth()->guard('student')->user()->id;
+
+            $profile = StudentProfile::firstOrCreate(
+                ['student_id' => $studentId],
+                ['no_practise_test' => 0, 'total_practise_test_score' => 0]
+            );
+
+            return view('refund-policy', compact('profile'));
+        } else {
+            return view('refund-policy');
+        }
+    }
+
 
 
 

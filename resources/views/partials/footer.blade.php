@@ -49,12 +49,16 @@
             <a href="{{route('student.blogs')}}">Read Blogs</a>
             <a href="{{route('student.contact-us')}}">Contact Us</a>
             <a href="{{route('student.privacy.view')}}">Privacy & Policy</a>
+            <a href="{{route('student.terms-and-conditions.view')}}">Terms & Conditions</a>
+            <a href="{{route('student.refund-policy.view')}}">Refund Policy</a>
             @endguest
             @auth
             <a href="{{route('student.about-us.view')}}">About Us</a>
             <a href="{{route('student.blogs')}}">Read Blogs</a>
             <a href="{{route('student.contact-us.view')}}">Contact Us</a>
             <a href="{{route('student.privacy-policy.view')}}">Privacy & Policy</a>
+            <a href="{{route('student.terms-and-conditions.auth.view')}}">Terms & Conditions</a>
+            <a href="{{route('student.refund-policy.auth.view')}}">Refund Policy</a>
             @endauth
           </div>
 
