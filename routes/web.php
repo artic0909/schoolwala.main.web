@@ -13,6 +13,10 @@ Route::fallback(function () {
 
 Route::get('/', [StudentController::class, 'homeView'])->name('home');
 
+// Referral Page
+Route::get('/referral', [StudentController::class, 'referralView'])->name('referral');
+Route::post('/referral', [StudentController::class, 'referralSubmit'])->name('referral.submit');
+
 
 // Route::get('/', function () {
 //     return view('home');

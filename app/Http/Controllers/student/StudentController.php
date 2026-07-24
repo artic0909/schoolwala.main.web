@@ -20,6 +20,7 @@ use App\Models\FAQ;
 use App\Models\Feedback;
 use App\Models\PasswordReset;
 use App\Models\Story;
+use App\Models\Referral;
 use App\Models\Student;
 use App\Models\StudentProfile;
 use App\Models\StudentTest;
@@ -1240,4 +1241,48 @@ class StudentController extends Controller
 
 
     // My Class Page ==============================================================================================================================>
+    // Referral System ==========================================================================================================================>
+    public function referralView()
+    {
+        return view('refferal');
+    }
+
+    public function referralSubmit(Request $request)
+    {
+        $request->validate([
+            'student_id' => 'required|string',
+            'screenshot' => 'required|image|max:5120',
+        ]);
+
+        $student = Student::where('student_id', $request->student_id)->first();
+
+        if (!$student) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'You have no account in schoolwala app, so install schoolwala app from playstore or create account from <a href="https://schoolwala.info/student-register" target="_blank">Schoolwala.info</a> website & again here to fillup the form.');
+        }
+
+        $activeSubscription = Subscribers::where('student_id', $student->id)
+            ->where(function ($query) {
+                $query->where('status', 'active')
+                      ->orWhere('expiry_date', '>=', now());
+            })
+            ->first();
+
+        if (!$activeSubscription) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Go to the app & pay your first month class fees.');
+        }
+
+        $path = $request->file('screenshot')->store('referrals', 'public');
+
+        Referral::create([
+            'student_id' => $request->student_id,
+            'screenshot' => $path,
+            'referral_code' => 'IHRO',
+        ]);
+
+        return redirect()->back()->with('success', 'Referral submitted successfully!');
+    }
 }
