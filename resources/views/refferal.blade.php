@@ -87,20 +87,98 @@
       background-color: #ffffff;
     }
 
-    .form-control::file-selector-button {
+    /* Modern Upload Box */
+    .upload-box {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      background-color: #f9fafb;
+      text-align: center;
+      padding: 2rem 1rem;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+
+    .upload-box:hover {
+      border-color: #4f46e5;
       background-color: #f3f4f6;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      color: #374151;
-      font-weight: 500;
-      margin-right: 1rem;
-      transition: background-color 0.2s ease;
+    }
+
+    .upload-box input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
       cursor: pointer;
     }
 
-    .form-control::file-selector-button:hover {
-      background-color: #e5e7eb;
+    .upload-box .upload-icon {
+      width: 40px;
+      height: 40px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      transition: color 0.3s ease;
+    }
+
+    .upload-box:hover .upload-icon {
+      color: #4f46e5;
+    }
+
+    .upload-box .upload-text {
+      color: #4b5563;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0;
+    }
+
+    .upload-box .upload-hint {
+      color: #9ca3af;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+
+    .preview-container {
+      display: none;
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      position: relative;
+    }
+
+    .preview-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .remove-preview {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .remove-preview:hover {
+      background: rgba(220, 38, 38, 0.9);
     }
 
     .btn-submit {
@@ -111,7 +189,7 @@
       border-radius: 10px;
       border: none;
       width: 100%;
-      margin-top: 1rem;
+      margin-top: 1.5rem;
       transition: all 0.3s ease;
       box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
     }
@@ -137,68 +215,40 @@
       color: #111827;
     }
 
-    /* Popup Animations */
-    .custom-popup {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      padding: 1rem 1.25rem;
-      border-radius: 12px;
-      color: white;
-      z-index: 9999;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, fadeOut 0.4s ease 5.6s forwards;
-      max-width: 380px;
+    .alert-box {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
       font-size: 0.95rem;
-      line-height: 1.5;
       display: flex;
       align-items: flex-start;
       gap: 12px;
+      line-height: 1.5;
     }
 
-    .popup-success {
-      background-color: #10b981;
-      border-left: 4px solid #059669;
+    .alert-success {
+      background-color: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
     }
 
-    .popup-error {
-      background-color: #ef4444;
-      border-left: 4px solid #b91c1c;
+    .alert-error {
+      background-color: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
     }
 
-    .popup-error a {
-      color: #fef08a;
+    .alert-error a {
+      color: #b91c1c;
       text-decoration: underline;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .popup-icon {
+    .alert-icon {
       flex-shrink: 0;
       width: 20px;
       height: 20px;
       margin-top: 2px;
-    }
-
-    @keyframes slideInRight {
-      0% {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    @keyframes fadeOut {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-20px);
-      }
     }
   </style>
 </head>
@@ -211,6 +261,38 @@
       <h1 class="page-title">Submit Details</h1>
       <p class="page-subtitle">Provide your information below to proceed with your request.</p>
     </div>
+
+    <!-- Alerts inside the form card -->
+    @if (session('success'))
+    <div class="alert-box alert-success">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>{{ session('success') }}</div>
+    </div>
+    @endif
+
+    @if (session('error'))
+    <div class="alert-box alert-error">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>{!! session('error') !!}</div>
+    </div>
+    @endif
+
+    @if ($errors->any())
+    <div class="alert-box alert-error">
+      <svg class="alert-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        @foreach ($errors->all() as $error)
+            <div style="margin-bottom: 4px;">{{ $error }}</div>
+        @endforeach
+      </div>
+    </div>
+    @endif
 
     <form id="referralForm" action="{{ route('referral.submit') }}" method="POST" enctype="multipart/form-data">
       @csrf
@@ -228,14 +310,26 @@
       </div>
 
       <div class="mb-4">
-        <label class="form-label" for="screenshot">Upload Screenshot</label>
-        <input
-          type="file"
-          id="screenshot"
-          class="form-control"
-          name="screenshot"
-          accept="image/*"
-          required />
+        <label class="form-label">Upload Screenshot</label>
+        
+        <div class="upload-box" id="uploadBox">
+          <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <p class="upload-text">Click or drag image to upload</p>
+          <p class="upload-hint">SVG, PNG, JPG or GIF (max. 5MB)</p>
+          <input
+            type="file"
+            id="screenshot"
+            name="screenshot"
+            accept="image/*"
+            required />
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+          <button type="button" class="remove-preview" id="removePreview" title="Remove image">×</button>
+          <img id="imagePreview" src="" alt="Screenshot Preview" />
+        </div>
       </div>
 
       <button type="submit" class="btn-submit">Submit Details</button>
@@ -246,47 +340,33 @@
     </a>
   </div>
 
-
-  <!-- Alerts -->
-  @if (session('success'))
-  <div id="successPopup" class="custom-popup popup-success">
-    <svg class="popup-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    <div>{{ session('success') }}</div>
-  </div>
-  @endif
-
-  @if (session('error'))
-  <div id="errorPopup" class="custom-popup popup-error">
-    <svg class="popup-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    <div>{!! session('error') !!}</div>
-  </div>
-  @endif
-
-  @if ($errors->any())
-  <div id="validationPopup" class="custom-popup popup-error">
-    <svg class="popup-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    <div>
-      @foreach ($errors->all() as $error)
-          <div style="margin-bottom: 4px;">{{ $error }}</div>
-      @endforeach
-    </div>
-  </div>
-  @endif
-
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Popups automatically fade out via CSS animation, but we can clean them up from DOM
-      const popups = document.querySelectorAll('.custom-popup');
-      popups.forEach(popup => {
-        setTimeout(() => {
-          popup.remove();
-        }, 6000); // 6s matches the CSS animation duration
+      // Image Preview Logic
+      const uploadBox = document.getElementById('uploadBox');
+      const fileInput = document.getElementById('screenshot');
+      const previewContainer = document.getElementById('previewContainer');
+      const imagePreview = document.getElementById('imagePreview');
+      const removePreviewBtn = document.getElementById('removePreview');
+
+      fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            uploadBox.style.display = 'none';
+            previewContainer.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+
+      removePreviewBtn.addEventListener('click', function() {
+        fileInput.value = ''; // clear input
+        imagePreview.src = '';
+        previewContainer.style.display = 'none';
+        uploadBox.style.display = 'flex';
       });
     });
   </script>
