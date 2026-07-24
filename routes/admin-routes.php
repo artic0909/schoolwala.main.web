@@ -39,6 +39,10 @@ Route::prefix('admin')->group(function () {
         Route::put('/admin-profile', [AdminController::class, 'adminProfileUpdate'])->name('admin.admin-profile-update');
         // Admin Profile Routes End ==============================>
 
+        // Admin Referrals Routes Start ==========================>
+        Route::get('/admin-referrals', [AdminController::class, 'adminReferralsView'])->name('admin.admin-referrals');
+        Route::get('/admin-referrals/export', [AdminController::class, 'exportReferrals'])->name('admin.admin-referrals.export');
+        // Admin Referrals Routes End ============================>
 
 
         // Course Related Routes Start =========================================================================================================================>

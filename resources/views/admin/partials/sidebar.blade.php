@@ -182,6 +182,12 @@
                 <div>Enquiry</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->routeIs('admin.admin-referrals') ? 'active' : '' }}">
+            <a href="{{ route('admin.admin-referrals') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-share-alt"></i>
+                <div>Referrals</div>
+            </a>
+        </li>
         <li class="menu-item {{ request()->routeIs('admin.admin-blogs') ? 'active' : '' }}">
             <a href="{{ route('admin.admin-blogs') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-book"></i>

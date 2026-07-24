@@ -26,6 +26,9 @@ use App\Models\Subject;
 use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
+use App\Models\Referral;
+use App\Exports\ReferralsExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -1942,4 +1945,44 @@ class AdminController extends Controller
 
 
 
+    // Admin Referrals Module ========================================================================================================>
+    public function adminReferralsView(Request $request)
+    {
+        $query = Referral::query();
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('student_id', 'like', '%' . $request->search . '%')
+                  ->orWhere('referral_code', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Date Filter
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($request->from_date)->startOfDay(),
+                Carbon::parse($request->to_date)->endOfDay()
+            ]);
+        }
+
+        $referrals = $query->latest()->paginate(15)->withQueryString();
+
+        // KPIs
+        $totalReferrals = Referral::count();
+        $monthlyReferrals = Referral::whereMonth('created_at', Carbon::now()->month)
+                                    ->whereYear('created_at', Carbon::now()->year)
+                                    ->count();
+
+        return view('admin.referral.index', compact('referrals', 'totalReferrals', 'monthlyReferrals'));
+    }
+
+    public function exportReferrals(Request $request)
+    {
+        return Excel::download(
+            new ReferralsExport($request->search, $request->from_date, $request->to_date), 
+            'referrals_' . date('Y_m_d_His') . '.xlsx'
+        );
+    }
+    // Admin Referrals Module ========================================================================================================>
 }
