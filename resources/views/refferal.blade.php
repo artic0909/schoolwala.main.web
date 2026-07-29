@@ -215,6 +215,47 @@
       color: #111827;
     }
 
+    .step-container {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .step-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      font-size: 0.95rem;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #059669, #047857);
+      color: white;
+    }
+
     .alert-box {
       padding: 1rem;
       border-radius: 10px;
@@ -258,8 +299,8 @@
   <div class="referral-card">
     <div class="text-center">
       <img src="{{ asset('img/logo.png') }}" class="brand-logo" alt="Schoolwala" />
-      <h1 class="page-title">Submit Details</h1>
-      <p class="page-subtitle">Provide your information below to proceed with your request.</p>
+      <h1 class="page-title">Referral Steps</h1>
+      <p class="page-subtitle">Complete the steps below to submit your referral.</p>
     </div>
 
     <!-- Alerts inside the form card -->
@@ -294,10 +335,32 @@
     </div>
     @endif
 
-    <form id="referralForm" action="{{ route('referral.submit') }}" method="POST" enctype="multipart/form-data">
-      @csrf
+    <div class="step-container">
+      <h4 class="step-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        Step 1: Download App
+      </h4>
+      <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1rem; color: #6b7280;">Please download the Schoolwala app from the Play Store.</p>
+      <a href="https://play.google.com/store/apps/details?id=com.schoolwala.schoolwalaapp&pcampaignid=web_share" target="_blank" class="btn-download">
+        Download App
+      </a>
+    </div>
 
-      <div class="mb-4">
+    <div class="step-container">
+      <h4 class="step-title">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Step 2: Submit Details
+      </h4>
+      <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 1.5rem; color: #6b7280;">Fill up the form below with your details and screenshot.</p>
+
+      <form id="referralForm" action="{{ route('referral.submit') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+
+        <div class="mb-4">
         <label class="form-label" for="student_id">Student ID</label>
         <input
           type="text"
@@ -333,7 +396,8 @@
       </div>
 
       <button type="submit" class="btn-submit">Submit Details</button>
-    </form>
+      </form>
+    </div>
 
     <a href="{{ url('/') }}" class="back-link">
       &larr; Return to Home
