@@ -27,7 +27,7 @@
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
       padding: 3rem 2.5rem;
       width: 100%;
-      max-width: 480px;
+      max-width: 650px;
       position: relative;
       overflow: hidden;
     }
@@ -290,6 +290,22 @@
       width: 20px;
       height: 20px;
       margin-top: 2px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      .referral-card {
+        padding: 2rem 1.5rem;
+      }
+      .step-container {
+        padding: 1.25rem 1rem;
+      }
+      .page-title {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
