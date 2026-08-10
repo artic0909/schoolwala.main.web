@@ -76,7 +76,7 @@ Route::prefix('admin')->group(function () {
         // just for AJAX
         Route::get('/get-chapters/{subjectId}', [AdminController::class, 'getChapters'])->name('admin.get-chapters');
         Route::post('/admin-videos', [AdminController::class, 'addVideo'])->name('admin.admin-videos.store');
-        Route::put('/admin-videos/{id}', [AdminController::class, 'updateVideo'])->name('admin.admin-videos.update');
+        Route::post('/admin-videos/{id}', [AdminController::class, 'updateVideo'])->name('admin.admin-videos.update');
         Route::delete('/admin-videos/{id}', [AdminController::class, 'deleteVideo'])->name('admin.admin-videos.delete');
 
         // Practice Test

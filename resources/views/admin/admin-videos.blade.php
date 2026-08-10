@@ -565,7 +565,6 @@
         <form class="modal-content" action="{{ route('admin.admin-videos.update', $video->id) }}" method="POST"
           enctype="multipart/form-data">
           @csrf
-          @method('PUT')
           <div class="modal-header">
             <h5 class="modal-title">Edit Video</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
