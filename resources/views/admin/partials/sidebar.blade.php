@@ -140,6 +140,12 @@
                 <div>Videos</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->routeIs('admin.video-importer') ? 'active' : '' }}">
+            <a href="{{ route('admin.video-importer') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-import"></i>
+                <div>Video Importer</div>
+            </a>
+        </li>
         <li class="menu-item {{ request()->routeIs('admin.admin-video-feedbacks') ? 'active' : '' }}">
             <a href="{{ route('admin.admin-video-feedbacks') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-like"></i>

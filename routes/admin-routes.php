@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\AdminController;
+use App\Http\Controllers\admin\ImportController;
 use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Route;
 
@@ -85,6 +86,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin-video-feedbacks', [AdminController::class, 'adminVideoFeedbacksView'])->name('admin.admin-video-feedbacks');
         Route::put('/admin-video-feedbacks/edit/{id}', [AdminController::class, 'editVideoFeedback'])->name('admin.admin-video-feedbacks.edit');
         Route::delete('/admin-video-feedbacks/delete/{id}', [AdminController::class, 'deleteVideoFeedback'])->name('admin.admin-video-feedbacks.delete');
+        
+        // Video Importer
+        Route::get('/admin-video-importer', [ImportController::class, 'index'])->name('admin.video-importer');
+        Route::post('/admin-video-importer', [ImportController::class, 'import'])->name('admin.video-importer.store');
         // Course Related Routes End ==========================================================================================================================>
 
 

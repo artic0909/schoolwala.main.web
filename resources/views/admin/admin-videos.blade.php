@@ -590,7 +590,7 @@
                 <label for="subject_id" class="form-label">Choose Subject</label>
                 <select name="subject_id" id="subject_id_edit{{ $video->id }}" class="form-select subject-select">
                   <option value="" disabled>Choose Subject</option>
-                  @foreach ($subjects as $subject)
+                  @foreach (\App\Models\Subject::where('class_id', $video->class_id)->get() as $subject)
                     <option value="{{ $subject->id }}" {{ $subject->id == $video->subject_id ? 'selected' : '' }}>
                       {{ $subject->name }}
                     </option>
@@ -604,7 +604,7 @@
                 <label for="chapter_id" class="form-label">Choose Chapter</label>
                 <select name="chapter_id" id="chapter_id_edit{{ $video->id }}" class="form-select chapter-select">
                   <option value="" disabled>Choose Chapter</option>
-                  @foreach ($chapters as $chapter)
+                  @foreach (\App\Models\Chapter::where('subject_id', $video->subject_id)->get() as $chapter)
                     <option value="{{ $chapter->id }}" {{ $chapter->id == $video->chapter_id ? 'selected' : '' }}>
                       {{ $chapter->name }}
                     </option>
