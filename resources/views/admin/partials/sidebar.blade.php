@@ -31,7 +31,7 @@
         <li class="menu-header small text-uppercase">
             <span class="menu-header-text">SEO</span>
         </li>
-        <li class="menu-item {{ request()->routeIs('admin.admin-seo-home-page','admin.admin-seo-school-tuition','admin.admin-seo-my-class','admin.admin-seo-contact','admin.admin-seo-aboutus','admin.admin-seo-privacy-policy') ? 'open active' : '' }}">
+        <li class="menu-item {{ request()->routeIs('admin.admin-seo-home-page','admin.admin-seo-school-tuition','admin.admin-seo-my-class','admin.admin-seo-contact','admin.admin-seo-aboutus','admin.admin-seo-privacy-policy','admin.video-importer') ? 'open active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-dock-top"></i>
                 <div>Page SEO</div>
@@ -65,6 +65,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.admin-seo-privacy-policy') ? 'active' : '' }}">
                     <a href="{{ route('admin.admin-seo-privacy-policy') }}" class="menu-link">
                         <div>Privacy Policy</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.video-importer') ? 'active' : '' }}">
+                    <a href="{{ route('admin.video-importer') }}" class="menu-link">
+                        <div>Importer</div>
                     </a>
                 </li>
             </ul>
@@ -140,12 +145,7 @@
                 <div>Videos</div>
             </a>
         </li>
-        <li class="menu-item {{ request()->routeIs('admin.video-importer') ? 'active' : '' }}">
-            <a href="{{ route('admin.video-importer') }}" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-import"></i>
-                <div>Video Importer</div>
-            </a>
-        </li>
+
         <li class="menu-item {{ request()->routeIs('admin.admin-video-feedbacks') ? 'active' : '' }}">
             <a href="{{ route('admin.admin-video-feedbacks') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-like"></i>
