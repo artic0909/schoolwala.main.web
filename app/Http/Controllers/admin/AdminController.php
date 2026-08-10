@@ -1240,7 +1240,7 @@ class AdminController extends Controller
             // 'note_link' => 'nullable|url',
             // 'duration' => 'required|string|max:255',
             // 'views' => 'required|string|max:255',
-            'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'video_thumbnail' => 'nullable|image|max:3072',
 
 
         ]);
@@ -1289,7 +1289,7 @@ class AdminController extends Controller
             'video_title' => 'required|string|max:255',
             'video_type' => 'required|in:paid,free',
             'video_link' => 'nullable|url',
-            'video_thumbnail' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'video_thumbnail' => 'nullable|image|max:3072',
             'note_link' => 'nullable|url',
         ]);
 
