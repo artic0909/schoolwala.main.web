@@ -27,7 +27,7 @@
                     </div>
                 @endif
                 
-                <p>Upload a CSV file to import videos. The CSV must contain at least the following columns: <strong>chapter_name, video_title, video_type, video_link, video_description</strong>.</p>
+                <p>Upload a CSV file to import videos. The CSV must contain at least the following columns: <strong>chapter_name, video_title, video_type, video_link, video_description, duration, views</strong>.</p>
                 <p class="text-muted mb-2"><small>Note: Video thumbnail and note link will remain empty (nullable) and can be updated later.</small></p>
                 
                 <a href="{{ asset('video_import_template.csv') }}" class="btn btn-sm btn-outline-info mb-4" download>

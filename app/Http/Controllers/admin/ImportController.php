@@ -60,6 +60,8 @@ class ImportController extends Controller
             $videoType = $cleanData['video_type'] ?? 'free';
             $videoLink = $cleanData['video_link'] ?? '';
             $videoDesc = $cleanData['video_description'] ?? '';
+            $duration = $cleanData['duration'] ?? null;
+            $views = $cleanData['views'] ?? null;
             
             // Find Chapter
             $chapter = Chapter::where('class_id', $request->class_id)
@@ -77,6 +79,8 @@ class ImportController extends Controller
                     'video_type' => strtolower($videoType) == 'paid' ? 'paid' : 'free',
                     'video_link' => $videoLink,
                     'video_description' => $videoDesc,
+                    'duration' => $duration,
+                    'views' => $views,
                     'note_link' => null,
                     'video_thumbnail' => null,
                 ]);
