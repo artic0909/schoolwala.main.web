@@ -169,8 +169,21 @@ class AdminController extends Controller
     // Dashboard Start =========================================================================================================================>
     public function adminDashboardView()
     {
+        $kpas = [
+            'students' => \App\Models\Student::count(),
+            'classes' => \App\Models\Classes::count(),
+            'subjects' => \App\Models\Subject::count(),
+            'videos' => \App\Models\Video::count(),
+            'subscribers' => \App\Models\Subscribers::count(),
+            'faculties' => \App\Models\Faculty::count(),
+            'waiver_requests' => \App\Models\WaverRequest::count(),
+            'blogs' => \App\Models\Blog::count(),
+            'referrals' => \App\Models\Referral::count(),
+            'contacts' => \App\Models\ContactUs::count(),
+            'users' => \App\Models\User::count(),
+        ];
 
-        return view('admin.admin-dashboard');
+        return view('admin.admin-dashboard', compact('kpas'));
     }
     // Dashboard End ==========================================================================================================================>
 
