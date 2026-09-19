@@ -1681,19 +1681,21 @@ class AdminController extends Controller
             $student->save();
 
             if ($student->type === 'waiver') {
-                $fees = Fees::where('class_id', $student->class_id)->first();
-                Subscribers::updateOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'class_id' => $student->class_id,
-                    ],
-                    [
-                        'fees_id' => $fees ? $fees->id : null,
-                        'subscription_date' => now(),
-                        'expiry_date' => null,
-                        'status' => 'active',
-                    ]
-                );
+                $fees = Fees::where('class_id', $student->class_id)->first() ?? Fees::first();
+                if ($fees) {
+                    Subscribers::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'class_id' => $student->class_id,
+                        ],
+                        [
+                            'fees_id' => $fees->id,
+                            'subscription_date' => now(),
+                            'expiry_date' => now()->addYears(100)->format('Y-m-d'),
+                            'status' => 'active',
+                        ]
+                    );
+                }
             }
 
             return redirect()->back()->with('success', 'Student added successfully!');
@@ -1758,19 +1760,21 @@ class AdminController extends Controller
             $student->save();
 
             if ($student->type === 'waiver') {
-                $fees = Fees::where('class_id', $student->class_id)->first();
-                Subscribers::updateOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'class_id' => $student->class_id,
-                    ],
-                    [
-                        'fees_id' => $fees ? $fees->id : null,
-                        'subscription_date' => now(),
-                        'expiry_date' => null,
-                        'status' => 'active',
-                    ]
-                );
+                $fees = Fees::where('class_id', $student->class_id)->first() ?? Fees::first();
+                if ($fees) {
+                    Subscribers::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'class_id' => $student->class_id,
+                        ],
+                        [
+                            'fees_id' => $fees->id,
+                            'subscription_date' => now(),
+                            'expiry_date' => now()->addYears(100)->format('Y-m-d'),
+                            'status' => 'active',
+                        ]
+                    );
+                }
             }
 
             return redirect()->back()->with('success', 'Student updated successfully!');
@@ -1800,19 +1804,21 @@ class AdminController extends Controller
                 $student->save();
 
                 // Ensure active lifetime subscription
-                $fees = Fees::where('class_id', $student->class_id)->first();
-                Subscribers::updateOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'class_id' => $student->class_id,
-                    ],
-                    [
-                        'fees_id' => $fees ? $fees->id : null,
-                        'subscription_date' => now(),
-                        'expiry_date' => null, // Lifetime free access
-                        'status' => 'active',
-                    ]
-                );
+                $fees = Fees::where('class_id', $student->class_id)->first() ?? Fees::first();
+                if ($fees) {
+                    Subscribers::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'class_id' => $student->class_id,
+                        ],
+                        [
+                            'fees_id' => $fees->id,
+                            'subscription_date' => now(),
+                            'expiry_date' => now()->addYears(100)->format('Y-m-d'), // 100 years lifetime access
+                            'status' => 'active',
+                        ]
+                    );
+                }
 
                 return redirect()->back()->with('success', 'Student type changed to waiver successfully! Full free access granted.');
             } else {
@@ -2179,19 +2185,21 @@ class AdminController extends Controller
         }
 
         // Ensure active lifetime subscriber record for this student
-        $fees = Fees::where('class_id', $waiver->class_id)->first();
-        Subscribers::updateOrCreate(
-            [
-                'student_id' => $student->id,
-                'class_id' => $waiver->class_id,
-            ],
-            [
-                'fees_id' => $fees ? $fees->id : null,
-                'subscription_date' => now(),
-                'expiry_date' => null, // Never expires
-                'status' => 'active',
-            ]
-        );
+        $fees = Fees::where('class_id', $waiver->class_id)->first() ?? Fees::first();
+        if ($fees) {
+            Subscribers::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'class_id' => $waiver->class_id,
+                ],
+                [
+                    'fees_id' => $fees->id,
+                    'subscription_date' => now(),
+                    'expiry_date' => now()->addYears(100)->format('Y-m-d'), // 100 years lifetime access
+                    'status' => 'active',
+                ]
+            );
+        }
 
         $data = [
             'email' => $waiver->email,

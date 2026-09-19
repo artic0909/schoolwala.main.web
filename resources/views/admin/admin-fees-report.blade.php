@@ -186,7 +186,11 @@
                     <p class="m-0 p-0">
                       Paid: <span class="badge bg-label-info">{{ date('d-m-Y', strtotime($subscriber->subscription_date)) }}</span>
                     </p>
-                    @if($subscriber->expiry_date)
+                    @if($subscriber->student && $subscriber->student->type === 'waiver')
+                    <p class="m-0 p-0">
+                      Access: <span class="badge bg-label-success">Lifetime (Waiver)</span>
+                    </p>
+                    @elseif($subscriber->expiry_date)
                     <p class="m-0 p-0">
                       Expiry: <span class="badge bg-label-danger">{{ date('d-m-Y', strtotime($subscriber->expiry_date)) }}</span>
                     </p>
@@ -283,7 +287,12 @@
                             <strong>Subscription Date:</strong>
                             <p>{{ date('d-m-Y', strtotime($subscriber->subscription_date)) }}</p>
                           </div>
-                          @if($subscriber->expiry_date)
+                          @if($subscriber->student && $subscriber->student->type === 'waiver')
+                          <div class="col-md-6 mb-3">
+                            <strong>Expiry:</strong>
+                            <p><span class="badge bg-label-success">Lifetime Free Access</span></p>
+                          </div>
+                          @elseif($subscriber->expiry_date)
                           <div class="col-md-6 mb-3">
                             <strong>Expiry Date:</strong>
                             <p>{{ date('d-m-Y', strtotime($subscriber->expiry_date)) }}</p>
