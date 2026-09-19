@@ -24,6 +24,8 @@ use App\Models\StoryTag;
 use App\Models\Student;
 use App\Models\Subject;
 use App\Models\Subscribers;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Video;
 use App\Models\WaverRequest;
 use App\Models\Referral;
@@ -167,23 +169,197 @@ class AdminController extends Controller
 
 
     // Dashboard Start =========================================================================================================================>
-    public function adminDashboardView()
+    public function adminDashboardView(Request $request)
     {
-        $kpas = [
-            'students' => \App\Models\Student::count(),
-            'classes' => \App\Models\Classes::count(),
-            'subjects' => \App\Models\Subject::count(),
-            'videos' => \App\Models\Video::count(),
-            'subscribers' => \App\Models\Subscribers::count(),
-            'faculties' => \App\Models\Faculty::count(),
-            'waiver_requests' => \App\Models\WaverRequest::count(),
-            'blogs' => \App\Models\Blog::count(),
-            'referrals' => \App\Models\Referral::count(),
-            'contacts' => \App\Models\ContactUs::count(),
-            'users' => \App\Models\User::count(),
+        $selectedYear = (int) $request->input('year', date('Y'));
+        $selectedMonth = $request->input('month'); // null for all months or 1-12
+
+        $currentYear = (int) date('Y');
+        $availableYears = range(max(2023, $currentYear - 4), $currentYear + 1);
+
+        $monthsList = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
         ];
 
-        return view('admin.admin-dashboard', compact('kpas'));
+        // Overall KPAs
+        $kpas = [
+            'students' => Student::count(),
+            'regular_students' => Student::where('type', 'regular')->count(),
+            'waiver_students' => Student::where('type', 'waiver')->count(),
+            'classes' => Classes::count(),
+            'subjects' => Subject::count(),
+            'videos' => Video::count(),
+            'subscribers' => Subscribers::count(),
+            'active_subscribers' => Subscribers::where('status', 'active')->count(),
+            'pending_subscribers' => Subscribers::where('status', 'pending')->count(),
+            'faculties' => Faculty::count(),
+            'waiver_requests' => WaverRequest::count(),
+            'waiver_pending' => WaverRequest::where('status', 'pending')->count(),
+            'waiver_accepted' => WaverRequest::where('status', 'accepted')->count(),
+            'waiver_rejected' => WaverRequest::where('status', 'rejected')->count(),
+            'blogs' => Blog::count(),
+            'referrals' => Referral::count(),
+            'contacts' => ContactUs::count(),
+            'users' => User::count(),
+        ];
+
+        // Filtered Revenue Query
+        $revenueQuery = Transaction::where('status', 'success')
+            ->whereYear('created_at', $selectedYear);
+
+        $studentsQuery = Student::whereYear('created_at', $selectedYear);
+        $waiverQuery = WaverRequest::whereYear('created_at', $selectedYear);
+
+        if ($selectedMonth && $selectedMonth >= 1 && $selectedMonth <= 12) {
+            $revenueQuery->whereMonth('created_at', $selectedMonth);
+            $studentsQuery->whereMonth('created_at', $selectedMonth);
+            $waiverQuery->whereMonth('created_at', $selectedMonth);
+        }
+
+        $periodRevenue = (float) $revenueQuery->sum('amount');
+        $periodTransactionsCount = $revenueQuery->count();
+        $totalAllTimeRevenue = (float) Transaction::where('status', 'success')->sum('amount');
+        $periodNewStudents = $studentsQuery->count();
+        $periodWaiverRequests = $waiverQuery->count();
+
+        // Chart 1: Revenue Timeline (Monthly or Daily) & Transactions Count & Student Registration breakdown
+        $chartCategories = [];
+        $revenueSeriesData = [];
+        $transactionSeriesData = [];
+        $regularStudentSeriesData = [];
+        $waiverStudentSeriesData = [];
+
+        if ($selectedMonth && $selectedMonth >= 1 && $selectedMonth <= 12) {
+            // Daily breakdown for the selected month
+            $daysInMonth = Carbon::createFromDate($selectedYear, $selectedMonth, 1)->daysInMonth;
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $dateStr = sprintf('%04d-%02d-%02d', $selectedYear, $selectedMonth, $day);
+                $chartCategories[] = date('d M', strtotime($dateStr));
+
+                $dayRevenue = Transaction::where('status', 'success')
+                    ->whereDate('created_at', $dateStr)
+                    ->sum('amount');
+                $revenueSeriesData[] = (float) $dayRevenue;
+
+                $dayTx = Transaction::where('status', 'success')
+                    ->whereDate('created_at', $dateStr)
+                    ->count();
+                $transactionSeriesData[] = (int) $dayTx;
+
+                $dayRegular = Student::where('type', 'regular')
+                    ->whereDate('created_at', $dateStr)
+                    ->count();
+                $regularStudentSeriesData[] = (int) $dayRegular;
+
+                $dayWaiver = Student::where('type', 'waiver')
+                    ->whereDate('created_at', $dateStr)
+                    ->count();
+                $waiverStudentSeriesData[] = (int) $dayWaiver;
+            }
+        } else {
+            // 12 Months breakdown for the selected year
+            for ($m = 1; $m <= 12; $m++) {
+                $chartCategories[] = substr($monthsList[$m], 0, 3);
+
+                $monthRevenue = Transaction::where('status', 'success')
+                    ->whereYear('created_at', $selectedYear)
+                    ->whereMonth('created_at', $m)
+                    ->sum('amount');
+                $revenueSeriesData[] = (float) $monthRevenue;
+
+                $monthTx = Transaction::where('status', 'success')
+                    ->whereYear('created_at', $selectedYear)
+                    ->whereMonth('created_at', $m)
+                    ->count();
+                $transactionSeriesData[] = (int) $monthTx;
+
+                $monthRegular = Student::where('type', 'regular')
+                    ->whereYear('created_at', $selectedYear)
+                    ->whereMonth('created_at', $m)
+                    ->count();
+                $regularStudentSeriesData[] = (int) $monthRegular;
+
+                $monthWaiver = Student::where('type', 'waiver')
+                    ->whereYear('created_at', $selectedYear)
+                    ->whereMonth('created_at', $m)
+                    ->count();
+                $waiverStudentSeriesData[] = (int) $monthWaiver;
+            }
+        }
+
+        // Chart 2: Students distribution by Class (Donut) & Revenue by Class
+        $classes = Classes::withCount(['students'])->get();
+        $classDistributionLabels = [];
+        $classDistributionSeries = [];
+        $classRevenueLabels = [];
+        $classRevenueSeries = [];
+
+        foreach ($classes as $c) {
+            $classDistributionLabels[] = $c->name;
+            $classDistributionSeries[] = (int) $c->students_count;
+
+            $cRevenue = Transaction::where('status', 'success')
+                ->where('class_id', $c->id)
+                ->when($selectedYear, fn($q) => $q->whereYear('created_at', $selectedYear))
+                ->when($selectedMonth, fn($q) => $q->whereMonth('created_at', $selectedMonth))
+                ->sum('amount');
+            $classRevenueLabels[] = $c->name;
+            $classRevenueSeries[] = (float) $cRevenue;
+        }
+
+        // Chart 3: Subscription Statuses
+        $subscriptionStatuses = [
+            'Active Regular' => Subscribers::where('status', 'active')->whereNotNull('expiry_date')->count(),
+            'Active Waiver' => Student::where('type', 'waiver')->count(),
+            'Pending Payment' => Subscribers::where('status', 'pending')->count(),
+            'Inactive' => Subscribers::where('status', 'inactive')->count(),
+        ];
+
+        // Recent Transactions
+        $recentTransactions = Transaction::with(['student', 'class'])
+            ->orderBy('id', 'desc')
+            ->take(6)
+            ->get();
+
+        // Recent Waiver Requests
+        $recentWaiverRequests = WaverRequest::with('class')
+            ->orderBy('id', 'desc')
+            ->take(5)
+            ->get();
+
+        // Recent Registered Students
+        $recentStudents = Student::with('classes')
+            ->orderBy('id', 'desc')
+            ->take(6)
+            ->get();
+
+        return view('admin.admin-dashboard', compact(
+            'kpas',
+            'selectedYear',
+            'selectedMonth',
+            'availableYears',
+            'monthsList',
+            'periodRevenue',
+            'periodTransactionsCount',
+            'totalAllTimeRevenue',
+            'periodNewStudents',
+            'periodWaiverRequests',
+            'chartCategories',
+            'revenueSeriesData',
+            'transactionSeriesData',
+            'regularStudentSeriesData',
+            'waiverStudentSeriesData',
+            'classDistributionLabels',
+            'classDistributionSeries',
+            'classRevenueLabels',
+            'classRevenueSeries',
+            'subscriptionStatuses',
+            'recentTransactions',
+            'recentWaiverRequests',
+            'recentStudents'
+        ));
     }
     // Dashboard End ==========================================================================================================================>
 
