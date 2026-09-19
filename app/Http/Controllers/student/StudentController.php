@@ -690,6 +690,21 @@ class StudentController extends Controller
     {
         $student = auth()->guard('student')->user();
 
+        // Waiver students have 100% free access and do not need to pay
+        if ($student->type === 'waiver') {
+            if ($chapterId) {
+                return redirect()->route('student.my-chapter-videos', [
+                    'classId' => $classId,
+                    'subjectId' => $subjectId,
+                    'chapterId' => $chapterId
+                ])->with('info', 'Waiver accounts have free access to all content.');
+            }
+            return redirect()->route('student.my-class-content', [
+                'classId' => $classId,
+                'subjectId' => $subjectId
+            ])->with('info', 'Waiver accounts have free access to all content.');
+        }
+
         $class = Classes::with(['subjects.chapters.videos', 'fees'])
             ->where('id', $classId)
             ->firstOrFail();
@@ -1069,7 +1084,26 @@ class StudentController extends Controller
 
     public function  myVideoPracticeTestResult($classId, $subjectId, $chapterId, $videoId)
     {
-        $studentId = auth()->guard('student')->id(); // Get logged-in student via student guard
+        $student = auth()->guard('student')->user();
+
+        // Authorization Check
+        if ($student->type !== 'waiver') {
+            $hasActiveSub = \App\Models\Subscribers::where('student_id', $student->id)
+                ->where('class_id', $classId)
+                ->where('status', 'active')
+                ->where(function($q) {
+                    $q->whereNull('expiry_date')
+                      ->orWhere('expiry_date', '>=', now());
+                })
+                ->exists();
+
+            if (!$hasActiveSub) {
+                return redirect()->route('student.my-payment', ['classId' => $classId, 'subjectId' => $subjectId, 'chapterId' => $chapterId])
+                                 ->with('error', 'You need an active subscription to access this content.');
+            }
+        }
+
+        $studentId = $student->id;
 
         $class = \App\Models\Classes::findOrFail($classId);
         $subject = \App\Models\Subject::findOrFail($subjectId);
@@ -1262,17 +1296,19 @@ class StudentController extends Controller
                 ->with('error', 'You have no account in schoolwala app, so install schoolwala app from playstore or create account from <a href="https://schoolwala.info/student-register" target="_blank">Schoolwala.info</a> website & again here to fillup the form.');
         }
 
-        $activeSubscription = Subscribers::where('student_id', $student->id)
-            ->where(function ($query) {
-                $query->where('status', 'active')
-                      ->orWhere('expiry_date', '>=', now());
-            })
-            ->first();
+        if ($student->type !== 'waiver') {
+            $activeSubscription = Subscribers::where('student_id', $student->id)
+                ->where(function ($query) {
+                    $query->where('status', 'active')
+                          ->orWhere('expiry_date', '>=', now());
+                })
+                ->first();
 
-        if (!$activeSubscription) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Go to the app & pay your first month class fees.');
+            if (!$activeSubscription) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Go to the app & pay your first month class fees.');
+            }
         }
 
         $path = $request->file('screenshot')->store('referrals', 'public');

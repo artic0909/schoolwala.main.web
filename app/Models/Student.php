@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
-use NunoMaduro\Collision\Adapters\Phpunit\Subscribers\Subscriber;
+use App\Models\Subscribers;
 
 class Student extends Authenticatable
 {
@@ -70,7 +70,7 @@ class Student extends Authenticatable
 
     public function subscribers()
     {
-        return $this->hasMany(Subscriber::class);
+        return $this->hasMany(Subscribers::class, 'student_id');
     }
 
     public function transactions()

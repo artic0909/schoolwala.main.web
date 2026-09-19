@@ -17,11 +17,15 @@ class CheckExpiredSubscriptions extends Command
         $this->info('Checking for expired subscriptions...');
 
         // Get all active subscriptions where expiry_date has passed
+        // Exclude waiver students who have lifetime free access
         // Use with() to eager load student relationship
         $expiredSubscriptions = Subscribers::with('student')
             ->where('status', 'active')
             ->whereNotNull('expiry_date')
             ->whereDate('expiry_date', '<', Carbon::today())
+            ->whereDoesntHave('student', function ($query) {
+                $query->where('type', 'waiver');
+            })
             ->get();
 
         if ($expiredSubscriptions->isEmpty()) {

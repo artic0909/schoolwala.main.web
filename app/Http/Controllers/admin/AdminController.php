@@ -1504,6 +1504,22 @@ class AdminController extends Controller
             $student->password = Hash::make($request->password);
             $student->save();
 
+            if ($student->type === 'waiver') {
+                $fees = Fees::where('class_id', $student->class_id)->first();
+                Subscribers::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'class_id' => $student->class_id,
+                    ],
+                    [
+                        'fees_id' => $fees ? $fees->id : null,
+                        'subscription_date' => now(),
+                        'expiry_date' => null,
+                        'status' => 'active',
+                    ]
+                );
+            }
+
             return redirect()->back()->with('success', 'Student added successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Something went wrong. ' . $e->getMessage());
@@ -1565,6 +1581,22 @@ class AdminController extends Controller
 
             $student->save();
 
+            if ($student->type === 'waiver') {
+                $fees = Fees::where('class_id', $student->class_id)->first();
+                Subscribers::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'class_id' => $student->class_id,
+                    ],
+                    [
+                        'fees_id' => $fees ? $fees->id : null,
+                        'subscription_date' => now(),
+                        'expiry_date' => null,
+                        'status' => 'active',
+                    ]
+                );
+            }
+
             return redirect()->back()->with('success', 'Student updated successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Something went wrong. ' . $e->getMessage());
@@ -1591,7 +1623,22 @@ class AdminController extends Controller
                 $student->type = 'waiver';
                 $student->save();
 
-                return redirect()->back()->with('success', 'Student type changed to waiver successfully!');
+                // Ensure active lifetime subscription
+                $fees = Fees::where('class_id', $student->class_id)->first();
+                Subscribers::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'class_id' => $student->class_id,
+                    ],
+                    [
+                        'fees_id' => $fees ? $fees->id : null,
+                        'subscription_date' => now(),
+                        'expiry_date' => null, // Lifetime free access
+                        'status' => 'active',
+                    ]
+                );
+
+                return redirect()->back()->with('success', 'Student type changed to waiver successfully! Full free access granted.');
             } else {
                 return redirect()->back()->with('error', 'Only regular students can be changed to waiver.');
             }
@@ -1910,6 +1957,66 @@ class AdminController extends Controller
 
         $waiver = WaverRequest::findOrFail($id);
 
+        // Find existing student or create a new student
+        $student = Student::where('email', $waiver->email)->first();
+
+        if ($student) {
+            $student->type = 'waiver';
+            $student->password = Hash::make($request->password);
+            $student->class_id = $waiver->class_id;
+            if (!empty($waiver->c_name)) $student->student_name = $waiver->c_name;
+            if (!empty($waiver->p_name)) $student->parent_name = $waiver->p_name;
+            if (!empty($waiver->mobile)) $student->mobile = $waiver->mobile;
+            if (!empty($waiver->c_age)) $student->age = $waiver->c_age;
+            $student->save();
+        } else {
+            // Auto generate student ID
+            $year = date('y');
+            $prefix = "SW";
+            $class = Classes::find($waiver->class_id);
+            $className = $class ? strtoupper(str_replace(' ', '', $class->name)) : 'CLASS';
+
+            $lastStudent = Student::where('class_id', $waiver->class_id)
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($lastStudent && preg_match('/-(\d+)$/', $lastStudent->student_id, $matches)) {
+                $lastNumber = (int) $matches[1];
+            } else {
+                $lastNumber = 0;
+            }
+
+            $nextNumber = str_pad($lastNumber + 1, 2, '0', STR_PAD_LEFT);
+            $studentId = "{$year}-{$prefix}-{$className}-{$nextNumber}";
+
+            $student = Student::create([
+                'type' => 'waiver',
+                'student_name' => $waiver->c_name ?? 'Student',
+                'parent_name' => $waiver->p_name ?? 'Parent',
+                'email' => $waiver->email,
+                'mobile' => $waiver->mobile ?? '',
+                'age' => $waiver->c_age ?? '0',
+                'class_id' => $waiver->class_id,
+                'student_id' => $studentId,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        // Ensure active lifetime subscriber record for this student
+        $fees = Fees::where('class_id', $waiver->class_id)->first();
+        Subscribers::updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'class_id' => $waiver->class_id,
+            ],
+            [
+                'fees_id' => $fees ? $fees->id : null,
+                'subscription_date' => now(),
+                'expiry_date' => null, // Never expires
+                'status' => 'active',
+            ]
+        );
+
         $data = [
             'email' => $waiver->email,
             'p_name' => $waiver->p_name,
@@ -1923,7 +2030,7 @@ class AdminController extends Controller
         // Update status after sending mail
         $waiver->update(['status' => 'accepted']);
 
-        return back()->with('success', 'Waiver acceptance email sent successfully!');
+        return back()->with('success', 'Waiver accepted! Student account created/updated with free waiver access and email sent.');
     }
 
 

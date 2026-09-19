@@ -33,10 +33,18 @@ class StudentApiController extends AppController
     // ===============================================================================================
     private function hasActiveSubscription($studentId, $classId)
     {
+        $student = Student::find($studentId);
+        if ($student && $student->type === 'waiver') {
+            return true;
+        }
+
         return Subscribers::where('student_id', $studentId)
             ->where('class_id', $classId)
             ->where('status', 'active') // Strict status check
-            ->whereDate('expiry_date', '>=', now()) // Ensure subscription hasn't expired
+            ->where(function ($q) {
+                $q->whereNull('expiry_date')
+                  ->orWhere('expiry_date', '>=', now());
+            })
             ->exists();
     }
 
@@ -520,6 +528,7 @@ class StudentApiController extends AppController
                 'amount' => $fees->amount,
                 'qrimage_url' => $fees->qrimage_url,
             ],
+            'is_waiver' => $student->type === 'waiver',
             'has_active_subscription' => $hasSubscription,
             'current_subscription' => $currentSubscription,
             'latest_transaction' => $latestTransaction,
@@ -532,6 +541,12 @@ class StudentApiController extends AppController
      */
     public function storePayment(Request $request)
     {
+        $student = $request->user();
+
+        if ($student->type === 'waiver') {
+            return $this->sendResponse([], 'Your waiver account has full free access to all courses and features. No payment is required.');
+        }
+
         $request->validate([
             'student_name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -540,8 +555,6 @@ class StudentApiController extends AppController
             'fees_id' => 'required|exists:fees,id',
             'receipt' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
-
-        $student = $request->user();
 
         $receiptPath = null;
         if ($request->hasFile('receipt')) {
@@ -596,6 +609,12 @@ class StudentApiController extends AppController
      */
     public function createRazorpayOrder(Request $request)
     {
+        $student = $request->user();
+
+        if ($student->type === 'waiver') {
+            return $this->sendResponse([], 'Your waiver account has full free access. No payment is required.');
+        }
+
         $request->validate([
             'class_id' => 'required|exists:classes,id',
             'fees_id' => 'required|exists:fees,id',
