@@ -189,6 +189,22 @@ Route::prefix('admin')->group(function () {
         Route::delete('/admin-blogs/{id}', [AdminController::class, 'adminDeleteBlog'])->name('admin.admin-blogs.delete');
         // Blogs Routes End ==========================================================================================================================>
 
+        // Executive Partners (EP) Routes Start ========================================================================================>
+        Route::get('/admin-executive-partners', [AdminController::class, 'adminExecutivePartnersView'])->name('admin.admin-executive-partners');
+        Route::post('/admin-executive-partners', [AdminController::class, 'adminAddExecutivePartner'])->name('admin.admin-executive-partners.store');
+        Route::put('/admin-executive-partner/{id}', [AdminController::class, 'adminEditExecutivePartner'])->name('admin.admin-executive-partner.update');
+        Route::delete('/admin-executive-partner/{id}', [AdminController::class, 'adminDeleteExecutivePartner'])->name('admin.admin-executive-partner.delete');
+        Route::patch('/admin-executive-partner/toggle-status/{id}', [AdminController::class, 'adminToggleExecutivePartnerStatus'])->name('admin.admin-executive-partner.toggle-status');
+        // Executive Partners (EP) Routes End ==========================================================================================>
+
+        // Ground Partners (GP) Routes Start ===========================================================================================>
+        Route::get('/admin-ground-partners', [AdminController::class, 'adminGroundPartnersView'])->name('admin.admin-ground-partners');
+        Route::post('/admin-ground-partners', [AdminController::class, 'adminAddGroundPartner'])->name('admin.admin-ground-partners.store');
+        Route::put('/admin-ground-partner/{id}', [AdminController::class, 'adminEditGroundPartner'])->name('admin.admin-ground-partner.update');
+        Route::delete('/admin-ground-partner/{id}', [AdminController::class, 'adminDeleteGroundPartner'])->name('admin.admin-ground-partner.delete');
+        Route::patch('/admin-ground-partner/toggle-status/{id}', [AdminController::class, 'adminToggleGroundPartnerStatus'])->name('admin.admin-ground-partner.toggle-status');
+        // Ground Partners (GP) Routes End ============================================================================================>
+
     });
 });
 // Admins Guard Routes End ==========================================================================================================================>

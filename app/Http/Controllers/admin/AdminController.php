@@ -29,6 +29,8 @@ use App\Models\User;
 use App\Models\Video;
 use App\Models\WaverRequest;
 use App\Models\Referral;
+use App\Models\ExecutivePartner;
+use App\Models\GroundPartner;
 use App\Exports\ReferralsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
@@ -2290,4 +2292,224 @@ class AdminController extends Controller
         );
     }
     // Admin Referrals Module ========================================================================================================>
+
+
+    // Executive Partners (EP) Module =================================================================================================>
+    public function adminExecutivePartnersView(Request $request)
+    {
+        $query = ExecutivePartner::withCount('groundPartners');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $executivePartners = $query->latest()->paginate(15)->withQueryString();
+
+        $totalEP = ExecutivePartner::count();
+        $activeEP = ExecutivePartner::where('status', 'Active')->count();
+        $inactiveEP = ExecutivePartner::where('status', 'Inactive')->count();
+        $totalGP = GroundPartner::count();
+
+        return view('admin.admin-executive-partners', compact(
+            'executivePartners',
+            'totalEP',
+            'activeEP',
+            'inactiveEP',
+            'totalGP'
+        ));
+    }
+
+    public function adminAddExecutivePartner(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'code' => 'required|string|max:100|unique:executive_partners,code',
+                'mobile' => 'required|string|max:20',
+                'status' => 'required|string|in:Active,Inactive',
+            ]);
+
+            ExecutivePartner::create([
+                'name' => $request->name,
+                'code' => trim($request->code),
+                'mobile' => trim($request->mobile),
+                'status' => $request->status,
+            ]);
+
+            return redirect()->route('admin.admin-executive-partners')->with('success', 'Executive Partner added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-executive-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditExecutivePartner(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'code' => ['required', 'string', 'max:100', Rule::unique('executive_partners', 'code')->ignore($id)],
+                'mobile' => 'required|string|max:20',
+                'status' => 'required|string|in:Active,Inactive',
+            ]);
+
+            $ep = ExecutivePartner::findOrFail($id);
+            $ep->update([
+                'name' => $request->name,
+                'code' => trim($request->code),
+                'mobile' => trim($request->mobile),
+                'status' => $request->status,
+            ]);
+
+            return redirect()->route('admin.admin-executive-partners')->with('success', 'Executive Partner updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-executive-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteExecutivePartner($id)
+    {
+        try {
+            $ep = ExecutivePartner::findOrFail($id);
+            $ep->delete();
+            return redirect()->route('admin.admin-executive-partners')->with('success', 'Executive Partner deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-executive-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminToggleExecutivePartnerStatus($id)
+    {
+        try {
+            $ep = ExecutivePartner::findOrFail($id);
+            $ep->status = $ep->status === 'Active' ? 'Inactive' : 'Active';
+            $ep->save();
+            return redirect()->back()->with('success', "Partner status updated to {$ep->status}!");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+    // Executive Partners (EP) Module =================================================================================================>
+
+
+    // Ground Partners (GP) Module ====================================================================================================>
+    public function adminGroundPartnersView(Request $request)
+    {
+        $query = GroundPartner::with('executivePartner');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('code', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('ep_id')) {
+            $query->where('ep_id', $request->ep_id);
+        }
+
+        $groundPartners = $query->latest()->paginate(15)->withQueryString();
+        $executivePartners = ExecutivePartner::orderBy('name')->get();
+
+        $totalGP = GroundPartner::count();
+        $activeGP = GroundPartner::where('status', 'Active')->count();
+        $inactiveGP = GroundPartner::where('status', 'Inactive')->count();
+
+        return view('admin.admin-ground-partners', compact(
+            'groundPartners',
+            'executivePartners',
+            'totalGP',
+            'activeGP',
+            'inactiveGP'
+        ));
+    }
+
+    public function adminAddGroundPartner(Request $request)
+    {
+        try {
+            $request->validate([
+                'ep_id' => 'required|exists:executive_partners,id',
+                'name' => 'required|string|max:255',
+                'code' => 'required|string|max:100|unique:ground_partners,code',
+                'mobile' => 'required|string|max:20',
+                'status' => 'required|string|in:Active,Inactive',
+            ]);
+
+            GroundPartner::create([
+                'ep_id' => $request->ep_id,
+                'name' => $request->name,
+                'code' => trim($request->code),
+                'mobile' => trim($request->mobile),
+                'status' => $request->status,
+            ]);
+
+            return redirect()->route('admin.admin-ground-partners')->with('success', 'Ground Partner added successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-ground-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminEditGroundPartner(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'ep_id' => 'required|exists:executive_partners,id',
+                'name' => 'required|string|max:255',
+                'code' => ['required', 'string', 'max:100', Rule::unique('ground_partners', 'code')->ignore($id)],
+                'mobile' => 'required|string|max:20',
+                'status' => 'required|string|in:Active,Inactive',
+            ]);
+
+            $gp = GroundPartner::findOrFail($id);
+            $gp->update([
+                'ep_id' => $request->ep_id,
+                'name' => $request->name,
+                'code' => trim($request->code),
+                'mobile' => trim($request->mobile),
+                'status' => $request->status,
+            ]);
+
+            return redirect()->route('admin.admin-ground-partners')->with('success', 'Ground Partner updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-ground-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminDeleteGroundPartner($id)
+    {
+        try {
+            $gp = GroundPartner::findOrFail($id);
+            $gp->delete();
+            return redirect()->route('admin.admin-ground-partners')->with('success', 'Ground Partner deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.admin-ground-partners')->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function adminToggleGroundPartnerStatus($id)
+    {
+        try {
+            $gp = GroundPartner::findOrFail($id);
+            $gp->status = $gp->status === 'Active' ? 'Inactive' : 'Active';
+            $gp->save();
+            return redirect()->back()->with('success', "Partner status updated to {$gp->status}!");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+    // Ground Partners (GP) Module ====================================================================================================>
 }

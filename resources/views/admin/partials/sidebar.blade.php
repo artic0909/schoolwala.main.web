@@ -200,5 +200,26 @@
                 <div>Blogs</div>
             </a>
         </li>
+
+        <!-- Partners -->
+        <li class="menu-header small text-uppercase"><span class="menu-header-text">Partners</span></li>
+        <li class="menu-item {{ request()->routeIs('admin.admin-executive-partners', 'admin.admin-ground-partners') ? 'open active' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-group"></i>
+                <div>Partners</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('admin.admin-executive-partners') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-executive-partners') }}" class="menu-link">
+                        <div>Executive Partner (EP)</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.admin-ground-partners') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-ground-partners') }}" class="menu-link">
+                        <div>Ground Partner (GP)</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
 </aside>
