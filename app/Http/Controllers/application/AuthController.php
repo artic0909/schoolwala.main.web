@@ -4,6 +4,8 @@ namespace App\Http\Controllers\application;
 
 use App\Http\Controllers\application\AppController as AppController;
 use App\Models\Student;
+use App\Models\GroundPartner;
+use App\Models\GpReferral;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,9 +24,23 @@ class AuthController extends AppController
             'parent_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:students',
             'mobile' => 'required|string|max:15',
-            'age' => 'required|string|max:3',
-            'password' => 'required|string|min:8|confirmed',
+            'age' => 'required|max:3',
+            'password' => 'required|string|min:6',
+            'gp_code' => 'nullable|string|max:100',
         ]);
+
+        // Validate GP Code if provided
+        $gpId = null;
+        if ($request->filled('gp_code')) {
+            $code = trim($request->gp_code);
+            $groundPartner = GroundPartner::where('code', $code)->where('status', 'Active')->first();
+
+            if (!$groundPartner) {
+                return $this->sendError('Invalid Ground Partner Code.', ['gp_code' => ['Invalid Ground Partner Code. Please enter a valid active code or leave it blank.']], 422);
+            }
+
+            $gpId = $groundPartner->id;
+        }
 
         // ----- AUTO GENERATE STUDENT ID -----
         $year   = date('y'); // last 2 digits of year
@@ -51,6 +67,7 @@ class AuthController extends AppController
 
         $student = Student::create([
             'class_id' => $request->class_id,
+            'gp_id' => $gpId,
             'student_id' => $studentId, // Use generated ID
             'student_name' => $request->student_name,
             'parent_name' => $request->parent_name,
@@ -59,6 +76,18 @@ class AuthController extends AppController
             'age' => $request->age,
             'password' => Hash::make($request->password),
         ]);
+
+        // If registered with GP, log referral
+        if ($gpId) {
+            GpReferral::create([
+                'gp_id'          => $gpId,
+                'student_id'     => $student->id,
+                'payment_id'     => null,
+                'amount'         => null,
+                'payment_status' => 'unpaid',
+                'date'           => now()->toDateString(),
+            ]);
+        }
 
         // Send Registration Email
         try {
