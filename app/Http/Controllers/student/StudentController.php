@@ -29,6 +29,8 @@ use App\Models\Subscribers;
 use App\Models\Video;
 use App\Models\WaverRequest;
 use App\Models\Transaction;
+use App\Models\GroundPartner;
+use App\Models\GpReferral;
 use Razorpay\Api\Api;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -229,14 +231,31 @@ class StudentController extends Controller
                 'email'         => 'required|email|unique:students,email',
                 'mobile'        => 'required|string|max:15',
                 'age'           => 'required|integer',
-                'password'      => 'required|string|min:6|confirmed',
+                'password'      => 'required|string|min:6',
+                'gp_code'       => 'nullable|string|max:100',
             ]);
 
             if ($validator->fails()) {
                 return redirect()->back()
                     ->withErrors($validator)
                     ->withInput()
-                    ->with('error', 'Validation failed!');
+                    ->with('error', $validator->errors()->first());
+            }
+
+            // Check Ground Partner Code if provided
+            $gpId = null;
+            if ($request->filled('gp_code')) {
+                $code = trim($request->gp_code);
+                $groundPartner = GroundPartner::where('code', $code)->where('status', 'Active')->first();
+
+                if (!$groundPartner) {
+                    return redirect()->back()
+                        ->withInput()
+                        ->withErrors(['gp_code' => 'Invalid Ground Partner Code.'])
+                        ->with('error', 'Invalid Ground Partner Code. Please enter a valid active code or leave it blank.');
+                }
+
+                $gpId = $groundPartner->id;
             }
 
             // ----- AUTO GENERATE STUDENT ID -----
@@ -266,6 +285,7 @@ class StudentController extends Controller
             // ----- CREATE STUDENT -----
             $student = Student::create([
                 'class_id'     => $request->class_id,
+                'gp_id'        => $gpId,
                 'student_id'   => $studentId,
                 'student_name' => $request->student_name,
                 'parent_name'  => $request->parent_name,
@@ -274,6 +294,18 @@ class StudentController extends Controller
                 'age'          => $request->age,
                 'password'     => Hash::make($request->password),
             ]);
+
+            // If GP attached, record referral
+            if ($gpId) {
+                GpReferral::create([
+                    'gp_id'          => $gpId,
+                    'student_id'     => $student->id,
+                    'payment_id'     => null,
+                    'amount'         => null,
+                    'payment_status' => 'unpaid',
+                    'date'           => now()->toDateString(),
+                ]);
+            }
 
             // MAIL TO STUDENT
             Mail::to($student->email)->send(new Registration($student));
@@ -788,6 +820,21 @@ class StudentController extends Controller
             'payment_method' => $paymentMethod,
             'status' => 'success',
         ]);
+
+        // If student is linked with a Ground Partner, update/record payment in gp_referrals
+        if ($student->gp_id) {
+            $referral = GpReferral::firstOrNew([
+                'gp_id' => $student->gp_id,
+                'student_id' => $student->id,
+            ]);
+            $referral->payment_id = $input['razorpay_payment_id'];
+            $referral->amount = $fees->amount;
+            $referral->payment_status = 'paid';
+            if (!$referral->date) {
+                $referral->date = now()->toDateString();
+            }
+            $referral->save();
+        }
 
         // Update/Create Subscriber
         $existingSubscriber = Subscribers::where('student_id', $student->id)

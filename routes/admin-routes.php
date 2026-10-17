@@ -199,6 +199,7 @@ Route::prefix('admin')->group(function () {
 
         // Ground Partners (GP) Routes Start ===========================================================================================>
         Route::get('/admin-ground-partners', [AdminController::class, 'adminGroundPartnersView'])->name('admin.admin-ground-partners');
+        Route::get('/admin-ground-partner/{id}/view', [AdminController::class, 'adminViewGroundPartner'])->name('admin.admin-ground-partner.view');
         Route::post('/admin-ground-partners', [AdminController::class, 'adminAddGroundPartner'])->name('admin.admin-ground-partners.store');
         Route::put('/admin-ground-partner/{id}', [AdminController::class, 'adminEditGroundPartner'])->name('admin.admin-ground-partner.update');
         Route::delete('/admin-ground-partner/{id}', [AdminController::class, 'adminDeleteGroundPartner'])->name('admin.admin-ground-partner.delete');

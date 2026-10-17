@@ -21,6 +21,7 @@ class Student extends Authenticatable
      */
     protected $fillable = [
         'class_id',
+        'gp_id',
         'student_id',
         'student_name',
         'parent_name',
@@ -76,5 +77,20 @@ class Student extends Authenticatable
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function groundPartner()
+    {
+        return $this->belongsTo(GroundPartner::class, 'gp_id');
+    }
+
+    public function gp()
+    {
+        return $this->groundPartner();
+    }
+
+    public function gpReferrals()
+    {
+        return $this->hasMany(GpReferral::class, 'student_id');
     }
 }

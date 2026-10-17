@@ -117,6 +117,13 @@
                   </td>
                   <td>
                     <span class="badge bg-label-danger">{{$student->student_id}}</span>
+                    @if($student->groundPartner)
+                      <div class="mt-1">
+                        <a href="{{ route('admin.admin-ground-partner.view', $student->groundPartner->id) }}" class="badge bg-label-info" title="Referred by GP: {{ $student->groundPartner->name }}">
+                          <i class="bx bx-barcode me-1"></i>{{ $student->groundPartner->code }}
+                        </a>
+                      </div>
+                    @endif
                   </td>
                   <td style="text-transform: capitalize;">{{$student->type}}</td>
                   <td>{{$student->student_name}}</td>

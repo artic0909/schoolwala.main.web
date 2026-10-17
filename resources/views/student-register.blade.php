@@ -162,6 +162,16 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label">Ground Partner Code (Optional)</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter GP Code (e.g. GPALL001)"
+                            name="gp_code"
+                            value="{{ old('gp_code', request('gp_code')) }}" />
+                    </div>
+
                     <label class="form-label">Password</label>
                     <div class="form-group password-toggle" style="display: flex; align-items: center; justify-content: center;">
                         <input
@@ -170,18 +180,6 @@
                             placeholder="••••••••"
                             name="password"
                             value="{{ old('password') }}"
-                            required />
-                        <button type="button" class="toggle-password">👁️</button>
-                    </div>
-
-                    <label class="form-label">Confirm Password</label>
-                    <div class="form-group password-toggle" style="display: flex; align-items: center; justify-content: center;">
-                        <input
-                            type="password"
-                            class="form-control"
-                            placeholder="••••••••"
-                            name="password_confirmation"
-                            value="{{ old('password_confirmation') }}"
                             required />
                         <button type="button" class="toggle-password">👁️</button>
                     </div>
@@ -218,6 +216,10 @@
     @if (session('error'))
     <div id="errorPopup" class="custom-error-popup">
         {{ session('error') }}
+    </div>
+    @elseif ($errors->any())
+    <div id="errorPopup" class="custom-error-popup">
+        {{ $errors->first() }}
     </div>
     @endif
 

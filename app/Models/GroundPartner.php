@@ -50,4 +50,20 @@ class GroundPartner extends Model
     {
         $this->attributes['mobile'] = $value;
     }
+
+    /**
+     * Relationship: A Ground Partner has many Students.
+     */
+    public function students()
+    {
+        return $this->hasMany(Student::class, 'gp_id');
+    }
+
+    /**
+     * Relationship: A Ground Partner has many referrals.
+     */
+    public function referrals()
+    {
+        return $this->hasMany(GpReferral::class, 'gp_id');
+    }
 }

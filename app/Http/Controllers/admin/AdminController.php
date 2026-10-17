@@ -31,6 +31,7 @@ use App\Models\WaverRequest;
 use App\Models\Referral;
 use App\Models\ExecutivePartner;
 use App\Models\GroundPartner;
+use App\Models\GpReferral;
 use App\Exports\ReferralsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
@@ -1612,7 +1613,7 @@ class AdminController extends Controller
         $classes = Classes::all();
         $classId = $request->input('class_id');
         $search = $request->input('search');
-        $query = Student::with('classes')->orderBy('id', 'desc');
+        $query = Student::with(['classes', 'groundPartner'])->orderBy('id', 'desc');
 
         if (!empty($classId)) {
             $query->where('class_id', $classId);
@@ -2403,7 +2404,7 @@ class AdminController extends Controller
     // Ground Partners (GP) Module ====================================================================================================>
     public function adminGroundPartnersView(Request $request)
     {
-        $query = GroundPartner::with('executivePartner');
+        $query = GroundPartner::with('executivePartner')->withCount('students');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -2510,6 +2511,90 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
         }
+    }
+
+    public function adminViewGroundPartner(Request $request, $id)
+    {
+        $gp = GroundPartner::with('executivePartner')->findOrFail($id);
+        $executivePartners = ExecutivePartner::orderBy('name')->get();
+        $classes = Classes::all();
+
+        // Only show students who have completed payment
+        $query = Student::where('gp_id', $gp->id)
+            ->where(function ($q) {
+                $q->whereHas('gpReferrals', function ($r) {
+                    $r->where('payment_status', 'paid')->orWhereNotNull('payment_id');
+                })->orWhereHas('transactions', function ($t) {
+                    $t->where('status', 'success');
+                })->orWhereHas('subscribers', function ($s) {
+                    $s->where('status', 'active');
+                });
+            })
+            ->with(['classes', 'gpReferrals', 'transactions', 'subscribers']);
+
+        // Date range filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Class filter
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $request->class_id);
+        }
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('student_name', 'like', "%{$search}%")
+                  ->orWhere('student_id', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('mobile', 'like', "%{$search}%")
+                  ->orWhere('parent_name', 'like', "%{$search}%");
+            });
+        }
+
+        $students = $query->latest()->paginate(15)->withQueryString();
+
+        // Metrics for this GP
+        $totalStudents = Student::where('gp_id', $gp->id)->count();
+        $paidStudents = Student::where('gp_id', $gp->id)
+            ->where(function ($q) {
+                $q->whereHas('gpReferrals', function ($r) {
+                    $r->where('payment_status', 'paid')->orWhereNotNull('payment_id');
+                })->orWhereHas('transactions', function ($t) {
+                    $t->where('status', 'success');
+                })->orWhereHas('subscribers', function ($s) {
+                    $s->where('status', 'active');
+                });
+            })->count();
+        $unpaidStudents = max(0, $totalStudents - $paidStudents);
+
+        $totalCollected = (float) Transaction::whereIn('student_id', function ($sub) use ($gp) {
+            $sub->select('id')->from('students')->where('gp_id', $gp->id);
+        })->where('status', 'success')->sum('amount');
+
+        if ($totalCollected == 0) {
+            $totalCollected = (float) GpReferral::where('gp_id', $gp->id)->where('payment_status', 'paid')->sum('amount');
+        }
+
+        // Optional list of other GPs under the same or selected EP for quick switching
+        $otherGps = GroundPartner::where('ep_id', $gp->ep_id)->orderBy('name')->get();
+
+        return view('admin.admin-ground-partner-view', compact(
+            'gp',
+            'students',
+            'classes',
+            'executivePartners',
+            'otherGps',
+            'totalStudents',
+            'paidStudents',
+            'unpaidStudents',
+            'totalCollected'
+        ));
     }
     // Ground Partners (GP) Module ====================================================================================================>
 }

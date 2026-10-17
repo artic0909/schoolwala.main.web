@@ -19,6 +19,7 @@ use App\Models\WaverRequest;
 use App\Models\PasswordReset;
 use App\Models\StudentTest;
 use App\Models\Transaction;
+use App\Models\GpReferral;
 use App\Mail\EnquirySend;
 use App\Mail\EnquiryRecieved;
 use App\Mail\WaiverReceived;
@@ -695,6 +696,21 @@ class StudentApiController extends AppController
             'payment_method' => $paymentMethod,
             'status' => 'success',
         ]);
+
+        // If student is linked with a Ground Partner, update/record payment in gp_referrals
+        if ($student->gp_id) {
+            $referral = GpReferral::firstOrNew([
+                'gp_id' => $student->gp_id,
+                'student_id' => $student->id,
+            ]);
+            $referral->payment_id = $request->razorpay_payment_id;
+            $referral->amount = $fees->amount;
+            $referral->payment_status = 'paid';
+            if (!$referral->date) {
+                $referral->date = now()->toDateString();
+            }
+            $referral->save();
+        }
 
         // Update/Create Subscriber
         $existingSubscriber = Subscribers::where('student_id', $student->id)

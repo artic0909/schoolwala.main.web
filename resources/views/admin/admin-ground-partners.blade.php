@@ -38,6 +38,24 @@
   .kpi-card:hover {
     transform: translateY(-2px);
   }
+  .kpi-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    margin-bottom: 2px;
+  }
+  .kpi-value {
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.85rem;
+    margin: 0;
+    line-height: 1.2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
 </style>
 
 <div class="row">
@@ -47,8 +65,8 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <span class="d-block fw-semibold text-white-50 small">Total GPs</span>
-            <h3 class="card-title text-white mb-0 mt-1">{{ $totalGP }}</h3>
+            <span class="kpi-label">Total GPs</span>
+            <h2 class="kpi-value">{{ $totalGP }}</h2>
           </div>
           <div class="avatar flex-shrink-0">
             <span class="avatar-initial rounded bg-white text-primary">
@@ -65,8 +83,8 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <span class="d-block fw-semibold text-white-50 small">Active GPs</span>
-            <h3 class="card-title text-white mb-0 mt-1">{{ $activeGP }}</h3>
+            <span class="kpi-label">Active GPs</span>
+            <h2 class="kpi-value">{{ $activeGP }}</h2>
           </div>
           <div class="avatar flex-shrink-0">
             <span class="avatar-initial rounded bg-white text-success">
@@ -83,8 +101,8 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <span class="d-block fw-semibold text-white-50 small">Inactive GPs</span>
-            <h3 class="card-title text-white mb-0 mt-1">{{ $inactiveGP }}</h3>
+            <span class="kpi-label">Inactive GPs</span>
+            <h2 class="kpi-value">{{ $inactiveGP }}</h2>
           </div>
           <div class="avatar flex-shrink-0">
             <span class="avatar-initial rounded bg-white text-warning">
@@ -101,8 +119,8 @@
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <span class="d-block fw-semibold text-white-50 small">Executive Partners</span>
-            <h3 class="card-title text-white mb-0 mt-1">{{ $executivePartners->count() }}</h3>
+            <span class="kpi-label">Executive Partners</span>
+            <h2 class="kpi-value">{{ $executivePartners->count() }}</h2>
           </div>
           <div class="avatar flex-shrink-0">
             <span class="avatar-initial rounded bg-white text-info">
@@ -206,9 +224,10 @@
                 <th>Name</th>
                 <th>Mobile</th>
                 <th>Executive Partner (EP)</th>
+                <th class="text-center">Students</th>
                 <th>Status</th>
                 <th>Created At</th>
-                <th style="width: 160px;" class="text-center">Actions</th>
+                <th style="width: 170px;" class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -237,6 +256,11 @@
                     <span class="text-muted small">Not Assigned</span>
                   @endif
                 </td>
+                <td class="text-center">
+                  <a href="{{ route('admin.admin-ground-partner.view', $gp->id) }}" class="badge bg-label-primary fs-6 text-decoration-none" title="View Students">
+                    <i class="bx bx-user me-1"></i>{{ $gp->students_count ?? 0 }}
+                  </a>
+                </td>
                 <td>
                   @if ($gp->status === 'Active')
                     <span class="badge bg-success">Active</span>
@@ -256,13 +280,19 @@
                   <small class="text-muted">{{ $gp->created_at ? $gp->created_at->format('Y-m-d H:i') : '-' }}</small>
                 </td>
                 <td class="text-center">
+                  <a
+                    href="{{ route('admin.admin-ground-partner.view', $gp->id) }}"
+                    class="btn btn-sm btn-info"
+                    title="View Partner Details & Students">
+                    <i class="bx bx-show"></i>
+                  </a>
                   <button
                     type="button"
                     class="btn btn-sm btn-warning"
                     data-bs-toggle="modal"
                     data-bs-target="#modalEditGP{{ $gp->id }}"
                     title="Edit Partner">
-                    <i class="bx bx-edit-alt"></i> Edit
+                    <i class="bx bx-edit-alt"></i>
                   </button>
                   <button
                     type="button"
@@ -276,7 +306,7 @@
               </tr>
               @empty
               <tr>
-                <td colspan="8" class="text-center py-4">
+                <td colspan="9" class="text-center py-4">
                   <div class="text-muted">
                     <i class="bx bx-info-circle fs-3 d-block mb-1"></i>
                     No Ground Partners found.
