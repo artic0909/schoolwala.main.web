@@ -24,11 +24,6 @@
     justify-content: center;
     font-size: 24px;
   }
-  .table th {
-    font-size: 0.78rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
   .modal-section-title {
     font-size: 0.82rem;
     font-weight: 700;
@@ -38,6 +33,65 @@
     border-bottom: 2px solid #eceef1;
     padding-bottom: 6px;
     margin-bottom: 12px;
+  }
+  /* Table styling */
+  .table-payments th {
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  .table-payments td {
+    vertical-align: middle;
+    font-size: 0.88rem;
+  }
+  /* Sticky Action column so it never gets cut off */
+  .sticky-action {
+    position: sticky;
+    right: 0;
+    background-color: #ffffff;
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+    z-index: 2;
+  }
+  thead th.sticky-action {
+    background-color: #f5f5f9 !important;
+    z-index: 3;
+  }
+  tbody tr:hover .sticky-action {
+    background-color: #f8f9fa !important;
+  }
+  /* Clean Bootstrap 5 pagination */
+  .pagination-container .pagination {
+    margin: 0;
+    gap: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .pagination-container .page-item .page-link {
+    border-radius: 6px !important;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #566a7f;
+    border: 1px solid #d9dee3;
+    line-height: 1.2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pagination-container .page-item.active .page-link {
+    background-color: #696cff !important;
+    border-color: #696cff !important;
+    color: #ffffff !important;
+  }
+  .pagination-container .page-item.disabled .page-link {
+    color: #b4bdc6;
+    background-color: #f5f5f9;
+    border-color: #e4e6ea;
+  }
+  .pagination-container svg {
+    display: none !important;
   }
 </style>
 
@@ -272,37 +326,37 @@
     </small>
   </div>
 
-  <div class="table-responsive text-nowrap">
-    <table class="table table-hover table-bordered mb-0">
+  <div class="table-responsive">
+    <table class="table table-hover table-bordered table-payments mb-0">
       <thead class="table-light">
         <tr>
-          <th style="width: 50px;">SL</th>
-          <th>Student ID</th>
-          <th>Class</th>
-          <th>Student Name</th>
-          <th>Email / Mobile</th>
-          <th>Payment Details</th>
-          <th>Amount</th>
-          <th>Status</th>
-          <th style="width: 80px;" class="text-center">Action</th>
+          <th style="width: 45px;" class="text-center">SL</th>
+          <th style="width: 140px;">Student ID</th>
+          <th style="width: 90px;" class="text-center">Class</th>
+          <th style="min-width: 150px;">Student Name</th>
+          <th style="min-width: 170px;">Email / Mobile</th>
+          <th style="min-width: 190px;">Payment Details</th>
+          <th style="width: 100px;">Amount</th>
+          <th style="width: 90px;" class="text-center">Status</th>
+          <th style="width: 85px;" class="text-center sticky-action">Action</th>
         </tr>
       </thead>
       <tbody class="table-border-bottom-0">
         @forelse($transactions as $index => $tx)
         <tr>
           <!-- SL -->
-          <td><strong>{{ $transactions->firstItem() + $index }}</strong></td>
+          <td class="text-center"><strong>{{ $transactions->firstItem() + $index }}</strong></td>
 
           <!-- Student ID -->
           <td>
-            <span class="badge bg-label-warning fw-bold">
+            <span class="badge bg-label-warning fw-bold text-nowrap">
               {{ $tx->student->student_id ?? 'N/A' }}
             </span>
           </td>
 
           <!-- Class -->
-          <td>
-            <span class="badge bg-label-primary">
+          <td class="text-center">
+            <span class="badge bg-label-primary text-nowrap">
               {{ $tx->class->name ?? 'N/A' }}
             </span>
           </td>
@@ -310,7 +364,7 @@
           <!-- Student Name -->
           <td>
             <div class="d-flex align-items-center">
-              <div class="avatar avatar-sm me-2">
+              <div class="avatar avatar-sm me-2 flex-shrink-0">
                 <span class="avatar-initial rounded-circle bg-label-primary">
                   {{ strtoupper(substr($tx->student->student_name ?? 'S', 0, 1)) }}
                 </span>
@@ -324,58 +378,59 @@
 
           <!-- Email & Phone -->
           <td>
-            <p class="m-0 p-0 text-nowrap">
-              <i class="bx bx-envelope text-muted me-1"></i> {{ $tx->student->email ?? 'N/A' }}
-            </p>
-            <p class="m-0 p-0 text-nowrap">
-              <i class="bx bx-phone text-muted me-1"></i> {{ $tx->student->mobile ?? 'N/A' }}
-            </p>
+            <div class="small">
+              <div class="text-nowrap mb-1">
+                <i class="bx bx-envelope text-muted me-1"></i>{{ $tx->student->email ?? 'N/A' }}
+              </div>
+              <div class="text-nowrap">
+                <i class="bx bx-phone text-muted me-1"></i>{{ $tx->student->mobile ?? 'N/A' }}
+              </div>
+            </div>
           </td>
 
           <!-- Payment Details -->
           <td>
-            <p class="m-0 p-0 text-nowrap">
-              <small class="text-muted">ID:</small>
-              <code class="text-primary">{{ $tx->razorpay_payment_id ?? 'N/A' }}</code>
-            </p>
-            <p class="m-0 p-0 text-nowrap">
-              <small class="text-muted">Method:</small>
-              <span class="badge bg-label-info">{{ $tx->payment_method ? ucfirst($tx->payment_method) : 'Online' }}</span>
-            </p>
-            <p class="m-0 p-0 text-nowrap">
-              <small class="text-muted">
-                <i class="bx bx-calendar me-1"></i>{{ $tx->created_at ? $tx->created_at->format('d-m-Y h:i A') : 'N/A' }}
-              </small>
-            </p>
+            <div class="small">
+              <div class="text-nowrap mb-1">
+                <small class="text-muted">ID:</small>
+                <code class="text-primary">{{ $tx->razorpay_payment_id ?? 'N/A' }}</code>
+              </div>
+              <div class="d-flex align-items-center gap-1 flex-wrap">
+                <span class="badge bg-label-info">{{ $tx->payment_method ? ucfirst($tx->payment_method) : 'Online' }}</span>
+                <small class="text-muted text-nowrap">
+                  <i class="bx bx-calendar me-1"></i>{{ $tx->created_at ? $tx->created_at->format('d-m-Y h:i A') : 'N/A' }}
+                </small>
+              </div>
+            </div>
           </td>
 
           <!-- Amount -->
           <td>
-            <strong class="text-success fs-6">₹{{ number_format($tx->amount, 2) }}</strong>
+            <strong class="text-success fs-6 text-nowrap">₹{{ number_format($tx->amount, 2) }}</strong>
           </td>
 
           <!-- Status -->
-          <td>
+          <td class="text-center">
             @if($tx->status === 'success')
-              <span class="badge bg-success">Success</span>
+              <span class="badge bg-success text-nowrap">Success</span>
             @elseif($tx->status === 'pending')
-              <span class="badge bg-warning">Pending</span>
+              <span class="badge bg-warning text-nowrap">Pending</span>
             @elseif($tx->status === 'failed')
-              <span class="badge bg-danger">Failed</span>
+              <span class="badge bg-danger text-nowrap">Failed</span>
             @else
-              <span class="badge bg-secondary">{{ ucfirst($tx->status) }}</span>
+              <span class="badge bg-secondary text-nowrap">{{ ucfirst($tx->status) }}</span>
             @endif
           </td>
 
-          <!-- Action View Icon -->
-          <td class="text-center">
+          <!-- Action View Icon Button (Sticky) -->
+          <td class="text-center sticky-action">
             <button
               type="button"
-              class="btn btn-sm btn-icon btn-outline-primary"
+              class="btn btn-sm btn-primary py-1 px-2 text-nowrap"
               data-bs-toggle="modal"
               data-bs-target="#viewModal{{ $tx->id }}"
               title="View Payment Details">
-              <i class="bx bx-show fs-5"></i>
+              <i class="bx bx-show me-1"></i> View
             </button>
           </td>
         </tr>
@@ -569,16 +624,15 @@
 
   <!-- Pagination -->
   @if($transactions->hasPages())
-  <div class="card-footer d-flex justify-content-between align-items-center flex-wrap pt-3 pb-2">
+  <div class="card-footer d-flex justify-content-between align-items-center flex-wrap pt-3 pb-3">
     <div class="text-muted small mb-2 mb-sm-0">
       Showing {{ $transactions->firstItem() }} to {{ $transactions->lastItem() }} of {{ $transactions->total() }} payments
     </div>
-    <div>
-      {{ $transactions->links() }}
+    <div class="pagination-container">
+      {{ $transactions->links('pagination::bootstrap-5') }}
     </div>
   </div>
   @endif
 </div>
 
 @endsection
-
