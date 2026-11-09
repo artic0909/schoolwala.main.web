@@ -155,7 +155,7 @@
 
         <!-- Students -->
         <li class="menu-header small text-uppercase"><span class="menu-header-text">Students</span></li>
-        <li class="menu-item {{ request()->routeIs('admin.admin-students','admin.admin-tuition-fees','admin.admin-fees-report') ? 'open active' : '' }}">
+        <li class="menu-item {{ request()->routeIs('admin.admin-students','admin.admin-tuition-fees','admin.admin-fees-report','admin.admin-payments') ? 'open active' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icons bx bx-detail"></i>
                 <div>Students</div>
@@ -174,6 +174,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.admin-fees-report') ? 'active' : '' }}">
                     <a href="{{ route('admin.admin-fees-report') }}" class="menu-link">
                         <div>Fees Report</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.admin-payments') ? 'active' : '' }}">
+                    <a href="{{ route('admin.admin-payments') }}" class="menu-link">
+                        <div>All Payments</div>
                     </a>
                 </li>
             </ul>

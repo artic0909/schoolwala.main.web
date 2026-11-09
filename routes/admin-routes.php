@@ -151,6 +151,10 @@ Route::prefix('admin')->group(function () {
         Route::post('/admin/fees/accept/{id}', [AdminController::class, 'acceptFees'])->name('admin.accept-fees');
         Route::post('/admin/fees/reject/{id}', [AdminController::class, 'rejectFees'])->name('admin.reject-fees');
         Route::get('/admin/fees-report/export', [AdminController::class, 'exportFeesReport'])->name('admin.export-fees-report');
+
+        Route::get('/admin-payments', [AdminController::class, 'adminPaymentsView'])->name('admin.admin-payments');
+        Route::get('/admin/payments', fn() => redirect()->route('admin.admin-payments'));
+        Route::get('/admin-payments/export', [AdminController::class, 'exportPayments'])->name('admin.export-payments');
         // Students Related Route End ==========================================================================================================================>
 
 

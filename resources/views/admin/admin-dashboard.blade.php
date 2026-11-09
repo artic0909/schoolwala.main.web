@@ -276,8 +276,8 @@
                     <h5 class="card-title mb-0"><i class="bx bx-credit-card-front text-primary me-2"></i>Recent Transactions</h5>
                     <small class="text-muted">Latest payments received on Schoolwala</small>
                 </div>
-                <a href="{{ route('admin.admin-fees-report') }}" class="btn btn-sm btn-outline-primary">
-                    View All Reports <i class="bx bx-right-arrow-alt"></i>
+                <a href="{{ route('admin.admin-payments') }}" class="btn btn-sm btn-outline-primary">
+                    View All Payments <i class="bx bx-right-arrow-alt"></i>
                 </a>
             </div>
             <div class="table-responsive text-nowrap">

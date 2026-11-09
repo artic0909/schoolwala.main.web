@@ -33,6 +33,7 @@ use App\Models\ExecutivePartner;
 use App\Models\GroundPartner;
 use App\Models\GpReferral;
 use App\Exports\ReferralsExport;
+use App\Exports\PaymentsExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -1949,12 +1950,26 @@ class AdminController extends Controller
     // In acceptFees method
     public function acceptFees($id)
     {
-        $subscriber = \App\Models\Subscribers::findOrFail($id);
+        $subscriber = \App\Models\Subscribers::with('fees')->findOrFail($id);
 
         $subscriber->update([
             'status' => 'active',
             'expiry_date' => now()->addMonth()
         ]);
+
+        // Record offline payment transaction if not already present
+        Transaction::firstOrCreate(
+            [
+                'razorpay_payment_id' => 'OFFLINE-SUB-' . $subscriber->id,
+            ],
+            [
+                'student_id' => $subscriber->student_id,
+                'class_id' => $subscriber->class_id,
+                'amount' => $subscriber->fees->amount ?? 0,
+                'payment_method' => 'manual_receipt',
+                'status' => 'success',
+            ]
+        );
 
         // Send acceptance email
         Mail::to($subscriber->student->email)->send(new SubscriptionActivateInactiveMail([
@@ -2045,6 +2060,155 @@ class AdminController extends Controller
                 $subscriber->expiry_date ? date('d-m-Y', strtotime($subscriber->expiry_date)) : 'N/A',
                 ucfirst($subscriber->status)
             ]);
+        }
+
+        fclose($output);
+        exit;
+    }
+
+    public function adminPaymentsView(Request $request)
+    {
+        $classes = Classes::orderBy('name', 'asc')->get();
+
+        // Get filter inputs
+        $search = $request->input('search');
+        $classId = $request->input('class_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+        $paymentMethod = $request->input('payment_method');
+
+        // Build base query
+        $query = Transaction::with(['student.groundPartner', 'student.subscribers', 'class'])
+            ->latest('created_at');
+
+        // Apply search keyword filter
+        if ($request->filled('search')) {
+            $searchTrimmed = trim($search);
+            $query->where(function ($q) use ($searchTrimmed) {
+                $q->where('razorpay_payment_id', 'like', "%{$searchTrimmed}%")
+                  ->orWhere('razorpay_order_id', 'like', "%{$searchTrimmed}%")
+                  ->orWhere('payment_method', 'like', "%{$searchTrimmed}%")
+                  ->orWhereHas('student', function ($sq) use ($searchTrimmed) {
+                      $sq->where('student_name', 'like', "%{$searchTrimmed}%")
+                         ->orWhere('student_id', 'like', "%{$searchTrimmed}%")
+                         ->orWhere('email', 'like', "%{$searchTrimmed}%")
+                         ->orWhere('mobile', 'like', "%{$searchTrimmed}%");
+                  })
+                  ->orWhereHas('class', function ($cq) use ($searchTrimmed) {
+                      $cq->where('name', 'like', "%{$searchTrimmed}%");
+                  });
+            });
+        }
+
+        // Apply class filter
+        if ($request->filled('class_id')) {
+            $query->where('class_id', $classId);
+        }
+
+        // Apply date range filters
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($fromDate)->startOfDay(),
+                Carbon::parse($toDate)->endOfDay(),
+            ]);
+        } elseif ($request->filled('from_date')) {
+            $query->where('created_at', '>=', Carbon::parse($fromDate)->startOfDay());
+        } elseif ($request->filled('to_date')) {
+            $query->where('created_at', '<=', Carbon::parse($toDate)->endOfDay());
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $query->where('status', $status);
+        }
+
+        // Apply payment method filter
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $paymentMethod);
+        }
+
+        // Metrics calculations matching current query / overall
+        $totalPaymentsCount = (clone $query)->count();
+        $totalAmountCollected = (float) (clone $query)->where('status', 'success')->sum('amount');
+        $successfulPaymentsCount = (clone $query)->where('status', 'success')->count();
+        $todayCollection = (float) Transaction::where('status', 'success')
+            ->whereDate('created_at', Carbon::today())
+            ->sum('amount');
+
+        // Paginate results preserving filters in pagination links
+        $transactions = $query->paginate(15)->withQueryString();
+
+        // Get unique payment methods for dropdown
+        $paymentMethods = Transaction::whereNotNull('payment_method')
+            ->where('payment_method', '!=', '')
+            ->distinct()
+            ->pluck('payment_method');
+
+        return view('admin.admin-payments', compact(
+            'classes',
+            'transactions',
+            'totalPaymentsCount',
+            'totalAmountCollected',
+            'successfulPaymentsCount',
+            'todayCollection',
+            'paymentMethods',
+            'search',
+            'classId',
+            'fromDate',
+            'toDate',
+            'status',
+            'paymentMethod'
+        ));
+    }
+
+    public function exportPayments(Request $request)
+    {
+        $search = $request->input('search');
+        $classId = $request->input('class_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+        $paymentMethod = $request->input('payment_method');
+        $format = strtolower($request->input('format', 'xlsx'));
+
+        $filename = 'payments_report_' . date('Y_m_d_His');
+
+        if ($format === 'csv') {
+            try {
+                return Excel::download(
+                    new PaymentsExport($search, $classId, $fromDate, $toDate, $status, $paymentMethod),
+                    $filename . '.csv',
+                    \Maatwebsite\Excel\Excel::CSV
+                );
+            } catch (\Throwable $e) {
+                return $this->streamPaymentsCsv($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $filename);
+            }
+        }
+
+        try {
+            return Excel::download(
+                new PaymentsExport($search, $classId, $fromDate, $toDate, $status, $paymentMethod),
+                $filename . '.xlsx'
+            );
+        } catch (\Throwable $e) {
+            return $this->streamPaymentsCsv($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $filename);
+        }
+    }
+
+    private function streamPaymentsCsv($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $filename)
+    {
+        $export = new PaymentsExport($search, $classId, $fromDate, $toDate, $status, $paymentMethod);
+        $transactions = $export->query()->get();
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
+
+        $output = fopen('php://output', 'w');
+        fputcsv($output, $export->headings());
+
+        foreach ($transactions as $tx) {
+            fputcsv($output, $export->map($tx));
         }
 
         fclose($output);
