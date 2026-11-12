@@ -57,20 +57,6 @@
     vertical-align: middle;
     font-size: 0.88rem;
   }
-  .sticky-action-col {
-    position: sticky;
-    right: 0;
-    background-color: #ffffff;
-    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
-    z-index: 2;
-  }
-  thead th.sticky-action-col {
-    background-color: #f5f5f9 !important;
-    z-index: 3;
-  }
-  tbody tr:hover .sticky-action-col {
-    background-color: #f8f9fa !important;
-  }
   /* Clean Bootstrap 5 pagination */
   .pagination-container .pagination {
     margin: 0;
@@ -194,13 +180,11 @@
                 <tr>
                   <th style="width: 45px;" class="text-center">SL</th>
                   <th style="width: 130px;">Student ID</th>
-                  <th style="min-width: 150px;">Student Name</th>
+                  <th style="min-width: 200px;">Student Details</th>
                   <th style="width: 90px;" class="text-center">Class</th>
-                  <th style="width: 70px;" class="text-center">Age</th>
-                  <th style="min-width: 130px;">Parent's Name</th>
                   <th style="min-width: 170px;">Email / Mobile</th>
-                  <th style="width: 120px;" class="text-center">Payment Status</th>
-                  <th style="width: 160px;" class="text-center sticky-action-col">Actions</th>
+                  <th style="width: 130px;" class="text-center">Payment Status</th>
+                  <th style="width: 160px;" class="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody class="table-border-bottom-0">
@@ -229,22 +213,18 @@
                         </span>
                       </div>
                       <div>
-                        <div class="fw-bold text-nowrap">{{ $student->student_name }}</div>
-                        <small class="text-muted">Type: {{ ucfirst($student->type) }}</small>
+                        <div class="fw-bold text-dark text-nowrap">{{ $student->student_name }}</div>
+                        <div class="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                          <span><i class="bx bx-user me-1"></i>Parent: {{ $student->parent_name ?? 'N/A' }}</span>
+                          <span><i class="bx bx-calendar me-1"></i>Age: {{ $student->age }} yrs</span>
+                          <span class="badge bg-label-{{ $student->type === 'waiver' ? 'info' : 'secondary' }} py-0 px-1">{{ ucfirst($student->type) }}</span>
+                        </div>
                       </div>
                     </div>
                   </td>
 
                   <td class="text-center">
                     <span class="badge bg-label-warning text-nowrap">{{ $student->classes->name ?? '-' }}</span>
-                  </td>
-
-                  <td class="text-center">
-                    <span class="badge bg-label-primary text-nowrap">{{ $student->age }} yrs</span>
-                  </td>
-
-                  <td>
-                    <span class="text-nowrap">{{ $student->parent_name }}</span>
                   </td>
 
                   <td>
@@ -264,18 +244,18 @@
                       $payStatus = $student->payment_status;
                     @endphp
                     @if($payStatus === 'Active')
-                      <span class="badge bg-success text-nowrap">Active</span>
+                      <span class="badge bg-success text-nowrap px-3 py-2">Active</span>
                     @elseif($payStatus === 'Expired')
-                      <span class="badge bg-danger text-nowrap">Expired</span>
+                      <span class="badge bg-danger text-nowrap px-3 py-2">Expired</span>
                     @elseif($payStatus === 'Waiver')
-                      <span class="badge bg-info text-nowrap">Waiver</span>
+                      <span class="badge bg-info text-nowrap px-3 py-2">Waiver</span>
                     @else
-                      <span class="badge bg-warning text-nowrap">Not Subscribed</span>
+                      <span class="badge bg-warning text-nowrap px-3 py-2">Not Subscribed</span>
                     @endif
                   </td>
 
                   <!-- Actions (Single Line, Just Icons, Waiver Text Only) -->
-                  <td class="text-center sticky-action-col">
+                  <td class="text-center">
                     <div class="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
                       <!-- View Payments (Icon Only) -->
                       <a href="{{ route('admin.admin-student.payments', $student->id) }}"
@@ -332,7 +312,7 @@
                 </tr>
                 @empty
                 <tr>
-                  <td colspan="9" class="text-center py-4">
+                  <td colspan="7" class="text-center py-4">
                     <div class="text-muted">
                       <i class="bx bx-user-x fs-1 d-block mb-1"></i>
                       No students found matching your criteria.

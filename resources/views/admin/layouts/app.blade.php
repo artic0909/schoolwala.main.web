@@ -34,6 +34,67 @@
     <script src="{{ asset('./admin/assets/js/config.js') }}"></script>
 
     <style>
+        /* Global Deep Green Theme Overrides for whole Admin Side */
+        :root {
+            --bs-success: #198754 !important;
+            --bs-success-rgb: 25, 135, 84 !important;
+        }
+
+        .btn-success {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0.125rem 0.25rem 0 rgba(25, 135, 84, 0.35) !important;
+        }
+
+        .btn-success:hover,
+        .btn-success:focus,
+        .btn-success:active,
+        .btn-success.active,
+        .show > .btn-success.dropdown-toggle {
+            background-color: #146c43 !important;
+            border-color: #13653f !important;
+            color: #ffffff !important;
+            box-shadow: none !important;
+        }
+
+        .btn-outline-success {
+            color: #198754 !important;
+            border-color: #198754 !important;
+        }
+
+        .btn-outline-success:hover,
+        .btn-outline-success:focus,
+        .btn-outline-success:active,
+        .btn-outline-success.active {
+            background-color: #198754 !important;
+            border-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .badge.bg-success {
+            background-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .badge.bg-label-success {
+            background-color: #e8f5e9 !important;
+            color: #198754 !important;
+        }
+
+        .text-success {
+            color: #198754 !important;
+        }
+
+        .card.bg-success {
+            background-color: #198754 !important;
+        }
+
         .custom-success-popup,
         .custom-error-popup {
             position: fixed;
