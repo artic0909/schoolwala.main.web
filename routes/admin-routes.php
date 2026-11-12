@@ -155,6 +155,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/admin-payments', [AdminController::class, 'adminPaymentsView'])->name('admin.admin-payments');
         Route::get('/admin/payments', fn() => redirect()->route('admin.admin-payments'));
         Route::get('/admin-payments/export', [AdminController::class, 'exportPayments'])->name('admin.export-payments');
+
+        Route::get('/admin-students/{id}/payments', [AdminController::class, 'adminStudentPaymentsView'])->name('admin.admin-student.payments');
+        Route::get('/admin-students/{id}/payments/export', [AdminController::class, 'exportStudentPayments'])->name('admin.admin-student.payments.export');
         // Students Related Route End ==========================================================================================================================>
 
 

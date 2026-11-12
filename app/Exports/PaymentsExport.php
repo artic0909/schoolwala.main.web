@@ -19,9 +19,10 @@ class PaymentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
     protected $toDate;
     protected $status;
     protected $paymentMethod;
+    protected $studentId;
     private $rowNumber = 0;
 
-    public function __construct($search = null, $classId = null, $fromDate = null, $toDate = null, $status = null, $paymentMethod = null)
+    public function __construct($search = null, $classId = null, $fromDate = null, $toDate = null, $status = null, $paymentMethod = null, $studentId = null)
     {
         $this->search = $search;
         $this->classId = $classId;
@@ -29,11 +30,16 @@ class PaymentsExport implements FromQuery, WithHeadings, WithMapping, ShouldAuto
         $this->toDate = $toDate;
         $this->status = $status;
         $this->paymentMethod = $paymentMethod;
+        $this->studentId = $studentId;
     }
 
     public function query()
     {
         $query = Transaction::with(['student.groundPartner', 'class'])->latest('created_at');
+
+        if (!empty($this->studentId)) {
+            $query->where('student_id', $this->studentId);
+        }
 
         if (!empty($this->search)) {
             $search = trim($this->search);

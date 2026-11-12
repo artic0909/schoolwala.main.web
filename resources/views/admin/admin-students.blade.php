@@ -141,6 +141,12 @@
 
                   <td>
                     <div class="row g-2">
+                      <a href="{{ route('admin.admin-student.payments', $student->id) }}"
+                        class="btn btn-primary"
+                        title="View Student Payments">
+                        <i class="bx bx-show me-1"></i> View
+                      </a>
+
                       @if($student->type == 'regular')
                       <button
                         type="button"

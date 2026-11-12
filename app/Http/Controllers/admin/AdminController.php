@@ -2196,9 +2196,9 @@ class AdminController extends Controller
         }
     }
 
-    private function streamPaymentsCsv($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $filename)
+    private function streamPaymentsCsv($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $filename, $studentId = null)
     {
-        $export = new PaymentsExport($search, $classId, $fromDate, $toDate, $status, $paymentMethod);
+        $export = new PaymentsExport($search, $classId, $fromDate, $toDate, $status, $paymentMethod, $studentId);
         $transactions = $export->query()->get();
 
         header('Content-Type: text/csv');
@@ -2213,6 +2213,101 @@ class AdminController extends Controller
 
         fclose($output);
         exit;
+    }
+
+    public function adminStudentPaymentsView($id, Request $request)
+    {
+        $student = Student::with(['classes', 'groundPartner', 'subscribers.fees'])->findOrFail($id);
+
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+        $search = $request->input('search');
+
+        $query = Transaction::where('student_id', $student->id)->with('class')->latest('created_at');
+
+        if ($request->filled('search')) {
+            $searchTrimmed = trim($search);
+            $query->where(function ($q) use ($searchTrimmed) {
+                $q->where('razorpay_payment_id', 'like', "%{$searchTrimmed}%")
+                  ->orWhere('razorpay_order_id', 'like', "%{$searchTrimmed}%")
+                  ->orWhere('payment_method', 'like', "%{$searchTrimmed}%");
+            });
+        }
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($fromDate)->startOfDay(),
+                Carbon::parse($toDate)->endOfDay(),
+            ]);
+        } elseif ($request->filled('from_date')) {
+            $query->where('created_at', '>=', Carbon::parse($fromDate)->startOfDay());
+        } elseif ($request->filled('to_date')) {
+            $query->where('created_at', '<=', Carbon::parse($toDate)->endOfDay());
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $status);
+        }
+
+        // Summary stats for this specific student
+        $totalPaid = (float) Transaction::where('student_id', $student->id)->where('status', 'success')->sum('amount');
+        $totalTransactionsCount = Transaction::where('student_id', $student->id)->count();
+        $successfulPaymentsCount = Transaction::where('student_id', $student->id)->where('status', 'success')->count();
+        $pendingPaymentsCount = Transaction::where('student_id', $student->id)->where('status', 'pending')->count();
+
+        $transactions = $query->paginate(15)->withQueryString();
+
+        $subscriber = $student->subscribers->firstWhere('class_id', $student->class_id) ?? $student->subscribers->first();
+
+        return view('admin.admin-student-payments', compact(
+            'student',
+            'transactions',
+            'totalPaid',
+            'totalTransactionsCount',
+            'successfulPaymentsCount',
+            'pendingPaymentsCount',
+            'subscriber',
+            'fromDate',
+            'toDate',
+            'status',
+            'search'
+        ));
+    }
+
+    public function exportStudentPayments($id, Request $request)
+    {
+        $student = Student::findOrFail($id);
+
+        $search = $request->input('search');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $status = $request->input('status');
+        $format = strtolower($request->input('format', 'xlsx'));
+
+        $safeStudentId = preg_replace('/[^A-Za-z0-9\-]/', '_', $student->student_id ?? $student->id);
+        $filename = 'student_payments_' . $safeStudentId . '_' . date('Y_m_d_His');
+
+        if ($format === 'csv') {
+            try {
+                return Excel::download(
+                    new PaymentsExport($search, null, $fromDate, $toDate, $status, null, $student->id),
+                    $filename . '.csv',
+                    \Maatwebsite\Excel\Excel::CSV
+                );
+            } catch (\Throwable $e) {
+                return $this->streamPaymentsCsv($search, null, $fromDate, $toDate, $status, null, $filename, $student->id);
+            }
+        }
+
+        try {
+            return Excel::download(
+                new PaymentsExport($search, null, $fromDate, $toDate, $status, null, $student->id),
+                $filename . '.xlsx'
+            );
+        } catch (\Throwable $e) {
+            return $this->streamPaymentsCsv($search, null, $fromDate, $toDate, $status, null, $filename, $student->id);
+        }
     }
     // Students Related End ==========================================================================================================================>
 
