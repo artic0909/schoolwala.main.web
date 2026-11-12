@@ -93,4 +93,43 @@ class Student extends Authenticatable
     {
         return $this->hasMany(GpReferral::class, 'student_id');
     }
+
+    public function getPaymentStatusAttribute(): string
+    {
+        if ($this->type === 'waiver') {
+            return 'Waiver';
+        }
+
+        // Check subscribers first
+        $subscriber = $this->subscribers ? (
+            $this->subscribers->firstWhere('class_id', $this->class_id)
+            ?? $this->subscribers->sortByDesc('id')->first()
+        ) : null;
+
+        if ($subscriber) {
+            if ($subscriber->status === 'active' && $subscriber->expiry_date) {
+                if (\Carbon\Carbon::parse($subscriber->expiry_date)->endOfDay()->isPast()) {
+                    return 'Expired';
+                }
+                return 'Active';
+            } elseif ($subscriber->status === 'inactive') {
+                return 'Expired';
+            } elseif ($subscriber->status === 'pending') {
+                return 'Pending';
+            }
+        }
+
+        // Check transactions if any
+        if ($this->transactions) {
+            $lastTx = $this->transactions->where('status', 'success')->sortByDesc('created_at')->first();
+            if ($lastTx) {
+                if ($lastTx->created_at && $lastTx->created_at->addDays(30)->isPast()) {
+                    return 'Expired';
+                }
+                return 'Active';
+            }
+        }
+
+        return 'Not Subscribed';
+    }
 }

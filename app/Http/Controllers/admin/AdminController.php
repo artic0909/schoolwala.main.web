@@ -1610,27 +1610,66 @@ class AdminController extends Controller
     // Students Related Start =========================================================================================================================>
     public function adminStudentsView(Request $request)
     {
-
         $classes = Classes::all();
         $classId = $request->input('class_id');
         $search = $request->input('search');
-        $query = Student::with(['classes', 'groundPartner'])->orderBy('id', 'desc');
+        $paymentStatus = $request->input('payment_status');
+        $perPage = (int) $request->input('per_page', 10);
+
+        if (!in_array($perPage, [5, 8, 10, 15, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        $query = Student::with(['classes', 'groundPartner', 'subscribers', 'transactions'])->orderBy('id', 'desc');
 
         if (!empty($classId)) {
             $query->where('class_id', $classId);
         }
 
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('student_name', 'like', '%' . $search . '%')
-                  ->orWhere('mobile', 'like', '%' . $search . '%');
+            $searchTrimmed = trim($search);
+            $query->where(function ($q) use ($searchTrimmed) {
+                $q->where('student_name', 'like', '%' . $searchTrimmed . '%')
+                  ->orWhere('student_id', 'like', '%' . $searchTrimmed . '%')
+                  ->orWhere('email', 'like', '%' . $searchTrimmed . '%')
+                  ->orWhere('mobile', 'like', '%' . $searchTrimmed . '%');
             });
         }
 
-        $students = $query->paginate(8);
+        if (!empty($paymentStatus)) {
+            if ($paymentStatus === 'waiver') {
+                $query->where('type', 'waiver');
+            } elseif ($paymentStatus === 'active') {
+                $query->where('type', '!=', 'waiver')
+                    ->whereHas('subscribers', function ($sq) {
+                        $sq->where('status', 'active')->where(function ($eq) {
+                            $eq->whereNull('expiry_date')->orWhereDate('expiry_date', '>=', now()->toDateString());
+                        });
+                    });
+            } elseif ($paymentStatus === 'expired') {
+                $query->where('type', '!=', 'waiver')
+                    ->where(function ($q) {
+                        $q->whereHas('subscribers', function ($sq) {
+                            $sq->where('status', 'inactive')
+                               ->orWhereDate('expiry_date', '<', now()->toDateString());
+                        })
+                        ->whereDoesntHave('subscribers', function ($sq) {
+                            $sq->where('status', 'active')->whereDate('expiry_date', '>=', now()->toDateString());
+                        });
+                    });
+            } elseif ($paymentStatus === 'not_subscribed') {
+                $query->where('type', '!=', 'waiver')
+                    ->whereDoesntHave('subscribers')
+                    ->whereDoesntHave('transactions', function ($tq) {
+                        $tq->where('status', 'success');
+                    });
+            }
+        }
+
+        $students = $query->paginate($perPage);
         $students->appends($request->all());
 
-        return view('admin.admin-students', compact('students', 'classes', 'classId', 'search'));
+        return view('admin.admin-students', compact('students', 'classes', 'classId', 'search', 'paymentStatus', 'perPage'));
     }
 
     public function adminAddStudent(Request $request)
