@@ -171,11 +171,11 @@
                         <div>Tuition Fees</div>
                     </a>
                 </li>
-                <li class="menu-item {{ request()->routeIs('admin.admin-fees-report') ? 'active' : '' }}">
+                <!-- <li class="menu-item {{ request()->routeIs('admin.admin-fees-report') ? 'active' : '' }}">
                     <a href="{{ route('admin.admin-fees-report') }}" class="menu-link">
                         <div>Fees Report</div>
                     </a>
-                </li>
+                </li> -->
                 <li class="menu-item {{ request()->routeIs('admin.admin-payments') ? 'active' : '' }}">
                     <a href="{{ route('admin.admin-payments') }}" class="menu-link">
                         <div>All Payments</div>
